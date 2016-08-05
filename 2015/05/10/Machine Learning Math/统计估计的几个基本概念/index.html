@@ -1,0 +1,462 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>统计估计的几个基本概念 | Jason&#39;s Techblog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Jason Ding">
+    
+    <meta name="description" content="参数估计参数估计（parameter estimation）是根据从总体中抽取的样本估计总体分布中包含的未知参数的方法。人们常常需要根据手中的数据，分析或推断数据反映的本质规律。即根据样本数据如何选择统计量去推断总体的分布或数字特征等。统计推断是数理统计研究的核心问题。所谓统计推断是指根据样本对总体">
+    
+    
+    
+    
+    <link rel="alternate" href="/atom.xml" title="Jason&#39;s Techblog" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/author.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/author.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F3cc71cd5738b99a1db174951e194ba55' type='text/javascript'%3E%3C/script%3E"));
+
+
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F1dcf1fa58b0eca1ac5bd089ee6a6e78c' type='text/javascript'%3E%3C/script%3E"));
+
+
+</script>
+
+
+    <!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Jason&#39;s Techblog" title="Jason&#39;s Techblog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Jason&#39;s Techblog">Jason&#39;s Techblog</a></h1>
+				<h2 class="blog-motto">Technician =&gt; Scientist =&gt; Philosopher =&gt; Artists</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="http://jasonding.top">Main</a></li>
+					
+					<li>
+					
+						<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" class="st-default-search-input" maxlength="20" placeholder="Search" />
+						</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody">
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/05/10/Machine Learning Math/统计估计的几个基本概念/" title="统计估计的几个基本概念" itemprop="url">统计估计的几个基本概念</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://blog.jasonding.top" title="Jason Ding">Jason Ding</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2015-05-10T12:51:21.000Z" itemprop="datePublished">2015-05-10</time>
+    Updated:<time datetime="2016-03-16T06:24:42.000Z" itemprop="dateModified">2016-03-16</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#参数估计"><span class="toc-number">1.</span> <span class="toc-text">参数估计</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#点估计"><span class="toc-number">1.1.</span> <span class="toc-text">点估计</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#区间估计"><span class="toc-number">2.</span> <span class="toc-text">区间估计</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#贝叶斯学派和频率学派的理论争议"><span class="toc-number">3.</span> <span class="toc-text">贝叶斯学派和频率学派的理论争议</span></a></li></ol>
+		</div>
+		
+		<h2 id="参数估计"><a href="#参数估计" class="headerlink" title="参数估计"></a>参数估计</h2><p>参数估计（parameter estimation）是根据从总体中抽取的样本估计总体分布中包含的未知参数的方法。人们常常需要根据手中的数据，分析或推断数据反映的本质规律。即根据样本数据如何选择统计量去推断总体的分布或数字特征等。统计推断是数理统计研究的核心问题。所谓统计推断是指根据样本对总体分布或分布的数字特征等作出合理的推断。它是统计推断的一种基本形式，是数理统计学的一个重要分支，分为点估计和区间估计两部分。</p>
+<p>当估计值的数学期望等于参数真值时，参数估计就是无偏估计。当估计值是数据的线性函数时，参数估计就是线性估计。当估计值的均方差最小时，参数估计为一致最小均方误差估计。若线性估计又是一致最小均方误差估计，则称为最优线性无偏估计。如果无偏估计值的方差达到克拉默-尧不等式的下界,则称为有效估计值。若 ，则称 为一致性估计值。在一定条件下，最小二乘估计是最优线性无偏估计，它的估计值是有效估计，而且是一致性估计。极大似然估计在一定条件下渐近有效，而且是一致的。</p>
+<h3 id="点估计"><a href="#点估计" class="headerlink" title="点估计"></a>点估计</h3><p><strong>点估计是依据样本估计总体分布中所含的未知参数或未知参数的函数。</strong>通常它们是总体的某个特征值，如数学期望、方差和相关系数等。点估计问题就是要构造一个只依赖于样本的量，作为未知参数或未知参数的函数的估计值。<br>构造点估计常用的方法是：</p>
+<blockquote>
+<p>①矩估计法。用样本矩估计总体矩，如用样本均值估计总体均值。<br>②最大似然估计法。于1912年由英国统计学家R.A.费希尔提出，利用样本分布密度构造似然函数来求出参数的最大似然估计。<br>③最小二乘法。主要用于线性统计模型中的参数估计问题。<br>④贝叶斯估计法。基于贝叶斯学派的观点而提出的估计法。</p>
+</blockquote>
+<p>可以用来估计未知参数的估计量很多，于是产生了怎样选择一个优良估计量的问题。首先必须对优良性定出准则，这种准则是不唯一的，可以根据实际问题和理论研究的方便进行选择。优良性准则有两大类：一类是小样本准则，即在样本大小固定时的优良性准则；另一类是大样本准则，即在样本大小趋于无穷时的优良性准则。最重要的小样本优良性准则是无偏性及与此相关的一致最小方差无偏估计，其次有容许性准则，最小化最大准则，最优同变准则等。大样本优良性准则有相合性、最优渐近正态估计和渐近有效估计等。</p>
+<h2 id="区间估计"><a href="#区间估计" class="headerlink" title="区间估计"></a>区间估计</h2><p>区间估计是依据抽取的样本，根据一定的正确度与精确度的要求，构造出适当的区间，作为总体分布的未知参数或参数的函数的真值所在范围的估计。例如人们常说的有百分之多少的把握保证某值在某个范围内，即是区间估计的最简单的应用。1934年统计学家J.奈曼创立了一种严格的区间估计理论。求置信区间常用的三种方法：①利用已知的抽样分布。②利用区间估计与假设检验的联系。③利用大样本理论。</p>
+<h2 id="贝叶斯学派和频率学派的理论争议"><a href="#贝叶斯学派和频率学派的理论争议" class="headerlink" title="贝叶斯学派和频率学派的理论争议"></a>贝叶斯学派和频率学派的理论争议</h2><p>贝叶斯学派与频率学派争论的焦点在于<strong>先验分布的问题</strong>。<br>所谓频率学派是指坚持概率的频率解释的统计学家形成的学派。贝叶斯学派认为先验分布可以是主观的，它没有也不需要有频率解释。而频率学派则认为，只有在先验分布有一种不依赖主观的意义，且能根据适当的理论或以往的经验决定时，才允许在统计推断中使用先验分布，否则就会丧失客观性。另一个批评是：贝叶斯方法对任何统计问题都给以一种程式化的解法，这导致人们对问题不去作深入分析，而只是机械地套用公式。</p>
+<blockquote>
+<ol>
+<li>贝叶斯学派则认为：从理论上说，可以在一定条件下证明，任何合理的优良性准则必然是相应于一定先验分布的贝叶斯准则，因此每个统计学家自觉或不自觉地都是“贝叶斯主义者”。他们认为，频率学派表面上不使用先验分布，但所得到的解也还是某种先验分布下的贝叶斯解，而这一潜在的先验分布，可能比经过慎重选定的主观先验分布更不合理。</li>
+<li>贝叶斯学派还认为，贝叶斯方法对统计推断和决策问题给出程式化的解是优点而非缺点，因为它免除了寻求抽样分布，这个困难的数学问题。而且这种程式化的解法并不是机械地套公式，它要求人们对先验分布、损失函数等的选择作大量的工作。</li>
+<li>贝叶斯学派认为，用贝叶斯方法求出的解不需要频率解释，因而即使在一次使用下也有意义。反之，根据概率的频率解释而提供的解，则只有在大量次数使用之下才有意义，而这常常不符合应用的实际。这</li>
+</ol>
+</blockquote>
+<p>两个学派的争论是战后数理统计学发展中的一个特色。这个争论还远没有解决，它对今后数理统计学的发展还将产生影响。</p>
+<p><strong>转载请注明作者Jason Ding及其出处</strong><br><a href="http://jasonding1354.gitcafe.io/" target="_blank" rel="external">GitCafe博客主页(http://jasonding1354.gitcafe.io/)</a><br><a href="http://jasonding1354.github.io/" target="_blank" rel="external">Github博客主页(http://jasonding1354.github.io/)</a><br><a href="http://blog.csdn.net/jasonding1354" target="_blank" rel="external">CSDN博客(http://blog.csdn.net/jasonding1354)</a><br><a href="http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles" target="_blank" rel="external">简书主页(http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles)</a><br><strong>百度搜索jasonding1354进入我的博客主页</strong></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Math/">Math</a>
+  </div>
+
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Math/">Math</a>
+</div>
+
+
+
+<div class="article-share" id="share">
+
+  
+<div class="jiathis_style">
+    <span class="jiathis_txt">分享到：</span>
+    <a class="jiathis_button_tsina">新浪微博</a>
+    <a class="jiathis_button_weixin">微信</a>
+    <a class="jiathis_button_twitter">Twitter</a>
+    <a class="jiathis_button_evernote">EverNote</a>
+    <a href="http://www.jiathis.com/share?uid=1501277" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript" >
+    var jiathis_config={
+    data_track_clickback:true,
+    sm:"copy,renren,cqq",
+    pic:"",
+    summary:"",
+    
+  </script> 
+<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=
+1394018007141544" charset="utf-8"></script>      
+
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2015/05/11/Git/【Git】认识各种开源协议及其关系/" title="【Git】认识各种开源协议及其关系">
+  <strong>之后的一篇</strong><br/>
+  <span>
+  【Git】认识各种开源协议及其关系</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2015/05/10/Python/【python源码】Python总体架构/"  title="【python源码】Python总体架构">
+ <strong>之前的一篇</strong><br/> 
+ <span>【python源码】Python总体架构
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section class="comment">
+	<div class="ds-thread"></div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#参数估计"><span class="toc-number">1.</span> <span class="toc-text">参数估计</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#点估计"><span class="toc-number">1.1.</span> <span class="toc-text">点估计</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#区间估计"><span class="toc-number">2.</span> <span class="toc-text">区间估计</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#贝叶斯学派和频率学派的理论争议"><span class="toc-number">3.</span> <span class="toc-text">贝叶斯学派和频率学派的理论争议</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+<div class="maps">
+    <p class="asidetitle">访问统计</p>
+    <br>
+    <script type="text/javascript" src="//ra.revolvermaps.com/0/0/6.js?i=0leibswamim&amp;m=0&amp;s=210&amp;c=ff0000&amp;cr1=ffffff&amp;f=arial&amp;l=0" async="async"></script>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">Categories</p>
+		<ul>
+		
+			<li><a href="/categories/Algorithm-Problem/" title="Algorithm Problem">Algorithm Problem<sup>1</sup></a></li>
+		
+			<li><a href="/categories/C/" title="C++">C++<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Classic-Algorithm/" title="Classic Algorithm">Classic Algorithm<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Cluster-Analysis/" title="Cluster Analysis">Cluster Analysis<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Design-Pattern/" title="Design Pattern">Design Pattern<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Developer-Kits/" title="Developer Kits">Developer Kits<sup>5</sup></a></li>
+		
+			<li><a href="/categories/Energy-Big-Data/" title="Energy Big Data">Energy Big Data<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Feature-Engineering/" title="Feature Engineering">Feature Engineering<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Functional/" title="Functional">Functional<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Functional-Programming/" title="Functional Programming">Functional Programming<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Git/" title="Git">Git<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Jobs/" title="Jobs">Jobs<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>4</sup></a></li>
+		
+			<li><a href="/categories/ML-Experiments/" title="ML Experiments">ML Experiments<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Machine-Learning/" title="Machine Learning">Machine Learning<sup>50</sup></a></li>
+		
+			<li><a href="/categories/Math/" title="Math">Math<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Programming/" title="Programming">Programming<sup>11</sup></a></li>
+		
+			<li><a href="/categories/Python/" title="Python">Python<sup>10</sup></a></li>
+		
+			<li><a href="/categories/Scala/" title="Scala">Scala<sup>27</sup></a></li>
+		
+			<li><a href="/categories/Scala-ML/" title="Scala-ML">Scala-ML<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Similarity-Search/" title="Similarity Search">Similarity Search<sup>4</sup></a></li>
+		
+			<li><a href="/categories/Small-Problems/" title="Small Problems">Small Problems<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Spark/" title="Spark">Spark<sup>23</sup></a></li>
+		
+			<li><a href="/categories/Thoughts/" title="Thoughts">Thoughts<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">Tag Cloud</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/Actor/" style="font-size: 10px;">Actor</a> <a href="/tags/Akka/" style="font-size: 14.55px;">Akka</a> <a href="/tags/Algorithm/" style="font-size: 10px;">Algorithm</a> <a href="/tags/Approximate-Nearest-Neighbor-Search/" style="font-size: 10px;">Approximate Nearest Neighbor Search</a> <a href="/tags/Bayesian-Analysis/" style="font-size: 10.91px;">Bayesian Analysis</a> <a href="/tags/Big-Data/" style="font-size: 10px;">Big Data</a> <a href="/tags/C/" style="font-size: 12.73px;">C++</a> <a href="/tags/Classification/" style="font-size: 11.82px;">Classification</a> <a href="/tags/Cluster-Analysis/" style="font-size: 10px;">Cluster Analysis</a> <a href="/tags/Computer-Vision/" style="font-size: 14.55px;">Computer Vision</a> <a href="/tags/Eclipse/" style="font-size: 10px;">Eclipse</a> <a href="/tags/Energy-Forecasting/" style="font-size: 10px;">Energy Forecasting</a> <a href="/tags/Feature-Engineering/" style="font-size: 10.91px;">Feature Engineering</a> <a href="/tags/Functional-Programming/" style="font-size: 16.36px;">Functional Programming</a> <a href="/tags/Gaussian-Process/" style="font-size: 10px;">Gaussian Process</a> <a href="/tags/Git/" style="font-size: 10.91px;">Git</a> <a href="/tags/GraphLab/" style="font-size: 10px;">GraphLab</a> <a href="/tags/IPython/" style="font-size: 10px;">IPython</a> <a href="/tags/Internet-of-Energy/" style="font-size: 10px;">Internet of Energy</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/Kaggle/" style="font-size: 10px;">Kaggle</a> <a href="/tags/Kernel-Method/" style="font-size: 10px;">Kernel Method</a> <a href="/tags/LSH/" style="font-size: 12.73px;">LSH</a> <a href="/tags/LaTex/" style="font-size: 10px;">LaTex</a> <a href="/tags/Linux/" style="font-size: 11.82px;">Linux</a> <a href="/tags/Machine-Learning/" style="font-size: 20px;">Machine Learning</a> <a href="/tags/Math/" style="font-size: 11.82px;">Math</a> <a href="/tags/Mathematics/" style="font-size: 13.64px;">Mathematics</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MeanShift/" style="font-size: 10px;">MeanShift</a> <a href="/tags/Mint/" style="font-size: 10px;">Mint</a> <a href="/tags/OpenCV/" style="font-size: 15.45px;">OpenCV</a> <a href="/tags/Probabilistic-Programming/" style="font-size: 10px;">Probabilistic Programming</a> <a href="/tags/Probability-Distributions/" style="font-size: 10px;">Probability Distributions</a> <a href="/tags/Programming/" style="font-size: 14.55px;">Programming</a> <a href="/tags/Python/" style="font-size: 17.27px;">Python</a> <a href="/tags/Regression/" style="font-size: 11.82px;">Regression</a> <a href="/tags/Resume/" style="font-size: 10px;">Resume</a> <a href="/tags/SVM/" style="font-size: 12.73px;">SVM</a> <a href="/tags/Scala/" style="font-size: 19.09px;">Scala</a> <a href="/tags/Similarity-Search/" style="font-size: 10.91px;">Similarity Search</a> <a href="/tags/Source-code/" style="font-size: 10px;">Source code</a> <a href="/tags/Spark/" style="font-size: 18.18px;">Spark</a> <a href="/tags/Summary/" style="font-size: 10px;">Summary</a> <a href="/tags/Thoughts/" style="font-size: 10.91px;">Thoughts</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/Vim/" style="font-size: 11.82px;">Vim</a> <a href="/tags/Written-Test/" style="font-size: 10px;">Written Test</a> <a href="/tags/Zeppelin/" style="font-size: 10px;">Zeppelin</a> <a href="/tags/boost/" style="font-size: 10px;">boost</a> <a href="/tags/cpp/" style="font-size: 13.64px;">cpp</a> <a href="/tags/opencv/" style="font-size: 10.91px;">opencv</a> <a href="/tags/p-Stable-LSH/" style="font-size: 10px;">p-Stable LSH</a> <a href="/tags/scikit-learn/" style="font-size: 10px;">scikit-learn</a> <a href="/tags/sklearn/" style="font-size: 10.91px;">sklearn</a> <a href="/tags/互联网时代/" style="font-size: 10px;">互联网时代</a> <a href="/tags/位置敏感哈希/" style="font-size: 10.91px;">位置敏感哈希</a> <a href="/tags/分治/" style="font-size: 10px;">分治</a> <a href="/tags/单元测试/" style="font-size: 10px;">单元测试</a> <a href="/tags/反思/" style="font-size: 10px;">反思</a> <a href="/tags/效率/" style="font-size: 10px;">效率</a> <a href="/tags/核方法/" style="font-size: 10px;">核方法</a> <a href="/tags/算法框架/" style="font-size: 10px;">算法框架</a> <a href="/tags/设计模式/" style="font-size: 11.82px;">设计模式</a>
+    </div>
+  </div>
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle"><a href="/archives">Archives</a></p>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">February 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">November 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">29</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a><span class="archive-list-count">16</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">10</span></li></ul>
+  </div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
+</div>
+
+</aside>
+
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Jason Ding in HUST <br/>
+			I would share moments of life here! </p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/1698420390" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/jasonding1354" target="_blank" title="github"></a>
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2016 
+		
+		<a href="http://blog.jasonding.top" target="_blank" title="Jason Ding">Jason Ding</a>
+		
+		</p>
+		<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+  
+  _st('install','uYyEuxJdzzAGXTax33mt','2.0.0');
+</script>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"jasonding"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+  </body>
+</html>

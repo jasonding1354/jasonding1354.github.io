@@ -1,0 +1,466 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>【机器学习基础】理解为什么机器可以学习——Hoeffding不等式 | Jason&#39;s Techblog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Jason Ding">
+    
+    <meta name="description" content="引入在上一小节“理解为什么机器可以学习——PAC学习模型”中，我们主要讨论了假设的错误率问题和如何说一个学习器是可学习的，并给出了PAC学习理论。这一小节，我们将沿着这个方向，讨论一下，有限假设空间的样本复杂度，并用Hoeffding不等式来界定概率边界。
+假设空间的样本复杂度PAC可学习性很大程度">
+    
+    
+    
+    
+    <link rel="alternate" href="/atom.xml" title="Jason&#39;s Techblog" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/author.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/author.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F3cc71cd5738b99a1db174951e194ba55' type='text/javascript'%3E%3C/script%3E"));
+
+
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F1dcf1fa58b0eca1ac5bd089ee6a6e78c' type='text/javascript'%3E%3C/script%3E"));
+
+
+</script>
+
+
+    <!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Jason&#39;s Techblog" title="Jason&#39;s Techblog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Jason&#39;s Techblog">Jason&#39;s Techblog</a></h1>
+				<h2 class="blog-motto">Technician =&gt; Scientist =&gt; Philosopher =&gt; Artists</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="http://jasonding.top">Main</a></li>
+					
+					<li>
+					
+						<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" class="st-default-search-input" maxlength="20" placeholder="Search" />
+						</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody">
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2014/12/10/Machine Learning/【机器学习基础】理解为什么机器可以学习——Hoeffding不等式/" title="【机器学习基础】理解为什么机器可以学习——Hoeffding不等式" itemprop="url">【机器学习基础】理解为什么机器可以学习——Hoeffding不等式</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://blog.jasonding.top" title="Jason Ding">Jason Ding</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2014-12-10T11:37:23.000Z" itemprop="datePublished">2014-12-10</time>
+    Updated:<time datetime="2016-03-16T06:24:42.000Z" itemprop="dateModified">2016-03-16</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#引入"><span class="toc-number">1.</span> <span class="toc-text">引入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#假设空间的样本复杂度"><span class="toc-number">2.</span> <span class="toc-text">假设空间的样本复杂度</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Hoeffding边界"><span class="toc-number">3.</span> <span class="toc-text">Hoeffding边界</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#描述问题"><span class="toc-number">3.1.</span> <span class="toc-text">描述问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Hoeffding不等式"><span class="toc-number">3.2.</span> <span class="toc-text">Hoeffding不等式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#确认（verification）流程"><span class="toc-number">4.</span> <span class="toc-text">确认（verification）流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#有限假设空间的错误率的概率边界"><span class="toc-number">5.</span> <span class="toc-text">有限假设空间的错误率的概率边界</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Bad-Sample-and-Bad-Data"><span class="toc-number">5.1.</span> <span class="toc-text">Bad Sample and Bad Data</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Bound-of-BAD-Data"><span class="toc-number">5.2.</span> <span class="toc-text">Bound of BAD Data</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#统计学习流程"><span class="toc-number">5.3.</span> <span class="toc-text">统计学习流程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">6.</span> <span class="toc-text">小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">7.</span> <span class="toc-text">参考资料</span></a></li></ol>
+		</div>
+		
+		<h2 id="引入"><a href="#引入" class="headerlink" title="引入"></a>引入</h2><p>在上一小节<a href="http://jasonding1354.github.io/2014/12/10/Machine%20Learning/%E3%80%90%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80%E3%80%91%E7%90%86%E8%A7%A3%E4%B8%BA%E4%BB%80%E4%B9%88%E6%9C%BA%E5%99%A8%E5%8F%AF%E4%BB%A5%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94PAC%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B/" target="_blank" rel="external">“理解为什么机器可以学习——PAC学习模型”</a>中，我们主要讨论了假设的错误率问题和如何说一个学习器是可学习的，并给出了PAC学习理论。这一小节，我们将沿着这个方向，讨论一下，有限假设空间的样本复杂度，并用Hoeffding不等式来界定概率边界。</p>
+<h2 id="假设空间的样本复杂度"><a href="#假设空间的样本复杂度" class="headerlink" title="假设空间的样本复杂度"></a>假设空间的样本复杂度</h2><p>PAC可学习性很大程度上由所需的训练样本数量决定。随着问题规模的增长所带来的所需训练样本的增长称为学习问题的样本复杂度（sample complexity）。在多数实际问题中，<strong>最限制学习器成功的因素是有限的可用的训练数据。</strong><br>我们通常都喜欢能与训练数据拟合程度更高的假设，当一个学习器在可能时都输出能完美拟合训练数据的假设时，我们称该学习器是一致的（consistent）。这就要求训练错误率是0。<br>遗憾的是，如果假设空间里不总是能找到一个零错误率的假设，这时，最多能<strong>要求学习器输出的假设在训练数据上有最小的错误率。</strong><br>在更一般的情形下，我们要考虑学习器有非零训练错误率的假设时，仍能找到一个边界来限定学习器所需的样本数量。</p>
+<h2 id="Hoeffding边界"><a href="#Hoeffding边界" class="headerlink" title="Hoeffding边界"></a>Hoeffding边界</h2><h3 id="描述问题"><a href="#描述问题" class="headerlink" title="描述问题"></a>描述问题</h3><p>现在，我们来更准确的描述我们要解决的问题。<br>令D代表学习器可观察的特定的训练数据集合，而P代表整个数据集合背后满足的概率分布。令Ein(h)代表假设h的训练错误率（在机器学习基石课程中，该错误率被称为in-sample error），确切的说，Ein(h)是数据集D中被h误分类的训练数据所占比例，Ein(h)是定义在训练数据集D上的，而真实错误率Eout(h)（out-of-sample error）是定义在整个概率分布P上的。现在令g代表H中有最小训练错误率的假设。问：多少训练数据才足以保证真实错误率Eout(h)和训练错误率Ein(h)很接近，并且接近0。</p>
+<h3 id="Hoeffding不等式"><a href="#Hoeffding不等式" class="headerlink" title="Hoeffding不等式"></a>Hoeffding不等式</h3><p><img src="http://jason-images.qiniudn.com/@/ML/foundation/vc/hoeffding不等式.jpg" alt="Hoeffding Inequality"><br><strong>Hoeffding刻画的是某个事件的真实概率及其m个独立重复试验中观察到的频率之间的差异</strong>，更准确的将，它是应用于m个不同的Bernoulli试验。<br>该不等式给出了一个概率边界，它说明任意选择的假设训练错误率不能代表真实情况。</p>
+<h2 id="确认（verification）流程"><a href="#确认（verification）流程" class="headerlink" title="确认（verification）流程"></a>确认（verification）流程</h2><p><img src="http://jason-images.qiniudn.com/@/ML/foundation/vc/verification_flow.jpg" alt=""><br>我们发现满足上面给的边界不等式的h可不可以说它是一个好的学习器呢？当然不能，上面的不等式只能说明h的训练错误率和真实错误率很接近，但却不一定是最小的，即h不一定是最佳的假设。所以，这只是对一个假设做<em>确认</em>的过程。<br>这里因为只有一个hypothesis在手上，所以我们还不能做选择，但是我们可以给它一些verifying examples来让它做确认，看看h的表现如何，正如上图流程所示。</p>
+<h2 id="有限假设空间的错误率的概率边界"><a href="#有限假设空间的错误率的概率边界" class="headerlink" title="有限假设空间的错误率的概率边界"></a>有限假设空间的错误率的概率边界</h2><p>Hoeffding不等式告诉我们什么呢？较好拟合训练数据的假设与该假设针对整个数据集合的预测，这两者的错误率差别很大的那种情况发生的概率是很小的。<br>那么现在的问题是什么呢？如果在多个假设中，其中一个假设针对训练数据的输出都是正确的，那要不要选这个假设作为算法的输出的假设呢？<br>带着这个问题，我们先了解一下什么叫做不好的数据。</p>
+<h3 id="Bad-Sample-and-Bad-Data"><a href="#Bad-Sample-and-Bad-Data" class="headerlink" title="Bad Sample and Bad Data"></a>Bad Sample and Bad Data</h3><p>坏的样本就是训练错误率Ein=0，而真实错误率Eout=1/2的情况。<br>坏的数据是Ein和Eout差别很大的情况，通常Ein很小，Eout很大。</p>
+<p>而Hoeffding说明的是<strong>如果把所有的训练数据（从输入空间中，随机选取产生的数据的不同组合）穷举出来，得到的不好的样本（Bad Sample）的概率是很小的。</strong><br>所以坏的样本就是让算法的预测的准确率和训练时的正确率差别很大的情况（Ein和Eout差别很大）。<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/vc/bad_data.jpg" alt=""><br>上图说明：</p>
+<blockquote>
+<ul>
+<li>对于一个假设hi（每一行），Hoeffding保证其不好的情况总体的概率是很小的</li>
+<li>对于含有BAD的每一列来说，只要有BAD，算法就无法从所有假设中自由做选择</li>
+<li>表中D1126这个数据集是好的数据</li>
+</ul>
+</blockquote>
+<h3 id="Bound-of-BAD-Data"><a href="#Bound-of-BAD-Data" class="headerlink" title="Bound of BAD Data"></a>Bound of BAD Data</h3><p>我们来算一下坏的数据的概率边界：<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/vc/bound_baddata.jpg" alt=""><br>这个式子是有限个假设的Hoeffding不等式。<br>对于这个式子来说，如果训练数据的数量N够大的话，那么能保证Ein和Eout差别很小。</p>
+<p><img src="http://jason-images.qiniudn.com/@/ML/foundation/vc/样本复杂度.jpg" alt=""></p>
+<h3 id="统计学习流程"><a href="#统计学习流程" class="headerlink" title="统计学习流程"></a>统计学习流程</h3><p><img src="http://jason-images.qiniudn.com/@/ML/foundation/vc/statistical_learning_flow.jpg" alt=""><br>上面的流程总结了我们这篇文章讨论的问题，那就是<strong>如果现有有限个假设且训练数据量够多的情况下，那么不管我们如何选择训练数据，训练错误率和真实错误率都会很接近；我们设计算法来找一个Ein最小的，PAC理论就保证了Eout很小。这样机器学习算法是有可能学到有用的知识的！</strong></p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>我们至此讨论的是有限个假设的情况，说明了机器学习算法可以做到一些事情。那么无限多假设的情况该是如何处理呢？我将在下一小节中介绍VC理论的有关知识。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>机器学习， Tom M.Mitchell ，机械工业出版社<br>机器学习基石课程，林轩田，台湾大学</p>
+<p><strong>转载请注明作者Jason Ding及其出处</strong><br><a href="http://jasonding1354.github.io/" target="_blank" rel="external">Github主页(http://jasonding1354.github.io/)</a><br><a href="http://blog.csdn.net/jasonding1354" target="_blank" rel="external">CSDN博客(http://blog.csdn.net/jasonding1354)</a><br><a href="http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles" target="_blank" rel="external">简书主页(http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles)</a></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Machine-Learning/">Machine Learning</a>
+  </div>
+
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Machine-Learning/">Machine Learning</a>
+</div>
+
+
+
+<div class="article-share" id="share">
+
+  
+<div class="jiathis_style">
+    <span class="jiathis_txt">分享到：</span>
+    <a class="jiathis_button_tsina">新浪微博</a>
+    <a class="jiathis_button_weixin">微信</a>
+    <a class="jiathis_button_twitter">Twitter</a>
+    <a class="jiathis_button_evernote">EverNote</a>
+    <a href="http://www.jiathis.com/share?uid=1501277" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript" >
+    var jiathis_config={
+    data_track_clickback:true,
+    sm:"copy,renren,cqq",
+    pic:"",
+    summary:"",
+    
+  </script> 
+<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=
+1394018007141544" charset="utf-8"></script>      
+
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2014/12/11/Machine Learning/【机器学习基础】理解为什么机器可以学习——VC理论/" title="【机器学习基础】理解为什么机器可以学习——VC理论">
+  <strong>之后的一篇</strong><br/>
+  <span>
+  【机器学习基础】理解为什么机器可以学习——VC理论</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2014/12/10/Machine Learning/【机器学习基础】理解为什么机器可以学习——PAC学习模型/"  title="【机器学习基础】理解为什么机器可以学习——PAC学习模型">
+ <strong>之前的一篇</strong><br/> 
+ <span>【机器学习基础】理解为什么机器可以学习——PAC学习模型
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section class="comment">
+	<div class="ds-thread"></div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#引入"><span class="toc-number">1.</span> <span class="toc-text">引入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#假设空间的样本复杂度"><span class="toc-number">2.</span> <span class="toc-text">假设空间的样本复杂度</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Hoeffding边界"><span class="toc-number">3.</span> <span class="toc-text">Hoeffding边界</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#描述问题"><span class="toc-number">3.1.</span> <span class="toc-text">描述问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Hoeffding不等式"><span class="toc-number">3.2.</span> <span class="toc-text">Hoeffding不等式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#确认（verification）流程"><span class="toc-number">4.</span> <span class="toc-text">确认（verification）流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#有限假设空间的错误率的概率边界"><span class="toc-number">5.</span> <span class="toc-text">有限假设空间的错误率的概率边界</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Bad-Sample-and-Bad-Data"><span class="toc-number">5.1.</span> <span class="toc-text">Bad Sample and Bad Data</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Bound-of-BAD-Data"><span class="toc-number">5.2.</span> <span class="toc-text">Bound of BAD Data</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#统计学习流程"><span class="toc-number">5.3.</span> <span class="toc-text">统计学习流程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">6.</span> <span class="toc-text">小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">7.</span> <span class="toc-text">参考资料</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+<div class="maps">
+    <p class="asidetitle">访问统计</p>
+    <br>
+    <script type="text/javascript" src="//ra.revolvermaps.com/0/0/6.js?i=0leibswamim&amp;m=0&amp;s=210&amp;c=ff0000&amp;cr1=ffffff&amp;f=arial&amp;l=0" async="async"></script>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">Categories</p>
+		<ul>
+		
+			<li><a href="/categories/Algorithm-Problem/" title="Algorithm Problem">Algorithm Problem<sup>1</sup></a></li>
+		
+			<li><a href="/categories/C/" title="C++">C++<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Classic-Algorithm/" title="Classic Algorithm">Classic Algorithm<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Cluster-Analysis/" title="Cluster Analysis">Cluster Analysis<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Design-Pattern/" title="Design Pattern">Design Pattern<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Developer-Kits/" title="Developer Kits">Developer Kits<sup>5</sup></a></li>
+		
+			<li><a href="/categories/Energy-Big-Data/" title="Energy Big Data">Energy Big Data<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Feature-Engineering/" title="Feature Engineering">Feature Engineering<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Functional/" title="Functional">Functional<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Functional-Programming/" title="Functional Programming">Functional Programming<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Git/" title="Git">Git<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Jobs/" title="Jobs">Jobs<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>4</sup></a></li>
+		
+			<li><a href="/categories/ML-Experiments/" title="ML Experiments">ML Experiments<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Machine-Learning/" title="Machine Learning">Machine Learning<sup>50</sup></a></li>
+		
+			<li><a href="/categories/Math/" title="Math">Math<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Programming/" title="Programming">Programming<sup>11</sup></a></li>
+		
+			<li><a href="/categories/Python/" title="Python">Python<sup>10</sup></a></li>
+		
+			<li><a href="/categories/Scala/" title="Scala">Scala<sup>27</sup></a></li>
+		
+			<li><a href="/categories/Scala-ML/" title="Scala-ML">Scala-ML<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Similarity-Search/" title="Similarity Search">Similarity Search<sup>4</sup></a></li>
+		
+			<li><a href="/categories/Small-Problems/" title="Small Problems">Small Problems<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Spark/" title="Spark">Spark<sup>23</sup></a></li>
+		
+			<li><a href="/categories/Thoughts/" title="Thoughts">Thoughts<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">Tag Cloud</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/Actor/" style="font-size: 10px;">Actor</a> <a href="/tags/Akka/" style="font-size: 14.55px;">Akka</a> <a href="/tags/Algorithm/" style="font-size: 10px;">Algorithm</a> <a href="/tags/Approximate-Nearest-Neighbor-Search/" style="font-size: 10px;">Approximate Nearest Neighbor Search</a> <a href="/tags/Bayesian-Analysis/" style="font-size: 10.91px;">Bayesian Analysis</a> <a href="/tags/Big-Data/" style="font-size: 10px;">Big Data</a> <a href="/tags/C/" style="font-size: 12.73px;">C++</a> <a href="/tags/Classification/" style="font-size: 11.82px;">Classification</a> <a href="/tags/Cluster-Analysis/" style="font-size: 10px;">Cluster Analysis</a> <a href="/tags/Computer-Vision/" style="font-size: 14.55px;">Computer Vision</a> <a href="/tags/Eclipse/" style="font-size: 10px;">Eclipse</a> <a href="/tags/Energy-Forecasting/" style="font-size: 10px;">Energy Forecasting</a> <a href="/tags/Feature-Engineering/" style="font-size: 10.91px;">Feature Engineering</a> <a href="/tags/Functional-Programming/" style="font-size: 16.36px;">Functional Programming</a> <a href="/tags/Gaussian-Process/" style="font-size: 10px;">Gaussian Process</a> <a href="/tags/Git/" style="font-size: 10.91px;">Git</a> <a href="/tags/GraphLab/" style="font-size: 10px;">GraphLab</a> <a href="/tags/IPython/" style="font-size: 10px;">IPython</a> <a href="/tags/Internet-of-Energy/" style="font-size: 10px;">Internet of Energy</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/Kaggle/" style="font-size: 10px;">Kaggle</a> <a href="/tags/Kernel-Method/" style="font-size: 10px;">Kernel Method</a> <a href="/tags/LSH/" style="font-size: 12.73px;">LSH</a> <a href="/tags/LaTex/" style="font-size: 10px;">LaTex</a> <a href="/tags/Linux/" style="font-size: 11.82px;">Linux</a> <a href="/tags/Machine-Learning/" style="font-size: 20px;">Machine Learning</a> <a href="/tags/Math/" style="font-size: 11.82px;">Math</a> <a href="/tags/Mathematics/" style="font-size: 13.64px;">Mathematics</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MeanShift/" style="font-size: 10px;">MeanShift</a> <a href="/tags/Mint/" style="font-size: 10px;">Mint</a> <a href="/tags/OpenCV/" style="font-size: 15.45px;">OpenCV</a> <a href="/tags/Probabilistic-Programming/" style="font-size: 10px;">Probabilistic Programming</a> <a href="/tags/Probability-Distributions/" style="font-size: 10px;">Probability Distributions</a> <a href="/tags/Programming/" style="font-size: 14.55px;">Programming</a> <a href="/tags/Python/" style="font-size: 17.27px;">Python</a> <a href="/tags/Regression/" style="font-size: 11.82px;">Regression</a> <a href="/tags/Resume/" style="font-size: 10px;">Resume</a> <a href="/tags/SVM/" style="font-size: 12.73px;">SVM</a> <a href="/tags/Scala/" style="font-size: 19.09px;">Scala</a> <a href="/tags/Similarity-Search/" style="font-size: 10.91px;">Similarity Search</a> <a href="/tags/Source-code/" style="font-size: 10px;">Source code</a> <a href="/tags/Spark/" style="font-size: 18.18px;">Spark</a> <a href="/tags/Summary/" style="font-size: 10px;">Summary</a> <a href="/tags/Thoughts/" style="font-size: 10.91px;">Thoughts</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/Vim/" style="font-size: 11.82px;">Vim</a> <a href="/tags/Written-Test/" style="font-size: 10px;">Written Test</a> <a href="/tags/Zeppelin/" style="font-size: 10px;">Zeppelin</a> <a href="/tags/boost/" style="font-size: 10px;">boost</a> <a href="/tags/cpp/" style="font-size: 13.64px;">cpp</a> <a href="/tags/opencv/" style="font-size: 10.91px;">opencv</a> <a href="/tags/p-Stable-LSH/" style="font-size: 10px;">p-Stable LSH</a> <a href="/tags/scikit-learn/" style="font-size: 10px;">scikit-learn</a> <a href="/tags/sklearn/" style="font-size: 10.91px;">sklearn</a> <a href="/tags/互联网时代/" style="font-size: 10px;">互联网时代</a> <a href="/tags/位置敏感哈希/" style="font-size: 10.91px;">位置敏感哈希</a> <a href="/tags/分治/" style="font-size: 10px;">分治</a> <a href="/tags/单元测试/" style="font-size: 10px;">单元测试</a> <a href="/tags/反思/" style="font-size: 10px;">反思</a> <a href="/tags/效率/" style="font-size: 10px;">效率</a> <a href="/tags/核方法/" style="font-size: 10px;">核方法</a> <a href="/tags/算法框架/" style="font-size: 10px;">算法框架</a> <a href="/tags/设计模式/" style="font-size: 11.82px;">设计模式</a>
+    </div>
+  </div>
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle"><a href="/archives">Archives</a></p>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">February 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">November 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">29</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a><span class="archive-list-count">16</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">10</span></li></ul>
+  </div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
+</div>
+
+</aside>
+
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Jason Ding in HUST <br/>
+			I would share moments of life here! </p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/1698420390" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/jasonding1354" target="_blank" title="github"></a>
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2016 
+		
+		<a href="http://blog.jasonding.top" target="_blank" title="Jason Ding">Jason Ding</a>
+		
+		</p>
+		<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+  
+  _st('install','uYyEuxJdzzAGXTax33mt','2.0.0');
+</script>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"jasonding"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+  </body>
+</html>

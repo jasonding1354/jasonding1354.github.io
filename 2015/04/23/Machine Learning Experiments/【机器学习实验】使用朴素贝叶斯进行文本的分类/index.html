@@ -1,0 +1,523 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>【机器学习实验】使用朴素贝叶斯进行文本的分类 | Jason&#39;s Techblog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Jason Ding">
+    
+    <meta name="description" content="引言朴素贝叶斯由贝叶斯定理延伸而来的简单而强大的概率模型，它根据每个特征的概率确定一个对象属于某一类别的概率。该方法基于一个假设，所有特征需要相互独立，即任一特征的值和其他特征的值没有关联关系。虽然这种条件独立的假设在许多应用领域未必能很好满足，甚至是不成立的。但这种简化的贝叶斯分类器在许多实际应用">
+    
+    
+    
+    
+    <link rel="alternate" href="/atom.xml" title="Jason&#39;s Techblog" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/author.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/author.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F3cc71cd5738b99a1db174951e194ba55' type='text/javascript'%3E%3C/script%3E"));
+
+
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F1dcf1fa58b0eca1ac5bd089ee6a6e78c' type='text/javascript'%3E%3C/script%3E"));
+
+
+</script>
+
+
+    <!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Jason&#39;s Techblog" title="Jason&#39;s Techblog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Jason&#39;s Techblog">Jason&#39;s Techblog</a></h1>
+				<h2 class="blog-motto">Technician =&gt; Scientist =&gt; Philosopher =&gt; Artists</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="http://jasonding.top">Main</a></li>
+					
+					<li>
+					
+						<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" class="st-default-search-input" maxlength="20" placeholder="Search" />
+						</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody">
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/04/23/Machine Learning Experiments/【机器学习实验】使用朴素贝叶斯进行文本的分类/" title="【机器学习实验】使用朴素贝叶斯进行文本的分类" itemprop="url">【机器学习实验】使用朴素贝叶斯进行文本的分类</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://blog.jasonding.top" title="Jason Ding">Jason Ding</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2015-04-23T01:43:02.000Z" itemprop="datePublished">2015-04-23</time>
+    Updated:<time datetime="2016-03-16T06:24:42.000Z" itemprop="dateModified">2016-03-16</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#引言"><span class="toc-number">1.</span> <span class="toc-text">引言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#数据集"><span class="toc-number">2.</span> <span class="toc-text">数据集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#数据的预处理"><span class="toc-number">3.</span> <span class="toc-text">数据的预处理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#划分训练与测试数据"><span class="toc-number">3.1.</span> <span class="toc-text">划分训练与测试数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#词袋-Bag-of-Words-表征"><span class="toc-number">3.2.</span> <span class="toc-text">词袋(Bag of Words)表征</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#稀疏性"><span class="toc-number">3.3.</span> <span class="toc-text">稀疏性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#文本特征提取的接口"><span class="toc-number">3.4.</span> <span class="toc-text">文本特征提取的接口</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#构建朴素贝叶斯分类器"><span class="toc-number">4.</span> <span class="toc-text">构建朴素贝叶斯分类器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#交叉验证"><span class="toc-number">4.1.</span> <span class="toc-text">交叉验证</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#优化特征提取提高分类的效果"><span class="toc-number">5.</span> <span class="toc-text">优化特征提取提高分类的效果</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#优化提取单词规则参数"><span class="toc-number">5.1.</span> <span class="toc-text">优化提取单词规则参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#优化省略词参数"><span class="toc-number">5.2.</span> <span class="toc-text">优化省略词参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#优化贝叶斯分类器的alpha参数"><span class="toc-number">5.3.</span> <span class="toc-text">优化贝叶斯分类器的alpha参数</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#评估分类器性能"><span class="toc-number">6.</span> <span class="toc-text">评估分类器性能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">7.</span> <span class="toc-text">参考资料</span></a></li></ol>
+		</div>
+		
+		<h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>朴素贝叶斯由贝叶斯定理延伸而来的简单而强大的概率模型，它根据每个特征的概率确定一个对象属于某一类别的概率。该方法基于一个假设，所有特征需要相互独立，即任一特征的值和其他特征的值没有关联关系。<br>虽然这种条件独立的假设在许多应用领域未必能很好满足，甚至是不成立的。但这种简化的贝叶斯分类器在许多实际应用中还是得到了较好的分类精度。<strong>训练模型的过程可以看作是对相关条件概率的计算，它可以用统计对应某一类别的特征的频率来估计。</strong><br>朴素贝叶斯最成功的一个应用是自然语言处理领域，自然语言处理的的数据可以看做是在文本文档中标注数据，这些数据可以作为训练数据集来使用机器学习算法进行训练。<br>本小节中，主要介绍使用朴素贝叶斯方法来进行文本的分类，我们将要使用一组标记类别的文本文档来训练朴素贝叶斯分类器，进而对未知的数据实例进行类别的预测。这个方法可以用作垃圾邮件的过滤。</p>
+<h2 id="数据集"><a href="#数据集" class="headerlink" title="数据集"></a>数据集</h2><p>该实验的数据可以通过scikit-learn获取一组新闻信息。<br>数据集由19,000个新闻信息组成，其中包含了20个不同的主题，包含政治、体育、科学等内容。<br>该数据集可以分成训练和测试两部分，训练和测试数据的划分基于某个特定日期。</p>
+<p>数据的加载有两种方式：</p>
+<blockquote>
+<ol>
+<li>sklearn.datasets.fetch_20newsgroups，该函数返回一个原数据列表，可以将它作为文本特征提取的接口(sklearn.feature_extraction.text.CountVectorizer)的输入</li>
+<li>sklearn.datasets.fetch_20newsgroups_vectorized，该接口直接返回直接可以使用的特征，可以不再使用特征提取了</li>
+</ol>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> sklearn.datasets <span class="keyword">import</span> fetch_20newsgroups</div><div class="line">news = fetch_20newsgroups(subset=<span class="string">'all'</span>)</div><div class="line"><span class="keyword">print</span> news.keys()</div><div class="line"><span class="keyword">print</span> type(news.data), type(news.target), type(news.target_names)</div><div class="line"><span class="keyword">print</span> news.target_names</div><div class="line"><span class="keyword">print</span> len(news.data)</div><div class="line"><span class="keyword">print</span> len(news.target)</div></pre></td></tr></table></figure>
+<p>打印信息：</p>
+<blockquote>
+<p>[‘DESCR’, ‘data’, ‘target’, ‘target_names’, ‘filenames’]</p>
+<p><type 'list'=""> <type 'numpy.ndarray'=""> <type 'list'=""><br>[‘alt.atheism’, ‘comp.graphics’, ‘comp.os.ms-windows.misc’, ‘comp.sys.ibm.pc.hardware’, ‘comp.sys.mac.hardware’, ‘comp.windows.x’, ‘misc.forsale’, ‘rec.autos’, ‘rec.motorcycles’, ‘rec.sport.baseball’, ‘rec.sport.hockey’, ‘sci.crypt’, ‘sci.electronics’, ‘sci.med’, ‘sci.space’, ‘soc.religion.christian’, ‘talk.politics.guns’, ‘talk.politics.mideast’, ‘talk.politics.misc’, ‘talk.religion.misc’]<br>18846<br>18846</type></type></type></p>
+</blockquote>
+<p>我们可以查看一下第一项新闻的内容和对应的类别：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">print</span> news.data[<span class="number">0</span>]</div><div class="line"><span class="keyword">print</span> news.target[<span class="number">0</span>], news.target_names[news.target[<span class="number">0</span>]]</div></pre></td></tr></table></figure></p>
+<p>打印的新闻内容略去，类别为10，类别名为rec.sport.hockey。</p>
+<h2 id="数据的预处理"><a href="#数据的预处理" class="headerlink" title="数据的预处理"></a>数据的预处理</h2><p>机器学习算法只能作用在数值数据上，算法期望使用定长的数值特征而不是不定长的原始文本文件，我们下一步的工作是将文本数据集转换成数值数据集。<br>现在，我们只有一种特征：新闻消息的文本内容，我们需要一个函数将一段文本转换成一组有意义的数值特征。<br>直觉上，可以尝试着眼于每种文本类别的独立字符串（更准确说是标记，token），然后将每种类别对应的标记词的频率分布特性描述出来。<code>sklearn.feature_extraction.text</code>模块具有一些用文本文档来构建数值特征向量的有用的工具。</p>
+<h3 id="划分训练与测试数据"><a href="#划分训练与测试数据" class="headerlink" title="划分训练与测试数据"></a>划分训练与测试数据</h3><p>在进行转换工作之前，我们需要将数据划分为训练和测试数据集。由于载入的数据是随机顺序出现的，我们可以将数据划分为两部分，75%作为训练数据，25%作为测试数据：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">SPLIT_PERC = <span class="number">0.75</span></div><div class="line">split_size = int(len(news.data)*SPLIT_PERC)</div><div class="line">X_train = news.data[:split_size]</div><div class="line">X_test = news.data[split_size:]</div><div class="line">Y_train = news.target[:split_size]</div><div class="line">Y_test = news.target[split_size:]</div></pre></td></tr></table></figure></p>
+<p>因为<code>sklearn.datasets.fetch_20newsgroups</code>本身可以根据<code>subset</code>参数来选择训练数据和测试数据，这里训练数据有11,314条，占总数据集的60%，测试数据集占40%。可以通过如下方式得到：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">news_train = fetch_20newsgroups(subset=<span class="string">'train'</span>)</div><div class="line">news_test = fetch_20newsgroups(subset=<span class="string">'test'</span>)</div><div class="line">X_train = news_train.data</div><div class="line">X_test = news_test.data</div><div class="line">Y_train = news_train.target</div><div class="line">Y_test = news_test.target</div></pre></td></tr></table></figure></p>
+<h3 id="词袋-Bag-of-Words-表征"><a href="#词袋-Bag-of-Words-表征" class="headerlink" title="词袋(Bag of Words)表征"></a>词袋(Bag of Words)表征</h3><p>词袋模型是在自然语言处理和信息检索中的一种简单假设。在这种模型中，文本（段落或者文档）被看作是无序的词汇集合，忽略语法甚至是单词的顺序。<br>词袋模型被用在文本分类的一些方法当中。当传统的贝叶斯分类被应用到文本当中时，贝叶斯中的条件独立性假设导致词袋模型。<br>scikit-learn提供了一些实用工具可以用最常见的方式从文本内容中抽取数值特征，比如说：</p>
+<blockquote>
+<ul>
+<li>标记（tokenizing）文本以及为每一个可能的标记(token)分配的一个整型ID，例如用空格和标点符号作为标记的分割符（中文的话涉及到分词的问题）</li>
+<li>计数（counting）标记(token)在每个文本中的出现频率</li>
+<li>在大多数样本/文档中都出现的标记的重要性递减过程中，进行标准化(normalizing)和加权(weighting)<br>我们将上面这个从一堆文本文件转化成数值特征向量的过程的策略称为<strong>词袋</strong></li>
+</ul>
+</blockquote>
+<p>在这种策略下，特征和样本定义如下：<br>将每个独立的标记(token)的出现频率（不管是否标准化）看做是<strong>特征</strong><br>给定一个文档的所有标记的频率构成向量看做是一个多变量的<strong>样本</strong><br>这样一个文本的语料库就可以表征为一个矩阵，其中每一行代表了一个文档，而每一列代表了在该语料库中出现的一个标记词。</p>
+<p><strong>文本可以用词语的出现频率表征，这样可以完全忽略词在文本中的相对位置信息，这一点应该就保证了贝叶斯的条件独立性。</strong></p>
+<h3 id="稀疏性"><a href="#稀疏性" class="headerlink" title="稀疏性"></a>稀疏性</h3><p>大多数文档通常只会使用语料库中所有词的一个子集，因而产生的矩阵将有许多特征值是0（通常99%以上都是0）。<br>例如，一组10,000个短文本（比如email）会使用100,000的词汇总量，而每个文档会使用100到1,000个唯一的词。<br>为了能够在内存中存储这个矩阵，同时也提供矩阵/向量代数运算的速度，通常会使用稀疏表征例如在scipy.sparse包中提供的表征。</p>
+<h3 id="文本特征提取的接口"><a href="#文本特征提取的接口" class="headerlink" title="文本特征提取的接口"></a>文本特征提取的接口</h3><p><strong>sklearn.feature_extraction.text</strong>提供了以下构建特征向量的工具：</p>
+<blockquote>
+<ul>
+<li>feature_extraction.text.CountVectorizer([…])    Convert a collection of text documents to a matrix of token counts</li>
+<li>feature_extraction.text.HashingVectorizer([…])    Convert a collection of text documents to a matrix of token occurrences</li>
+<li>feature_extraction.text.TfidfTransformer([…])    Transform a count matrix to a normalized tf or tf-idf representation</li>
+<li>feature_extraction.text.TfidfVectorizer([…])    Convert a collection of raw documents to a matrix of TF-IDF features.</li>
+</ul>
+</blockquote>
+<p>解释：</p>
+<blockquote>
+<ul>
+<li>CountVectorizer方法构建单词的字典，每个单词实例被转换为特征向量的一个数值特征，每个元素是特定单词在文本中出现的次数</li>
+<li>HashingVectorizer方法实现了一个哈希函数，将标记映射为特征的索引，其特征的计算同CountVectorizer方法</li>
+<li>TfidfVectorizer使用了一个高级的计算方法，称为Term Frequency Inverse Document<br>Frequency (TF-IDF)。这是一个衡量一个词在文本或语料中重要性的统计方法。直觉上讲，该方法通过比较在整个语料库的词的频率，寻求在当前文档中频率较高的词。这是一种将结果进行标准化的方法，可以避免因为有些词出现太过频繁而对一个实例的特征化作用不大的情况(我猜测比如a和and在英语中出现的频率比较高，但是它们对于表征一个文本的作用没有什么作用)</li>
+</ul>
+</blockquote>
+<h2 id="构建朴素贝叶斯分类器"><a href="#构建朴素贝叶斯分类器" class="headerlink" title="构建朴素贝叶斯分类器"></a>构建朴素贝叶斯分类器</h2><p>由于我们使用词的出现次数作为特征，可以用多项分布来描述这一特征。在sklearn中使用<code>sklearn.naive_bayes</code>模块的<code>MultinomialNB</code>类来构建分类器。<br>我们使用<code>Pipeline</code>这个类来构建包含量化器(vectorizers)和分类器的复合分类器(compound classifer)。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> sklearn.naive_bayes <span class="keyword">import</span> MultinomialNB</div><div class="line"><span class="keyword">from</span> sklearn.pipeline <span class="keyword">import</span> Pipeline</div><div class="line"><span class="keyword">from</span> sklearn.feature_extraction.text <span class="keyword">import</span> TfidfVectorizer, HashingVectorizer, CountVectorizer</div><div class="line"></div><div class="line"><span class="comment"># nbc means naive bayes classifier</span></div><div class="line">nbc_1 = Pipeline([</div><div class="line">    (<span class="string">'vect'</span>, CountVectorizer()),</div><div class="line">    (<span class="string">'clf'</span>, MultinomialNB()),</div><div class="line">])</div><div class="line">nbc_2 = Pipeline([</div><div class="line">    (<span class="string">'vect'</span>, HashingVectorizer(non_negative=<span class="keyword">True</span>)),</div><div class="line">    (<span class="string">'clf'</span>, MultinomialNB()),</div><div class="line">])</div><div class="line">nbc_3 = Pipeline([</div><div class="line">    (<span class="string">'vect'</span>, TfidfVectorizer()),</div><div class="line">    (<span class="string">'clf'</span>, MultinomialNB()),</div><div class="line">])</div><div class="line"></div><div class="line">nbcs = [nbc_1, nbc_2, nbc_3]</div></pre></td></tr></table></figure></p>
+<h3 id="交叉验证"><a href="#交叉验证" class="headerlink" title="交叉验证"></a>交叉验证</h3><p>我们下面设计一个对分类器的性能进行测试的交叉验证的函数：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> sklearn.cross_validation <span class="keyword">import</span> cross_val_score, KFold</div><div class="line"><span class="keyword">from</span> scipy.stats <span class="keyword">import</span> sem</div><div class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">evaluate_cross_validation</span><span class="params">(clf, X, y, K)</span>:</span></div><div class="line">    <span class="comment"># create a k-fold croos validation iterator of k=5 folds</span></div><div class="line">    cv = KFold(len(y), K, shuffle=<span class="keyword">True</span>, random_state=<span class="number">0</span>)</div><div class="line">    <span class="comment"># by default the score used is the one returned by score method of the estimator (accuracy)</span></div><div class="line">    scores = cross_val_score(clf, X, y, cv=cv)</div><div class="line">    <span class="keyword">print</span> scores</div><div class="line">    <span class="keyword">print</span> (<span class="string">"Mean score: &#123;0:.3f&#125; (+/-&#123;1:.3f&#125;)"</span>).format(</div><div class="line">        np.mean(scores), sem(scores))</div></pre></td></tr></table></figure></p>
+<p>将训练数据分成5份，输出验证的分数：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span> nbc <span class="keyword">in</span> nbcs:</div><div class="line">    evaluate_cross_validation(nbc, X_train, Y_train, <span class="number">5</span>)</div></pre></td></tr></table></figure></p>
+<p>输出为：</p>
+<blockquote>
+<p>[ 0.82589483  0.83473266  0.8272205   0.84136103  0.83377542]<br>Mean score: 0.833 (+/-0.003)<br>[ 0.76358816  0.72337605  0.72293416  0.74370305  0.74977896]<br>Mean score: 0.741 (+/-0.008)<br>[ 0.84975696  0.83517455  0.82545294  0.83870968  0.84615385]<br>Mean score: 0.839 (+/-0.004)</p>
+</blockquote>
+<p>从上面的结果看出，CountVectorizer和TfidfVectorizer进行特征提取的方法要比HashingVectorizer的效果好。</p>
+<h2 id="优化特征提取提高分类的效果"><a href="#优化特征提取提高分类的效果" class="headerlink" title="优化特征提取提高分类的效果"></a>优化特征提取提高分类的效果</h2><p>接下来，我们通过正则表达式来解析文本得到标记词。</p>
+<h3 id="优化提取单词规则参数"><a href="#优化提取单词规则参数" class="headerlink" title="优化提取单词规则参数"></a>优化提取单词规则参数</h3><p><code>TfidfVectorizer</code>的一个参数<code>token_pattern</code>用于指定提取单词的规则。<br>默认的正则表达式是<code>ur&quot;\b\w\w+\b&quot;</code>，这个正则表达式只匹配单词边界并考虑到了下划线，也可能考虑到了横杠和点。<br>新的正则表达式是<code>ur&quot;\b[a-z0-9_\-\.]+[a-z][a-z0-9_\-\.]+\b&quot;</code>。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">nbc_4 = Pipeline([</div><div class="line">    (<span class="string">'vect'</span>, TfidfVectorizer(</div><div class="line">                token_pattern=<span class="string">ur"\b[a-z0-9_\-\.]+[a-z][a-z0-9_\-\.]+\b"</span>,</div><div class="line">    )),</div><div class="line">    (<span class="string">'clf'</span>, MultinomialNB()),</div><div class="line">])</div><div class="line"></div><div class="line">evaluate_cross_validation(nbc_4, X_train, Y_train, <span class="number">5</span>)</div></pre></td></tr></table></figure></p>
+<blockquote>
+<p>[ 0.86478126  0.85461776  0.84489616  0.85505966  0.85234306]<br>Mean score: 0.854 (+/-0.003)</p>
+</blockquote>
+<p>这个分数已经比之前的0.839提高了一些了。</p>
+<h3 id="优化省略词参数"><a href="#优化省略词参数" class="headerlink" title="优化省略词参数"></a>优化省略词参数</h3><p><code>TfidfVectorizer</code>的一个参数<code>stop_words</code>这个参数指定的词将被省略不计入到标记词的列表中，比如一些出现频率很高的词，但是这些词对于特定的主题不能提供任何的先验支持。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_stop_words</span><span class="params">()</span>:</span></div><div class="line">    result = set()</div><div class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> open(<span class="string">'stopwords_en.txt'</span>, <span class="string">'r'</span>).readlines():</div><div class="line">        result.add(line.strip())</div><div class="line">    <span class="keyword">return</span> result</div><div class="line"></div><div class="line">stop_words = get_stop_words()</div><div class="line">nbc_5 = Pipeline([</div><div class="line">    (<span class="string">'vect'</span>, TfidfVectorizer(</div><div class="line">                stop_words=stop_words,</div><div class="line">                token_pattern=<span class="string">ur"\b[a-z0-9_\-\.]+[a-z][a-z0-9_\-\.]+\b"</span>,    </div><div class="line">    )),</div><div class="line">    (<span class="string">'clf'</span>, MultinomialNB()),</div><div class="line">])</div><div class="line"></div><div class="line"></div><div class="line">evaluate_cross_validation(nbc_5, X_train, Y_train, <span class="number">5</span>)</div></pre></td></tr></table></figure></p>
+<blockquote>
+<p>[ 0.88731772  0.88731772  0.878038    0.88466637  0.88107869]<br>Mean score: 0.884 (+/-0.002)</p>
+</blockquote>
+<p>分数又提升到了0.884。</p>
+<h3 id="优化贝叶斯分类器的alpha参数"><a href="#优化贝叶斯分类器的alpha参数" class="headerlink" title="优化贝叶斯分类器的alpha参数"></a>优化贝叶斯分类器的alpha参数</h3><p><code>MultinomialNB</code>有一个<code>alpha</code>参数，该参数是一个平滑参数，默认是1.0，我们将其设为0.01。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">nbc_6 = Pipeline([</div><div class="line">    (<span class="string">'vect'</span>, TfidfVectorizer(</div><div class="line">                stop_words=stop_words,</div><div class="line">                token_pattern=<span class="string">ur"\b[a-z0-9_\-\.]+[a-z][a-z0-9_\-\.]+\b"</span>,         </div><div class="line">    )),</div><div class="line">    (<span class="string">'clf'</span>, MultinomialNB(alpha=<span class="number">0.01</span>)),</div><div class="line">])</div><div class="line"></div><div class="line">evaluate_cross_validation(nbc_6, X_train, Y_train, <span class="number">5</span>)</div></pre></td></tr></table></figure></p>
+<blockquote>
+<p>[ 0.91073796  0.92532037  0.91604065  0.91294741  0.91202476]<br>Mean score: 0.915 (+/-0.003)</p>
+</blockquote>
+<p>这下分数已经优化的很好了。</p>
+<h2 id="评估分类器性能"><a href="#评估分类器性能" class="headerlink" title="评估分类器性能"></a>评估分类器性能</h2><p>我们通过交叉验证得到了效果比较好的分类器参数，下面我们可以用该分类器来测试我们的测试数据了。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> sklearn <span class="keyword">import</span> metrics</div><div class="line">nbc_6.fit(X_train, Y_train)</div><div class="line"><span class="keyword">print</span> <span class="string">"Accuracy on training set:"</span></div><div class="line"><span class="keyword">print</span> nbc_6.score(X_train, Y_train)</div><div class="line"><span class="keyword">print</span> <span class="string">"Accuracy on testing set:"</span></div><div class="line"><span class="keyword">print</span> nbc_6.score(X_test,Y_test)</div><div class="line">y_predict = nbc_6.predict(X_test)</div><div class="line"><span class="keyword">print</span> <span class="string">"Classification Report:"</span></div><div class="line"><span class="keyword">print</span> metrics.classification_report(Y_test,y_predict)</div><div class="line"><span class="keyword">print</span> <span class="string">"Confusion Matrix:"</span></div><div class="line"><span class="keyword">print</span> metrics.confusion_matrix(Y_test,y_predict)</div></pre></td></tr></table></figure></p>
+<p>这里只输出准确率:</p>
+<blockquote>
+<p>Accuracy on training set:<br>0.997701962171<br>Accuracy on testing set:<br>0.846919808816</p>
+</blockquote>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="http://en.wikipedia.org/wiki/Bag-of-words_model" target="_blank" rel="external">wiki:词袋模型</a></p>
+<p><strong>转载请注明作者Jason Ding及其出处</strong><br><a href="http://jasonding1354.gitcafe.io/" target="_blank" rel="external">GitCafe博客主页(http://jasonding1354.gitcafe.io/)</a><br><a href="http://jasonding1354.github.io/" target="_blank" rel="external">Github博客主页(http://jasonding1354.github.io/)</a><br><a href="http://blog.csdn.net/jasonding1354" target="_blank" rel="external">CSDN博客(http://blog.csdn.net/jasonding1354)</a><br><a href="http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles" target="_blank" rel="external">简书主页(http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles)</a><br><strong>百度搜索jasonding1354进入我的博客主页</strong></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Python/">Python</a><a href="/tags/Machine-Learning/">Machine Learning</a><a href="/tags/Classification/">Classification</a><a href="/tags/sklearn/">sklearn</a>
+  </div>
+
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/ML-Experiments/">ML Experiments</a>
+</div>
+
+
+
+<div class="article-share" id="share">
+
+  
+<div class="jiathis_style">
+    <span class="jiathis_txt">分享到：</span>
+    <a class="jiathis_button_tsina">新浪微博</a>
+    <a class="jiathis_button_weixin">微信</a>
+    <a class="jiathis_button_twitter">Twitter</a>
+    <a class="jiathis_button_evernote">EverNote</a>
+    <a href="http://www.jiathis.com/share?uid=1501277" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript" >
+    var jiathis_config={
+    data_track_clickback:true,
+    sm:"copy,renren,cqq",
+    pic:"",
+    summary:"",
+    
+  </script> 
+<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=
+1394018007141544" charset="utf-8"></script>      
+
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2015/04/23/Machine Learning/机器学习与深度学习资料/" title="机器学习与深度学习资料">
+  <strong>之后的一篇</strong><br/>
+  <span>
+  机器学习与深度学习资料</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2015/04/22/Machine Learning/【机器学习基础】核逻辑回归/"  title="【机器学习基础】核逻辑回归">
+ <strong>之前的一篇</strong><br/> 
+ <span>【机器学习基础】核逻辑回归
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section class="comment">
+	<div class="ds-thread"></div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#引言"><span class="toc-number">1.</span> <span class="toc-text">引言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#数据集"><span class="toc-number">2.</span> <span class="toc-text">数据集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#数据的预处理"><span class="toc-number">3.</span> <span class="toc-text">数据的预处理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#划分训练与测试数据"><span class="toc-number">3.1.</span> <span class="toc-text">划分训练与测试数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#词袋-Bag-of-Words-表征"><span class="toc-number">3.2.</span> <span class="toc-text">词袋(Bag of Words)表征</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#稀疏性"><span class="toc-number">3.3.</span> <span class="toc-text">稀疏性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#文本特征提取的接口"><span class="toc-number">3.4.</span> <span class="toc-text">文本特征提取的接口</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#构建朴素贝叶斯分类器"><span class="toc-number">4.</span> <span class="toc-text">构建朴素贝叶斯分类器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#交叉验证"><span class="toc-number">4.1.</span> <span class="toc-text">交叉验证</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#优化特征提取提高分类的效果"><span class="toc-number">5.</span> <span class="toc-text">优化特征提取提高分类的效果</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#优化提取单词规则参数"><span class="toc-number">5.1.</span> <span class="toc-text">优化提取单词规则参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#优化省略词参数"><span class="toc-number">5.2.</span> <span class="toc-text">优化省略词参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#优化贝叶斯分类器的alpha参数"><span class="toc-number">5.3.</span> <span class="toc-text">优化贝叶斯分类器的alpha参数</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#评估分类器性能"><span class="toc-number">6.</span> <span class="toc-text">评估分类器性能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">7.</span> <span class="toc-text">参考资料</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+<div class="maps">
+    <p class="asidetitle">访问统计</p>
+    <br>
+    <script type="text/javascript" src="//ra.revolvermaps.com/0/0/6.js?i=0leibswamim&amp;m=0&amp;s=210&amp;c=ff0000&amp;cr1=ffffff&amp;f=arial&amp;l=0" async="async"></script>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">Categories</p>
+		<ul>
+		
+			<li><a href="/categories/Algorithm-Problem/" title="Algorithm Problem">Algorithm Problem<sup>1</sup></a></li>
+		
+			<li><a href="/categories/C/" title="C++">C++<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Classic-Algorithm/" title="Classic Algorithm">Classic Algorithm<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Cluster-Analysis/" title="Cluster Analysis">Cluster Analysis<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Design-Pattern/" title="Design Pattern">Design Pattern<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Developer-Kits/" title="Developer Kits">Developer Kits<sup>5</sup></a></li>
+		
+			<li><a href="/categories/Energy-Big-Data/" title="Energy Big Data">Energy Big Data<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Feature-Engineering/" title="Feature Engineering">Feature Engineering<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Functional/" title="Functional">Functional<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Functional-Programming/" title="Functional Programming">Functional Programming<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Git/" title="Git">Git<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Jobs/" title="Jobs">Jobs<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>4</sup></a></li>
+		
+			<li><a href="/categories/ML-Experiments/" title="ML Experiments">ML Experiments<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Machine-Learning/" title="Machine Learning">Machine Learning<sup>50</sup></a></li>
+		
+			<li><a href="/categories/Math/" title="Math">Math<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Programming/" title="Programming">Programming<sup>11</sup></a></li>
+		
+			<li><a href="/categories/Python/" title="Python">Python<sup>10</sup></a></li>
+		
+			<li><a href="/categories/Scala/" title="Scala">Scala<sup>27</sup></a></li>
+		
+			<li><a href="/categories/Scala-ML/" title="Scala-ML">Scala-ML<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Similarity-Search/" title="Similarity Search">Similarity Search<sup>4</sup></a></li>
+		
+			<li><a href="/categories/Small-Problems/" title="Small Problems">Small Problems<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Spark/" title="Spark">Spark<sup>23</sup></a></li>
+		
+			<li><a href="/categories/Thoughts/" title="Thoughts">Thoughts<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">Tag Cloud</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/Actor/" style="font-size: 10px;">Actor</a> <a href="/tags/Akka/" style="font-size: 14.55px;">Akka</a> <a href="/tags/Algorithm/" style="font-size: 10px;">Algorithm</a> <a href="/tags/Approximate-Nearest-Neighbor-Search/" style="font-size: 10px;">Approximate Nearest Neighbor Search</a> <a href="/tags/Bayesian-Analysis/" style="font-size: 10.91px;">Bayesian Analysis</a> <a href="/tags/Big-Data/" style="font-size: 10px;">Big Data</a> <a href="/tags/C/" style="font-size: 12.73px;">C++</a> <a href="/tags/Classification/" style="font-size: 11.82px;">Classification</a> <a href="/tags/Cluster-Analysis/" style="font-size: 10px;">Cluster Analysis</a> <a href="/tags/Computer-Vision/" style="font-size: 14.55px;">Computer Vision</a> <a href="/tags/Eclipse/" style="font-size: 10px;">Eclipse</a> <a href="/tags/Energy-Forecasting/" style="font-size: 10px;">Energy Forecasting</a> <a href="/tags/Feature-Engineering/" style="font-size: 10.91px;">Feature Engineering</a> <a href="/tags/Functional-Programming/" style="font-size: 16.36px;">Functional Programming</a> <a href="/tags/Gaussian-Process/" style="font-size: 10px;">Gaussian Process</a> <a href="/tags/Git/" style="font-size: 10.91px;">Git</a> <a href="/tags/GraphLab/" style="font-size: 10px;">GraphLab</a> <a href="/tags/IPython/" style="font-size: 10px;">IPython</a> <a href="/tags/Internet-of-Energy/" style="font-size: 10px;">Internet of Energy</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/Kaggle/" style="font-size: 10px;">Kaggle</a> <a href="/tags/Kernel-Method/" style="font-size: 10px;">Kernel Method</a> <a href="/tags/LSH/" style="font-size: 12.73px;">LSH</a> <a href="/tags/LaTex/" style="font-size: 10px;">LaTex</a> <a href="/tags/Linux/" style="font-size: 11.82px;">Linux</a> <a href="/tags/Machine-Learning/" style="font-size: 20px;">Machine Learning</a> <a href="/tags/Math/" style="font-size: 11.82px;">Math</a> <a href="/tags/Mathematics/" style="font-size: 13.64px;">Mathematics</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MeanShift/" style="font-size: 10px;">MeanShift</a> <a href="/tags/Mint/" style="font-size: 10px;">Mint</a> <a href="/tags/OpenCV/" style="font-size: 15.45px;">OpenCV</a> <a href="/tags/Probabilistic-Programming/" style="font-size: 10px;">Probabilistic Programming</a> <a href="/tags/Probability-Distributions/" style="font-size: 10px;">Probability Distributions</a> <a href="/tags/Programming/" style="font-size: 14.55px;">Programming</a> <a href="/tags/Python/" style="font-size: 17.27px;">Python</a> <a href="/tags/Regression/" style="font-size: 11.82px;">Regression</a> <a href="/tags/Resume/" style="font-size: 10px;">Resume</a> <a href="/tags/SVM/" style="font-size: 12.73px;">SVM</a> <a href="/tags/Scala/" style="font-size: 19.09px;">Scala</a> <a href="/tags/Similarity-Search/" style="font-size: 10.91px;">Similarity Search</a> <a href="/tags/Source-code/" style="font-size: 10px;">Source code</a> <a href="/tags/Spark/" style="font-size: 18.18px;">Spark</a> <a href="/tags/Summary/" style="font-size: 10px;">Summary</a> <a href="/tags/Thoughts/" style="font-size: 10.91px;">Thoughts</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/Vim/" style="font-size: 11.82px;">Vim</a> <a href="/tags/Written-Test/" style="font-size: 10px;">Written Test</a> <a href="/tags/Zeppelin/" style="font-size: 10px;">Zeppelin</a> <a href="/tags/boost/" style="font-size: 10px;">boost</a> <a href="/tags/cpp/" style="font-size: 13.64px;">cpp</a> <a href="/tags/opencv/" style="font-size: 10.91px;">opencv</a> <a href="/tags/p-Stable-LSH/" style="font-size: 10px;">p-Stable LSH</a> <a href="/tags/scikit-learn/" style="font-size: 10px;">scikit-learn</a> <a href="/tags/sklearn/" style="font-size: 10.91px;">sklearn</a> <a href="/tags/互联网时代/" style="font-size: 10px;">互联网时代</a> <a href="/tags/位置敏感哈希/" style="font-size: 10.91px;">位置敏感哈希</a> <a href="/tags/分治/" style="font-size: 10px;">分治</a> <a href="/tags/单元测试/" style="font-size: 10px;">单元测试</a> <a href="/tags/反思/" style="font-size: 10px;">反思</a> <a href="/tags/效率/" style="font-size: 10px;">效率</a> <a href="/tags/核方法/" style="font-size: 10px;">核方法</a> <a href="/tags/算法框架/" style="font-size: 10px;">算法框架</a> <a href="/tags/设计模式/" style="font-size: 11.82px;">设计模式</a>
+    </div>
+  </div>
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle"><a href="/archives">Archives</a></p>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">February 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">November 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">29</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a><span class="archive-list-count">16</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">10</span></li></ul>
+  </div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
+</div>
+
+</aside>
+
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Jason Ding in HUST <br/>
+			I would share moments of life here! </p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/1698420390" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/jasonding1354" target="_blank" title="github"></a>
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2016 
+		
+		<a href="http://blog.jasonding.top" target="_blank" title="Jason Ding">Jason Ding</a>
+		
+		</p>
+		<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+  
+  _st('install','uYyEuxJdzzAGXTax33mt','2.0.0');
+</script>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"jasonding"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+  </body>
+</html>

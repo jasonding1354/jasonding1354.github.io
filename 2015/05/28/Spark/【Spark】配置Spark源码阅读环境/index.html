@@ -1,0 +1,503 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>【Spark】配置Spark源码阅读环境 | Jason&#39;s Techblog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Jason Ding">
+    
+    <meta name="description" content="Scala构建工具（SBT）的使用SBT介绍SBT是Simple Build Tool的简称，如果读者使用过Maven，那么可以简单将SBT看做是Scala世界的Maven，虽然二者各有优劣，但完成的工作基本是类似的。虽然Maven同样可以管理Scala项目的依赖并进行构建，但SBT的某些特性却让人">
+    
+    
+    
+    
+    <link rel="alternate" href="/atom.xml" title="Jason&#39;s Techblog" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/author.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/author.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F3cc71cd5738b99a1db174951e194ba55' type='text/javascript'%3E%3C/script%3E"));
+
+
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F1dcf1fa58b0eca1ac5bd089ee6a6e78c' type='text/javascript'%3E%3C/script%3E"));
+
+
+</script>
+
+
+    <!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Jason&#39;s Techblog" title="Jason&#39;s Techblog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Jason&#39;s Techblog">Jason&#39;s Techblog</a></h1>
+				<h2 class="blog-motto">Technician =&gt; Scientist =&gt; Philosopher =&gt; Artists</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="http://jasonding.top">Main</a></li>
+					
+					<li>
+					
+						<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" class="st-default-search-input" maxlength="20" placeholder="Search" />
+						</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody">
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/05/28/Spark/【Spark】配置Spark源码阅读环境/" title="【Spark】配置Spark源码阅读环境" itemprop="url">【Spark】配置Spark源码阅读环境</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://blog.jasonding.top" title="Jason Ding">Jason Ding</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2015-05-28T02:03:59.000Z" itemprop="datePublished">2015-05-28</time>
+    Updated:<time datetime="2016-03-16T06:24:42.000Z" itemprop="dateModified">2016-03-16</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Scala构建工具（SBT）的使用"><span class="toc-number">1.</span> <span class="toc-text">Scala构建工具（SBT）的使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SBT介绍"><span class="toc-number">1.1.</span> <span class="toc-text">SBT介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#工程结构"><span class="toc-number">1.2.</span> <span class="toc-text">工程结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#目录结构"><span class="toc-number">1.3.</span> <span class="toc-text">目录结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SBT命令"><span class="toc-number">1.4.</span> <span class="toc-text">SBT命令</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#导入Spark工程"><span class="toc-number">2.</span> <span class="toc-text">导入Spark工程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#安装IntelliJ-IDEA的编辑器主题配色"><span class="toc-number">3.</span> <span class="toc-text">安装IntelliJ IDEA的编辑器主题配色</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">4.</span> <span class="toc-text">参考资料</span></a></li></ol>
+		</div>
+		
+		<h2 id="Scala构建工具（SBT）的使用"><a href="#Scala构建工具（SBT）的使用" class="headerlink" title="Scala构建工具（SBT）的使用"></a>Scala构建工具（SBT）的使用</h2><h3 id="SBT介绍"><a href="#SBT介绍" class="headerlink" title="SBT介绍"></a>SBT介绍</h3><p>SBT是Simple Build Tool的简称，如果读者使用过Maven，那么可以简单将SBT看做是Scala世界的Maven，虽然二者各有优劣，但完成的工作基本是类似的。<br>虽然Maven同样可以管理Scala项目的依赖并进行构建，但SBT的某些特性却让人如此着迷，比如：</p>
+<blockquote>
+<ul>
+<li>使用Scala作为DSL来定义build文件（one language rules them all）;</li>
+<li>通过触发执行(trigger execution)特性支持持续的编译与测试；</li>
+<li>增量编译:SBT的增量编译支持因为如此优秀，已经剥离为Zinc，可被Eclipse, Maven,Gradle等使用</li>
+<li>可以混合构建Java和Scala项目；</li>
+<li>并行的任务执行；</li>
+<li>可以重用Maven或者ivy的repository进行依赖管理等等</li>
+</ul>
+</blockquote>
+<h3 id="工程结构"><a href="#工程结构" class="headerlink" title="工程结构"></a>工程结构</h3><ul>
+<li>project – 工程定义文件<br>  project/build/.scala – 主要的工程定义文件<br>  project/build.properties – 工程，sbt以及scala版本定义</li>
+<li>src/main – 你的应用代码放在这里，不同的子目录名称表示不同的编程语言（例如，src/main/scala,src/main/java)<br>src/main/resources – 你想添加到jar包里的静态文件（例如日志配置文件）</li>
+<li>lib_managed – 你的工程所依赖的jar文件。会在sbt更新的时候添加到该目录</li>
+<li>target – 最终生成的文件存放的目录（例如，生成的thrift代码，class文件，jar文件）</li>
+</ul>
+<h3 id="目录结构"><a href="#目录结构" class="headerlink" title="目录结构"></a>目录结构</h3><p>sbt 和 Maven 的默认的源文件的目录结构是一样的（所有的路径都是相对于基础目录的）：</p>
+<pre><code>src/
+  main/
+    resources/    目录存放相应的资源文件
+       &lt;files to include in main jar here&gt;
+    scala/    目录存放Scala源代码文件
+       &lt;main Scala sources&gt;
+    java/    目录存放Java源代码文件 
+       &lt;main Java sources&gt;
+  test/
+    resources    目录存放测试起见使用到的资源文件
+       &lt;files to include in test jar here&gt;
+    scala/    目录存放scala语言书写的测试代码文件
+       &lt;test Scala sources&gt;
+    java/    目录存放Java语言书写的测试代码文件
+       &lt;test Java sources&gt;
+</code></pre><p>sbt 完全按照约定工作。sbt 将会自动找到以下内容：<br>项目根目录下的源文件<br>src/main/scala 或 src/main/java 中的源文件<br>src/test/scala 或 src/test/java 中的测试文件<br>src/main/resources 或 src/test/resources 中的数据文件<br>lib 中的 jar 文件</p>
+<h3 id="SBT命令"><a href="#SBT命令" class="headerlink" title="SBT命令"></a>SBT命令</h3><ul>
+<li><p>交互模式<br>在你的项目目录下运行 sbt 不跟任何参数：<br><code>$ sbt</code><br>执行 sbt 不跟任何命令行参数将会进入交互模式。交互模式有一个命令行（含有 tab 自动补全功能和历史记录）。<br>例如，在 sbt 命令行里输入 compile：<br><code>&gt; compile</code><br>再次 compile，只需要按向上的方向键，然后回车。 输入 run 来启动程序。 输入 exit 或者 Ctrl+D （Unix）或者 Ctrl+Z （Windows）可以退出交互模式。</p>
+</li>
+<li><p>批处理模式<br>你也可以用批处理模式来运行 sbt，可以以空格为分隔符指定参数。对于接受参数的 sbt 命令，将命令和参数用引号引起来一起传给 sbt。例如：<br><code>$ sbt clean compile &quot;testOnly TestA TestB&quot;</code><br>在这个例子中，testOnly 有两个参数 TestA 和 TestB。这个命令会按顺序执行（clean， compile， 然后 testOnly）。</p>
+</li>
+<li><p>持续构建和测试<br>为了加快编辑-编译-测试循环，你可以让 sbt 在你保存源文件时自动重新编译或者跑测试。 在命令前面加上前缀 ~ 后，每当有一个或多个源文件发生变化时就会自动运行该命令。例如，在交互模式下尝试：<br><code>&gt; ~ compile</code><br>按回车键停止监视变化。 你可以在交互模式或者批处理模式下使用 ~ 前缀。 参见 触发执行 获取详细信息。</p>
+</li>
+<li><p>常用命令<br>下面是一些非常常用的的 sbt 命令。更加详细的列表请参见 命令行参考。</p>
+</li>
+</ul>
+<blockquote>
+<p>clean    删除所有生成的文件 （在 target 目录下）。<br>compile    编译源文件（在 src/main/scala 和 src/main/java 目录下）。<br>test    编译和运行所有测试。<br>console    进入到一个包含所有编译的文件和所有依赖的 classpath 的 Scala 解析器。输入 :quit， Ctrl+D （Unix），或者 Ctrl+Z （Windows） 返回到 sbt。<br>run &lt;参数&gt;<em>    在和 sbt 所处的同一个虚拟机上执行项目的 main class。<br>package    将 src/main/resources 下的文件和 src/main/scala 以及 src/main/java 中编译出来的 class 文件打包成一个 jar 文件。<br>help &lt;命令&gt;    显示指定的命令的详细帮助信息。如果没有指定命令，会显示所有命令的简介。<br>reload    重新加载构建定义（build.sbt， project/\</em>.scala， project/*.sbt 这些文件中定义的内容)。在修改了构建定义文件之后需要重新加载。</p>
+</blockquote>
+<h2 id="导入Spark工程"><a href="#导入Spark工程" class="headerlink" title="导入Spark工程"></a>导入Spark工程</h2><p>首先下载Spark源码并解压到本地。<br>打开IDEA，在菜单栏中选择<code>File</code>下的<code>New</code>，选择<code>Project from Existing Sources</code>，找到解压后的Spark工程文件夹。<br>选择<code>Import project from external model</code>中的<code>SBT project</code>。<br>下一步选择Project SDK为JDK，最好勾上<code>Use auto-import</code>，然后点击完成。这时，IDEA会自动下载安装SBT所需的各种包，没有装Git可能会报错。</p>
+<p>因为Spark是一个比较大的工程，所需的包也很多，这个过程也会特别慢，请耐心等待。<br>导入完成后，自动打开工程，要等一段时间，等待sbt对这个工程进行编译。</p>
+<h2 id="安装IntelliJ-IDEA的编辑器主题配色"><a href="#安装IntelliJ-IDEA的编辑器主题配色" class="headerlink" title="安装IntelliJ IDEA的编辑器主题配色"></a>安装IntelliJ IDEA的编辑器主题配色</h2><p>可以从<a href="http://www.ideacolorthemes.org/home/" target="_blank" rel="external">IDEA的主题网站</a>下载想要的主题，格式jar文件。<br>在IDEA的<code>File</code>–&gt;<code>Import Settings</code>–&gt;选择jar包，完成导入。<br>最后在Settings–&gt;Editor–&gt;Colors &amp; Fonts中选择就可以了。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><p>有关IntelliJ IDEA的配置和使用<br><a href="http://www.cnblogs.com/Leo_wl/p/4466616.html" target="_blank" rel="external">IntelliJ IDEA 开发scala</a><br><a href="http://blog.csdn.net/asongoficeandfire/article/details/26412493" target="_blank" rel="external">Scala从零开始：使用Intellij IDEA写hello world</a></p>
+</li>
+<li><p>有关SBT的使用<br><a href="http://article.yeeyan.org/view/433044/378612" target="_blank" rel="external">Scala构建工具(SBT)教程</a><br><a href="http://www.scala-sbt.org/0.13/tutorial/zh-cn/Running.html" target="_blank" rel="external">SBT运行命令</a><br><a href="http://www.importnew.com/4311.html" target="_blank" rel="external">Scala教程：简单构建工具SBT</a></p>
+</li>
+<li><p>Spark源码阅读环境<br><a href="http://guozhongxin.com/pages/2014/10/15/spark_source_code.html" target="_blank" rel="external">Windows + IDEA + SBT 打造Spark源码阅读环境</a></p>
+</li>
+</ul>
+<p><strong>转载请注明作者Jason Ding及其出处</strong><br><a href="http://jasonding1354.gitcafe.io/" target="_blank" rel="external">GitCafe博客主页(http://jasonding1354.gitcafe.io/)</a><br><a href="http://jasonding1354.github.io/" target="_blank" rel="external">Github博客主页(http://jasonding1354.github.io/)</a><br><a href="http://blog.csdn.net/jasonding1354" target="_blank" rel="external">CSDN博客(http://blog.csdn.net/jasonding1354)</a><br><a href="http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles" target="_blank" rel="external">简书主页(http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles)</a><br><strong>百度搜索jasonding1354进入我的博客主页</strong></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Scala/">Scala</a><a href="/tags/Spark/">Spark</a>
+  </div>
+
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Spark/">Spark</a>
+</div>
+
+
+
+<div class="article-share" id="share">
+
+  
+<div class="jiathis_style">
+    <span class="jiathis_txt">分享到：</span>
+    <a class="jiathis_button_tsina">新浪微博</a>
+    <a class="jiathis_button_weixin">微信</a>
+    <a class="jiathis_button_twitter">Twitter</a>
+    <a class="jiathis_button_evernote">EverNote</a>
+    <a href="http://www.jiathis.com/share?uid=1501277" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript" >
+    var jiathis_config={
+    data_track_clickback:true,
+    sm:"copy,renren,cqq",
+    pic:"",
+    summary:"",
+    
+  </script> 
+<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=
+1394018007141544" charset="utf-8"></script>      
+
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2015/06/03/Scala/【Scala】头等函数与函数即对象/" title="【Scala】头等函数与函数即对象">
+  <strong>之后的一篇</strong><br/>
+  <span>
+  【Scala】头等函数与函数即对象</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2015/05/26/Scala/【Scala】单例对象与伴生对象/"  title="【Scala】单例对象与伴生对象">
+ <strong>之前的一篇</strong><br/> 
+ <span>【Scala】单例对象与伴生对象
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section class="comment">
+	<div class="ds-thread"></div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Scala构建工具（SBT）的使用"><span class="toc-number">1.</span> <span class="toc-text">Scala构建工具（SBT）的使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SBT介绍"><span class="toc-number">1.1.</span> <span class="toc-text">SBT介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#工程结构"><span class="toc-number">1.2.</span> <span class="toc-text">工程结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#目录结构"><span class="toc-number">1.3.</span> <span class="toc-text">目录结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SBT命令"><span class="toc-number">1.4.</span> <span class="toc-text">SBT命令</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#导入Spark工程"><span class="toc-number">2.</span> <span class="toc-text">导入Spark工程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#安装IntelliJ-IDEA的编辑器主题配色"><span class="toc-number">3.</span> <span class="toc-text">安装IntelliJ IDEA的编辑器主题配色</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">4.</span> <span class="toc-text">参考资料</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+<div class="maps">
+    <p class="asidetitle">访问统计</p>
+    <br>
+    <script type="text/javascript" src="//ra.revolvermaps.com/0/0/6.js?i=0leibswamim&amp;m=0&amp;s=210&amp;c=ff0000&amp;cr1=ffffff&amp;f=arial&amp;l=0" async="async"></script>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">Categories</p>
+		<ul>
+		
+			<li><a href="/categories/Algorithm-Problem/" title="Algorithm Problem">Algorithm Problem<sup>1</sup></a></li>
+		
+			<li><a href="/categories/C/" title="C++">C++<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Classic-Algorithm/" title="Classic Algorithm">Classic Algorithm<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Cluster-Analysis/" title="Cluster Analysis">Cluster Analysis<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Design-Pattern/" title="Design Pattern">Design Pattern<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Developer-Kits/" title="Developer Kits">Developer Kits<sup>5</sup></a></li>
+		
+			<li><a href="/categories/Energy-Big-Data/" title="Energy Big Data">Energy Big Data<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Feature-Engineering/" title="Feature Engineering">Feature Engineering<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Functional/" title="Functional">Functional<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Functional-Programming/" title="Functional Programming">Functional Programming<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Git/" title="Git">Git<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Jobs/" title="Jobs">Jobs<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>4</sup></a></li>
+		
+			<li><a href="/categories/ML-Experiments/" title="ML Experiments">ML Experiments<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Machine-Learning/" title="Machine Learning">Machine Learning<sup>50</sup></a></li>
+		
+			<li><a href="/categories/Math/" title="Math">Math<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Programming/" title="Programming">Programming<sup>11</sup></a></li>
+		
+			<li><a href="/categories/Python/" title="Python">Python<sup>10</sup></a></li>
+		
+			<li><a href="/categories/Scala/" title="Scala">Scala<sup>27</sup></a></li>
+		
+			<li><a href="/categories/Scala-ML/" title="Scala-ML">Scala-ML<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Similarity-Search/" title="Similarity Search">Similarity Search<sup>4</sup></a></li>
+		
+			<li><a href="/categories/Small-Problems/" title="Small Problems">Small Problems<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Spark/" title="Spark">Spark<sup>23</sup></a></li>
+		
+			<li><a href="/categories/Thoughts/" title="Thoughts">Thoughts<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">Tag Cloud</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/Actor/" style="font-size: 10px;">Actor</a> <a href="/tags/Akka/" style="font-size: 14.55px;">Akka</a> <a href="/tags/Algorithm/" style="font-size: 10px;">Algorithm</a> <a href="/tags/Approximate-Nearest-Neighbor-Search/" style="font-size: 10px;">Approximate Nearest Neighbor Search</a> <a href="/tags/Bayesian-Analysis/" style="font-size: 10.91px;">Bayesian Analysis</a> <a href="/tags/Big-Data/" style="font-size: 10px;">Big Data</a> <a href="/tags/C/" style="font-size: 12.73px;">C++</a> <a href="/tags/Classification/" style="font-size: 11.82px;">Classification</a> <a href="/tags/Cluster-Analysis/" style="font-size: 10px;">Cluster Analysis</a> <a href="/tags/Computer-Vision/" style="font-size: 14.55px;">Computer Vision</a> <a href="/tags/Eclipse/" style="font-size: 10px;">Eclipse</a> <a href="/tags/Energy-Forecasting/" style="font-size: 10px;">Energy Forecasting</a> <a href="/tags/Feature-Engineering/" style="font-size: 10.91px;">Feature Engineering</a> <a href="/tags/Functional-Programming/" style="font-size: 16.36px;">Functional Programming</a> <a href="/tags/Gaussian-Process/" style="font-size: 10px;">Gaussian Process</a> <a href="/tags/Git/" style="font-size: 10.91px;">Git</a> <a href="/tags/GraphLab/" style="font-size: 10px;">GraphLab</a> <a href="/tags/IPython/" style="font-size: 10px;">IPython</a> <a href="/tags/Internet-of-Energy/" style="font-size: 10px;">Internet of Energy</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/Kaggle/" style="font-size: 10px;">Kaggle</a> <a href="/tags/Kernel-Method/" style="font-size: 10px;">Kernel Method</a> <a href="/tags/LSH/" style="font-size: 12.73px;">LSH</a> <a href="/tags/LaTex/" style="font-size: 10px;">LaTex</a> <a href="/tags/Linux/" style="font-size: 11.82px;">Linux</a> <a href="/tags/Machine-Learning/" style="font-size: 20px;">Machine Learning</a> <a href="/tags/Math/" style="font-size: 11.82px;">Math</a> <a href="/tags/Mathematics/" style="font-size: 13.64px;">Mathematics</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MeanShift/" style="font-size: 10px;">MeanShift</a> <a href="/tags/Mint/" style="font-size: 10px;">Mint</a> <a href="/tags/OpenCV/" style="font-size: 15.45px;">OpenCV</a> <a href="/tags/Probabilistic-Programming/" style="font-size: 10px;">Probabilistic Programming</a> <a href="/tags/Probability-Distributions/" style="font-size: 10px;">Probability Distributions</a> <a href="/tags/Programming/" style="font-size: 14.55px;">Programming</a> <a href="/tags/Python/" style="font-size: 17.27px;">Python</a> <a href="/tags/Regression/" style="font-size: 11.82px;">Regression</a> <a href="/tags/Resume/" style="font-size: 10px;">Resume</a> <a href="/tags/SVM/" style="font-size: 12.73px;">SVM</a> <a href="/tags/Scala/" style="font-size: 19.09px;">Scala</a> <a href="/tags/Similarity-Search/" style="font-size: 10.91px;">Similarity Search</a> <a href="/tags/Source-code/" style="font-size: 10px;">Source code</a> <a href="/tags/Spark/" style="font-size: 18.18px;">Spark</a> <a href="/tags/Summary/" style="font-size: 10px;">Summary</a> <a href="/tags/Thoughts/" style="font-size: 10.91px;">Thoughts</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/Vim/" style="font-size: 11.82px;">Vim</a> <a href="/tags/Written-Test/" style="font-size: 10px;">Written Test</a> <a href="/tags/Zeppelin/" style="font-size: 10px;">Zeppelin</a> <a href="/tags/boost/" style="font-size: 10px;">boost</a> <a href="/tags/cpp/" style="font-size: 13.64px;">cpp</a> <a href="/tags/opencv/" style="font-size: 10.91px;">opencv</a> <a href="/tags/p-Stable-LSH/" style="font-size: 10px;">p-Stable LSH</a> <a href="/tags/scikit-learn/" style="font-size: 10px;">scikit-learn</a> <a href="/tags/sklearn/" style="font-size: 10.91px;">sklearn</a> <a href="/tags/互联网时代/" style="font-size: 10px;">互联网时代</a> <a href="/tags/位置敏感哈希/" style="font-size: 10.91px;">位置敏感哈希</a> <a href="/tags/分治/" style="font-size: 10px;">分治</a> <a href="/tags/单元测试/" style="font-size: 10px;">单元测试</a> <a href="/tags/反思/" style="font-size: 10px;">反思</a> <a href="/tags/效率/" style="font-size: 10px;">效率</a> <a href="/tags/核方法/" style="font-size: 10px;">核方法</a> <a href="/tags/算法框架/" style="font-size: 10px;">算法框架</a> <a href="/tags/设计模式/" style="font-size: 11.82px;">设计模式</a>
+    </div>
+  </div>
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle"><a href="/archives">Archives</a></p>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">February 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">November 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">29</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a><span class="archive-list-count">16</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">10</span></li></ul>
+  </div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
+</div>
+
+</aside>
+
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Jason Ding in HUST <br/>
+			I would share moments of life here! </p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/1698420390" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/jasonding1354" target="_blank" title="github"></a>
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2016 
+		
+		<a href="http://blog.jasonding.top" target="_blank" title="Jason Ding">Jason Ding</a>
+		
+		</p>
+		<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+  
+  _st('install','uYyEuxJdzzAGXTax33mt','2.0.0');
+</script>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"jasonding"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+  </body>
+</html>

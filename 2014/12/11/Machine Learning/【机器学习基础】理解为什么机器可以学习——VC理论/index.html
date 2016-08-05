@@ -1,0 +1,484 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>【机器学习基础】理解为什么机器可以学习——VC理论 | Jason&#39;s Techblog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Jason Ding">
+    
+    <meta name="description" content="引入上一小节中，“理解为什么机器可以学习——Hoeffding不等式”中，我们介绍了有限假设空间中的概率边界。在这篇文章中，我们将推广至无限假设空间中，进而引入VC理论。
+面临待解决的问题上一节，我们证明了PAC学习的样本复杂度随假设空间对数增长，但是以假设空间的个数|H|来刻画样本复制度存在缺点：">
+    
+    
+    
+    
+    <link rel="alternate" href="/atom.xml" title="Jason&#39;s Techblog" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/author.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/author.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F3cc71cd5738b99a1db174951e194ba55' type='text/javascript'%3E%3C/script%3E"));
+
+
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F1dcf1fa58b0eca1ac5bd089ee6a6e78c' type='text/javascript'%3E%3C/script%3E"));
+
+
+</script>
+
+
+    <!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Jason&#39;s Techblog" title="Jason&#39;s Techblog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Jason&#39;s Techblog">Jason&#39;s Techblog</a></h1>
+				<h2 class="blog-motto">Technician =&gt; Scientist =&gt; Philosopher =&gt; Artists</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="http://jasonding.top">Main</a></li>
+					
+					<li>
+					
+						<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" class="st-default-search-input" maxlength="20" placeholder="Search" />
+						</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody">
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2014/12/11/Machine Learning/【机器学习基础】理解为什么机器可以学习——VC理论/" title="【机器学习基础】理解为什么机器可以学习——VC理论" itemprop="url">【机器学习基础】理解为什么机器可以学习——VC理论</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://blog.jasonding.top" title="Jason Ding">Jason Ding</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2014-12-11T00:12:59.000Z" itemprop="datePublished">2014-12-11</time>
+    Updated:<time datetime="2016-03-16T06:24:42.000Z" itemprop="dateModified">2016-03-16</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#引入"><span class="toc-number">1.</span> <span class="toc-text">引入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#面临待解决的问题"><span class="toc-number">2.</span> <span class="toc-text">面临待解决的问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#打散-shatter-一个数据集合"><span class="toc-number">3.</span> <span class="toc-text">打散(shatter)一个数据集合</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Dichotomy，一分为二的划分"><span class="toc-number">3.1.</span> <span class="toc-text">Dichotomy，一分为二的划分</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#成长函数Growth-Function"><span class="toc-number">3.2.</span> <span class="toc-text">成长函数Growth Function</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#shatter"><span class="toc-number">3.3.</span> <span class="toc-text">shatter</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Break-Point-of-H"><span class="toc-number">3.4.</span> <span class="toc-text">Break Point of H</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Bounding-Function"><span class="toc-number">3.5.</span> <span class="toc-text">Bounding Function</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#VC-Bound"><span class="toc-number">3.6.</span> <span class="toc-text">VC Bound</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#小结"><span class="toc-number">3.7.</span> <span class="toc-text">小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#VC维"><span class="toc-number">4.</span> <span class="toc-text">VC维</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#定义"><span class="toc-number">4.1.</span> <span class="toc-text">定义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#VC维和学习的关系"><span class="toc-number">4.2.</span> <span class="toc-text">VC维和学习的关系</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">6.</span> <span class="toc-text">参考资料</span></a></li></ol>
+		</div>
+		
+		<h2 id="引入"><a href="#引入" class="headerlink" title="引入"></a>引入</h2><p>上一小节中，<a href="http://jasonding1354.github.io/2014/12/10/Machine%20Learning/%E3%80%90%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80%E3%80%91%E7%90%86%E8%A7%A3%E4%B8%BA%E4%BB%80%E4%B9%88%E6%9C%BA%E5%99%A8%E5%8F%AF%E4%BB%A5%E5%AD%A6%E4%B9%A0%E2%80%94%E2%80%94Hoeffding%E4%B8%8D%E7%AD%89%E5%BC%8F/" target="_blank" rel="external">“理解为什么机器可以学习——Hoeffding不等式”</a>中，我们介绍了有限假设空间中的概率边界。在这篇文章中，我们将推广至无限假设空间中，进而引入VC理论。</p>
+<h2 id="面临待解决的问题"><a href="#面临待解决的问题" class="headerlink" title="面临待解决的问题"></a>面临待解决的问题</h2><p>上一节，我们证明了PAC学习的样本复杂度随假设空间对数增长，但是以假设空间的个数|H|来刻画样本复制度存在缺点：</p>
+<blockquote>
+<ul>
+<li>对于|H|很大的情形，会使一个很弱的边界，即出现错误的概率很大</li>
+<li>对于无限假设空间的情形无法应用</li>
+</ul>
+</blockquote>
+<p>所以，我们要考虑H的复杂度的另一种度量方式，称为H的Vapnik-Chervonenkis维度（简称VC维），我们用VC(H)代替|H|得到样本复杂度的边界。</p>
+<h2 id="打散-shatter-一个数据集合"><a href="#打散-shatter-一个数据集合" class="headerlink" title="打散(shatter)一个数据集合"></a>打散(shatter)一个数据集合</h2><p>VC维衡量假设空间复杂度的方法不是用不同假设的数量|H|，而是用给定X中能被H彻底区分的不同实例的数量（<em>举个例子，比如2D空间有两个数据，如果是用感知机模型的话，可以将这两个数据分成两个正例、两个负例、一正一负或一负一正，我们知道在这种情况下，感知机的假设空间是无穷的，但是实际上导致最终分类的只有4中不同结果</em>）。</p>
+<h3 id="Dichotomy，一分为二的划分"><a href="#Dichotomy，一分为二的划分" class="headerlink" title="Dichotomy，一分为二的划分"></a>Dichotomy，一分为二的划分</h3><p>想象我们现在有一个假设集合，这个假设集合将N个点的数据分成正例和负例的不同组合（用圈和叉来表示），于是我们就将假设将数据分成不同正负例的组合称为Dichotomy。Hypotheses和Dichotomies的区别如下图所示，Dichotomies最多有2的N次方种可能。于是，我们就打算用Dichotomies的有效数量来取代有限假设空间的Hoeffding不等式中的M。<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/vc/dichotomy.jpg" alt=""></p>
+<h3 id="成长函数Growth-Function"><a href="#成长函数Growth-Function" class="headerlink" title="成长函数Growth Function"></a>成长函数Growth Function</h3><p>由于这里我们定义的Dichotomy是依赖具体的N个输入数据的，为了移除这里的影响，我们现定义成长函数mH(N)，用它来表示对于不同的数据集的Dichotomy的最大值。<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/vc/growth_function.jpg" alt=""></p>
+<p>以2D的Perceptron举例来说，针对不一样的输入点的个数N，可能有不同的有效分离平面，不一定是2的N次方种。<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/vc/2dperceptron_lines.jpg" alt=""></p>
+<h3 id="shatter"><a href="#shatter" class="headerlink" title="shatter"></a>shatter</h3><p>一数据集D被假设空间H打散（shatter），当且仅当对D的每个划分，存在H中的某假设与此划分一致（即当D的每种可能划分可由H中的某个假设来表达时，称H打散D）。<br>注意：<br>如果一个数据集合没有被假设空间打散，那么必然存在某种划分可被定义在数据集中，但不能由假设空间表示。<br><strong>H的这种打散数据集合的能力是其在这些数据上定义目标函数的表示能力的度量。</strong>可以说被打散的X的子集越大，H的表示能力越强。<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/vc/shatter.jpg" alt=""></p>
+<h3 id="Break-Point-of-H"><a href="#Break-Point-of-H" class="headerlink" title="Break Point of H"></a>Break Point of H</h3><p>基于上面的介绍我们可以回头看看Hoeffding不等式，我们想要用成长函数mH(N)来代替假设空间的数量|H|，而如果mH(N)和e的负幂次相乘，那么得到一个很小的数，这就对出错的概率作了一个限制；而如果mH(N)是一个幂指数的话，就无法限制错误率。<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/vc/grow_func_inequality.jpg" alt=""></p>
+<p>下面，我们定义一个新的概念——Break Point。如果数据集中的数据个数k是，假设空间H无法打散这个数据集，那么就说k是H的Break Point。比如，2D的Perceptron的情形，当N=4时，数据集应该可以有16种类别情形，而实际上，假设空间的有效个数只是14，那么4就是这个H的Break Point。<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/vc/break_point.jpg" alt=""></p>
+<h3 id="Bounding-Function"><a href="#Bounding-Function" class="headerlink" title="Bounding Function"></a>Bounding Function</h3><p>上限函数Bounding Function B(N,k)是Break Point为k时，成长函数mH(N)的最大值，利用上限函数可以不去管假设空间里的具体细节，这样，只要上限函数是多项式的形式的话，就可以解决问题。<br>这里我们经过计算归纳，得到了上限函数的列表和规律：<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/vc/bounding.jpg" alt=""></p>
+<p>经过一番努力，我们可以得到 <strong>成长函数mH(N)&lt;= 上限函数B(N,k) &lt;= 多项式函数poly(N)</strong>，只要成长函数有Break Point存在，那么该成长函数就是一个多项式。</p>
+<h3 id="VC-Bound"><a href="#VC-Bound" class="headerlink" title="VC Bound"></a>VC Bound</h3><p>这里给出VC bound的结论<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/vc/vc_bound.jpg" alt=""><br>这个结论通俗来讲就是，数据够多的时候，机器学习算法真的可以学到有用的知识。</p>
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>上面我们可以知道,要学到有用的东西需要下面几个条件：</p>
+<blockquote>
+<ul>
+<li>好的假设空间，即mH(N)存在Break Point</li>
+<li>好的数据，即数据足够多，使得训练误差和真实误差很接近</li>
+<li>好的算法，即算法可以选出一个训练误差很小的假设</li>
+<li>好的运气，因为之前说明的是一个概率问题，所以要有一点点运气，恶劣的情况才不会发生</li>
+</ul>
+</blockquote>
+<h2 id="VC维"><a href="#VC维" class="headerlink" title="VC维"></a>VC维</h2><h3 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h3><p>定义在输入空间X上的假设空间H的VC维，是可被H打散的X的最大有限子集的大小（数据量的大小）。如果X的任意有限大的子集可被H打散，则VC(H)为无穷大。<br>结合上面的介绍，我们知道VC维和Break Point的关系是：VC维 = ‘minimum k’ - 1。通俗一点，比VC维大就是Break Point。<br>终于，我们可以得出结论，VC维是有限的假设就是好的假设。</p>
+<h3 id="VC维和学习的关系"><a href="#VC维和学习的关系" class="headerlink" title="VC维和学习的关系"></a>VC维和学习的关系</h3><blockquote>
+<ul>
+<li>VC维和具体的学习算法A没有关系</li>
+<li>VC维和输入数据的概率分布P没有关系</li>
+<li>VC维和目标函数f没有关系</li>
+</ul>
+</blockquote>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>我们终于一步一步地得到学习器能从数据中学习到有用的知识的限制条件，也明白了为什么机器能学习，其实就是从训练资料中选择一个错误率小的假设，该假设也能保证在更多的测试数据中存在较小的错误率。<br>在下一小节中，我要将VC维的内容收收尾，介绍一下VC维的物理意义。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>机器学习， Tom M.Mitchell ，机械工业出版社<br>机器学习基石课程，林轩田，台湾大学</p>
+<p><strong>转载请注明作者Jason Ding及其出处</strong><br><a href="http://jasonding1354.github.io/" target="_blank" rel="external">Github主页(http://jasonding1354.github.io/)</a><br><a href="http://blog.csdn.net/jasonding1354" target="_blank" rel="external">CSDN博客(http://blog.csdn.net/jasonding1354)</a><br><a href="http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles" target="_blank" rel="external">简书主页(http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles)</a></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Machine-Learning/">Machine Learning</a>
+  </div>
+
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Machine-Learning/">Machine Learning</a>
+</div>
+
+
+
+<div class="article-share" id="share">
+
+  
+<div class="jiathis_style">
+    <span class="jiathis_txt">分享到：</span>
+    <a class="jiathis_button_tsina">新浪微博</a>
+    <a class="jiathis_button_weixin">微信</a>
+    <a class="jiathis_button_twitter">Twitter</a>
+    <a class="jiathis_button_evernote">EverNote</a>
+    <a href="http://www.jiathis.com/share?uid=1501277" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript" >
+    var jiathis_config={
+    data_track_clickback:true,
+    sm:"copy,renren,cqq",
+    pic:"",
+    summary:"",
+    
+  </script> 
+<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=
+1394018007141544" charset="utf-8"></script>      
+
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2014/12/15/Machine Learning Experiments/【scikit-learn】用Python进行机器学习实验/" title="【scikit-learn】用Python进行机器学习实验">
+  <strong>之后的一篇</strong><br/>
+  <span>
+  【scikit-learn】用Python进行机器学习实验</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2014/12/10/Machine Learning/【机器学习基础】理解为什么机器可以学习——Hoeffding不等式/"  title="【机器学习基础】理解为什么机器可以学习——Hoeffding不等式">
+ <strong>之前的一篇</strong><br/> 
+ <span>【机器学习基础】理解为什么机器可以学习——Hoeffding不等式
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section class="comment">
+	<div class="ds-thread"></div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#引入"><span class="toc-number">1.</span> <span class="toc-text">引入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#面临待解决的问题"><span class="toc-number">2.</span> <span class="toc-text">面临待解决的问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#打散-shatter-一个数据集合"><span class="toc-number">3.</span> <span class="toc-text">打散(shatter)一个数据集合</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Dichotomy，一分为二的划分"><span class="toc-number">3.1.</span> <span class="toc-text">Dichotomy，一分为二的划分</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#成长函数Growth-Function"><span class="toc-number">3.2.</span> <span class="toc-text">成长函数Growth Function</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#shatter"><span class="toc-number">3.3.</span> <span class="toc-text">shatter</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Break-Point-of-H"><span class="toc-number">3.4.</span> <span class="toc-text">Break Point of H</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Bounding-Function"><span class="toc-number">3.5.</span> <span class="toc-text">Bounding Function</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#VC-Bound"><span class="toc-number">3.6.</span> <span class="toc-text">VC Bound</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#小结"><span class="toc-number">3.7.</span> <span class="toc-text">小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#VC维"><span class="toc-number">4.</span> <span class="toc-text">VC维</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#定义"><span class="toc-number">4.1.</span> <span class="toc-text">定义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#VC维和学习的关系"><span class="toc-number">4.2.</span> <span class="toc-text">VC维和学习的关系</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">6.</span> <span class="toc-text">参考资料</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+<div class="maps">
+    <p class="asidetitle">访问统计</p>
+    <br>
+    <script type="text/javascript" src="//ra.revolvermaps.com/0/0/6.js?i=0leibswamim&amp;m=0&amp;s=210&amp;c=ff0000&amp;cr1=ffffff&amp;f=arial&amp;l=0" async="async"></script>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">Categories</p>
+		<ul>
+		
+			<li><a href="/categories/Algorithm-Problem/" title="Algorithm Problem">Algorithm Problem<sup>1</sup></a></li>
+		
+			<li><a href="/categories/C/" title="C++">C++<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Classic-Algorithm/" title="Classic Algorithm">Classic Algorithm<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Cluster-Analysis/" title="Cluster Analysis">Cluster Analysis<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Design-Pattern/" title="Design Pattern">Design Pattern<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Developer-Kits/" title="Developer Kits">Developer Kits<sup>5</sup></a></li>
+		
+			<li><a href="/categories/Energy-Big-Data/" title="Energy Big Data">Energy Big Data<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Feature-Engineering/" title="Feature Engineering">Feature Engineering<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Functional/" title="Functional">Functional<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Functional-Programming/" title="Functional Programming">Functional Programming<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Git/" title="Git">Git<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Jobs/" title="Jobs">Jobs<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>4</sup></a></li>
+		
+			<li><a href="/categories/ML-Experiments/" title="ML Experiments">ML Experiments<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Machine-Learning/" title="Machine Learning">Machine Learning<sup>50</sup></a></li>
+		
+			<li><a href="/categories/Math/" title="Math">Math<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Programming/" title="Programming">Programming<sup>11</sup></a></li>
+		
+			<li><a href="/categories/Python/" title="Python">Python<sup>10</sup></a></li>
+		
+			<li><a href="/categories/Scala/" title="Scala">Scala<sup>27</sup></a></li>
+		
+			<li><a href="/categories/Scala-ML/" title="Scala-ML">Scala-ML<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Similarity-Search/" title="Similarity Search">Similarity Search<sup>4</sup></a></li>
+		
+			<li><a href="/categories/Small-Problems/" title="Small Problems">Small Problems<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Spark/" title="Spark">Spark<sup>23</sup></a></li>
+		
+			<li><a href="/categories/Thoughts/" title="Thoughts">Thoughts<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">Tag Cloud</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/Actor/" style="font-size: 10px;">Actor</a> <a href="/tags/Akka/" style="font-size: 14.55px;">Akka</a> <a href="/tags/Algorithm/" style="font-size: 10px;">Algorithm</a> <a href="/tags/Approximate-Nearest-Neighbor-Search/" style="font-size: 10px;">Approximate Nearest Neighbor Search</a> <a href="/tags/Bayesian-Analysis/" style="font-size: 10.91px;">Bayesian Analysis</a> <a href="/tags/Big-Data/" style="font-size: 10px;">Big Data</a> <a href="/tags/C/" style="font-size: 12.73px;">C++</a> <a href="/tags/Classification/" style="font-size: 11.82px;">Classification</a> <a href="/tags/Cluster-Analysis/" style="font-size: 10px;">Cluster Analysis</a> <a href="/tags/Computer-Vision/" style="font-size: 14.55px;">Computer Vision</a> <a href="/tags/Eclipse/" style="font-size: 10px;">Eclipse</a> <a href="/tags/Energy-Forecasting/" style="font-size: 10px;">Energy Forecasting</a> <a href="/tags/Feature-Engineering/" style="font-size: 10.91px;">Feature Engineering</a> <a href="/tags/Functional-Programming/" style="font-size: 16.36px;">Functional Programming</a> <a href="/tags/Gaussian-Process/" style="font-size: 10px;">Gaussian Process</a> <a href="/tags/Git/" style="font-size: 10.91px;">Git</a> <a href="/tags/GraphLab/" style="font-size: 10px;">GraphLab</a> <a href="/tags/IPython/" style="font-size: 10px;">IPython</a> <a href="/tags/Internet-of-Energy/" style="font-size: 10px;">Internet of Energy</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/Kaggle/" style="font-size: 10px;">Kaggle</a> <a href="/tags/Kernel-Method/" style="font-size: 10px;">Kernel Method</a> <a href="/tags/LSH/" style="font-size: 12.73px;">LSH</a> <a href="/tags/LaTex/" style="font-size: 10px;">LaTex</a> <a href="/tags/Linux/" style="font-size: 11.82px;">Linux</a> <a href="/tags/Machine-Learning/" style="font-size: 20px;">Machine Learning</a> <a href="/tags/Math/" style="font-size: 11.82px;">Math</a> <a href="/tags/Mathematics/" style="font-size: 13.64px;">Mathematics</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MeanShift/" style="font-size: 10px;">MeanShift</a> <a href="/tags/Mint/" style="font-size: 10px;">Mint</a> <a href="/tags/OpenCV/" style="font-size: 15.45px;">OpenCV</a> <a href="/tags/Probabilistic-Programming/" style="font-size: 10px;">Probabilistic Programming</a> <a href="/tags/Probability-Distributions/" style="font-size: 10px;">Probability Distributions</a> <a href="/tags/Programming/" style="font-size: 14.55px;">Programming</a> <a href="/tags/Python/" style="font-size: 17.27px;">Python</a> <a href="/tags/Regression/" style="font-size: 11.82px;">Regression</a> <a href="/tags/Resume/" style="font-size: 10px;">Resume</a> <a href="/tags/SVM/" style="font-size: 12.73px;">SVM</a> <a href="/tags/Scala/" style="font-size: 19.09px;">Scala</a> <a href="/tags/Similarity-Search/" style="font-size: 10.91px;">Similarity Search</a> <a href="/tags/Source-code/" style="font-size: 10px;">Source code</a> <a href="/tags/Spark/" style="font-size: 18.18px;">Spark</a> <a href="/tags/Summary/" style="font-size: 10px;">Summary</a> <a href="/tags/Thoughts/" style="font-size: 10.91px;">Thoughts</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/Vim/" style="font-size: 11.82px;">Vim</a> <a href="/tags/Written-Test/" style="font-size: 10px;">Written Test</a> <a href="/tags/Zeppelin/" style="font-size: 10px;">Zeppelin</a> <a href="/tags/boost/" style="font-size: 10px;">boost</a> <a href="/tags/cpp/" style="font-size: 13.64px;">cpp</a> <a href="/tags/opencv/" style="font-size: 10.91px;">opencv</a> <a href="/tags/p-Stable-LSH/" style="font-size: 10px;">p-Stable LSH</a> <a href="/tags/scikit-learn/" style="font-size: 10px;">scikit-learn</a> <a href="/tags/sklearn/" style="font-size: 10.91px;">sklearn</a> <a href="/tags/互联网时代/" style="font-size: 10px;">互联网时代</a> <a href="/tags/位置敏感哈希/" style="font-size: 10.91px;">位置敏感哈希</a> <a href="/tags/分治/" style="font-size: 10px;">分治</a> <a href="/tags/单元测试/" style="font-size: 10px;">单元测试</a> <a href="/tags/反思/" style="font-size: 10px;">反思</a> <a href="/tags/效率/" style="font-size: 10px;">效率</a> <a href="/tags/核方法/" style="font-size: 10px;">核方法</a> <a href="/tags/算法框架/" style="font-size: 10px;">算法框架</a> <a href="/tags/设计模式/" style="font-size: 11.82px;">设计模式</a>
+    </div>
+  </div>
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle"><a href="/archives">Archives</a></p>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">February 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">November 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">29</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a><span class="archive-list-count">16</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">10</span></li></ul>
+  </div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
+</div>
+
+</aside>
+
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Jason Ding in HUST <br/>
+			I would share moments of life here! </p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/1698420390" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/jasonding1354" target="_blank" title="github"></a>
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2016 
+		
+		<a href="http://blog.jasonding.top" target="_blank" title="Jason Ding">Jason Ding</a>
+		
+		</p>
+		<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+  
+  _st('install','uYyEuxJdzzAGXTax33mt','2.0.0');
+</script>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"jasonding"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+  </body>
+</html>

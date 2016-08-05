@@ -1,0 +1,482 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>【Spark Core】DAGScheduler源码浅析 | Jason&#39;s Techblog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Jason Ding">
+    
+    <meta name="description" content="DAGSchedulerDAGScheduler的主要任务是基于Stage构建DAG，决定每个任务的最佳位置
+
+
+记录哪个RDD或者Stage输出被物化
+面向stage的调度层，为job生成以stage组成的DAG，提交TaskSet给TaskScheduler执行
+重新提交shuffle输出丢失的">
+    
+    
+    
+    
+    <link rel="alternate" href="/atom.xml" title="Jason&#39;s Techblog" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/author.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/author.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F3cc71cd5738b99a1db174951e194ba55' type='text/javascript'%3E%3C/script%3E"));
+
+
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F1dcf1fa58b0eca1ac5bd089ee6a6e78c' type='text/javascript'%3E%3C/script%3E"));
+
+
+</script>
+
+
+    <!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Jason&#39;s Techblog" title="Jason&#39;s Techblog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Jason&#39;s Techblog">Jason&#39;s Techblog</a></h1>
+				<h2 class="blog-motto">Technician =&gt; Scientist =&gt; Philosopher =&gt; Artists</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="http://jasonding.top">Main</a></li>
+					
+					<li>
+					
+						<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" class="st-default-search-input" maxlength="20" placeholder="Search" />
+						</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody">
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/07/14/Spark/【Spark Core】DAGScheduler源码浅析/" title="【Spark Core】DAGScheduler源码浅析" itemprop="url">【Spark Core】DAGScheduler源码浅析</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://blog.jasonding.top" title="Jason Ding">Jason Ding</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2015-07-14T11:40:24.000Z" itemprop="datePublished">2015-07-14</time>
+    Updated:<time datetime="2016-03-16T06:24:42.000Z" itemprop="dateModified">2016-03-16</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#DAGScheduler"><span class="toc-number">1.</span> <span class="toc-text">DAGScheduler</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DAGScheduler实例化"><span class="toc-number">2.</span> <span class="toc-text">DAGScheduler实例化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#作业提交与DAGScheduler操作"><span class="toc-number">3.</span> <span class="toc-text">作业提交与DAGScheduler操作</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#DAGScheduler的runJob函数"><span class="toc-number">3.1.</span> <span class="toc-text">DAGScheduler的runJob函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#作业提交的调度"><span class="toc-number">3.2.</span> <span class="toc-text">作业提交的调度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#handleJobSubmitted函数"><span class="toc-number">3.3.</span> <span class="toc-text">handleJobSubmitted函数</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">4.</span> <span class="toc-text">小结</span></a></li></ol>
+		</div>
+		
+		<h2 id="DAGScheduler"><a href="#DAGScheduler" class="headerlink" title="DAGScheduler"></a>DAGScheduler</h2><p>DAGScheduler的主要任务是基于Stage构建DAG，决定每个任务的最佳位置</p>
+<blockquote>
+<ul>
+<li>记录哪个RDD或者Stage输出被物化</li>
+<li>面向stage的调度层，为job生成以stage组成的DAG，提交TaskSet给TaskScheduler执行</li>
+<li>重新提交shuffle输出丢失的stage</li>
+</ul>
+</blockquote>
+<p>每一个Stage内，都是独立的tasks，他们共同执行同一个computefunction，享有相同的shuffledependencies。DAG在切分stage的时候是依照出现shuffle为界限的。</p>
+<h2 id="DAGScheduler实例化"><a href="#DAGScheduler实例化" class="headerlink" title="DAGScheduler实例化"></a>DAGScheduler实例化</h2><p>下面的代码是SparkContext实例化DAGScheduler的过程：<br><figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@volatile</span> <span class="keyword">private</span>[spark] <span class="keyword">var</span> dagScheduler: <span class="type">DAGScheduler</span> = _</div><div class="line"><span class="keyword">try</span> &#123;</div><div class="line">  dagScheduler = <span class="keyword">new</span> <span class="type">DAGScheduler</span>(<span class="keyword">this</span>)</div><div class="line">&#125; <span class="keyword">catch</span> &#123;</div><div class="line">  <span class="keyword">case</span> e: <span class="type">Exception</span> =&gt; &#123;</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">      stop()</div><div class="line">    &#125; <span class="keyword">finally</span> &#123;</div><div class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="type">SparkException</span>(<span class="string">"Error while constructing DAGScheduler"</span>, e)</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>下面代码显示了DAGScheduler的构造函数定义中，通过绑定TaskScheduler的方式创建，其中次构造函数去调用主构造函数来将sc的字段填充入参：<br><figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">private</span>[spark]</div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">DAGScheduler</span>(<span class="params"></span></span></div><div class="line">    private[scheduler] val sc: <span class="type">SparkContext</span>,</div><div class="line">    private[scheduler] val taskScheduler: <span class="type">TaskScheduler</span>,</div><div class="line">    listenerBus: <span class="type">LiveListenerBus</span>,</div><div class="line">    mapOutputTracker: <span class="type">MapOutputTrackerMaster</span>,</div><div class="line">    blockManagerMaster: <span class="type">BlockManagerMaster</span>,</div><div class="line">    env: <span class="type">SparkEnv</span>,</div><div class="line">    clock: <span class="type">Clock</span> = new <span class="type">SystemClock</span>())</div><div class="line">  <span class="keyword">extends</span> <span class="type">Logging</span> &#123;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">this</span></span>(sc: <span class="type">SparkContext</span>, taskScheduler: <span class="type">TaskScheduler</span>) = &#123;</div><div class="line">    <span class="keyword">this</span>(</div><div class="line">      sc,</div><div class="line">      taskScheduler,</div><div class="line">      sc.listenerBus,</div><div class="line">      sc.env.mapOutputTracker.asInstanceOf[<span class="type">MapOutputTrackerMaster</span>],</div><div class="line">      sc.env.blockManager.master,</div><div class="line">      sc.env)</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">this</span></span>(sc: <span class="type">SparkContext</span>) = <span class="keyword">this</span>(sc, sc.taskScheduler)</div></pre></td></tr></table></figure></p>
+<h2 id="作业提交与DAGScheduler操作"><a href="#作业提交与DAGScheduler操作" class="headerlink" title="作业提交与DAGScheduler操作"></a>作业提交与DAGScheduler操作</h2><p>Action的大部分操作会进行作业（job）的提交，源码1.0版的job提交过程的大致调用链是：<code>sc.runJob()</code>–&gt;<code>dagScheduler.runJob</code>–&gt;<code>dagScheduler.submitJob</code>—&gt;<code>dagSchedulerEventProcessActor.JobSubmitted</code>–&gt;<code>dagScheduler.handleJobSubmitted</code>–&gt;<code>dagScheduler.submitStage</code>–&gt;<code>dagScheduler.submitMissingTasks</code>–&gt;<code>taskScheduler.submitTasks</code>。<br>具体的作业提交执行期的函数调用为：</p>
+<blockquote>
+<ol>
+<li>sc.runJob-&gt;dagScheduler.runJob-&gt;submitJob</li>
+<li>DAGScheduler::submitJob会创建JobSummitted的event发送给内嵌类eventProcessActor（在源码1.4中，submitJob函数中，使用DAGSchedulerEventProcessLoop类进行事件的处理）</li>
+<li>eventProcessActor在接收到JobSubmmitted之后调用processEvent处理函数</li>
+<li>job到stage的转换，生成finalStage并提交运行，关键是调用submitStage</li>
+<li>在submitStage中会计算stage之间的依赖关系，依赖关系分为宽依赖和窄依赖两种</li>
+<li>如果计算中发现当前的stage没有任何依赖或者所有的依赖都已经准备完毕，则提交task</li>
+<li>提交task是调用函数submitMissingTasks来完成</li>
+<li>task真正运行在哪个worker上面是由TaskScheduler来管理，也就是上面的submitMissingTasks会调用TaskScheduler::submitTasks</li>
+<li>TaskSchedulerImpl中会根据Spark的当前运行模式来创建相应的backend,如果是在单机运行则创建LocalBackend</li>
+<li>LocalBackend收到TaskSchedulerImpl传递进来的ReceiveOffers事件</li>
+<li>receiveOffers-&gt;executor.launchTask-&gt;TaskRunner.run</li>
+</ol>
+</blockquote>
+<h3 id="DAGScheduler的runJob函数"><a href="#DAGScheduler的runJob函数" class="headerlink" title="DAGScheduler的runJob函数"></a>DAGScheduler的runJob函数</h3><p>DAGScheduler.runjob最后把结果通过resultHandler保存返回。<br>这里DAGScheduler的runJob函数调用DAGScheduler的submitJob函数来提交任务：<br><figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">runJob</span></span>[<span class="type">T</span>, <span class="type">U</span>: <span class="type">ClassTag</span>](</div><div class="line">    rdd: <span class="type">RDD</span>[<span class="type">T</span>],</div><div class="line">    func: (<span class="type">TaskContext</span>, <span class="type">Iterator</span>[<span class="type">T</span>]) =&gt; <span class="type">U</span>,</div><div class="line">    partitions: <span class="type">Seq</span>[<span class="type">Int</span>],</div><div class="line">    callSite: <span class="type">CallSite</span>,</div><div class="line">    allowLocal: <span class="type">Boolean</span>,</div><div class="line">    resultHandler: (<span class="type">Int</span>, <span class="type">U</span>) =&gt; <span class="type">Unit</span>,</div><div class="line">    properties: <span class="type">Properties</span>): <span class="type">Unit</span> = &#123;</div><div class="line">  <span class="keyword">val</span> start = <span class="type">System</span>.nanoTime</div><div class="line">  <span class="keyword">val</span> waiter = submitJob(rdd, func, partitions, callSite, allowLocal, resultHandler, properties)</div><div class="line">  waiter.awaitResult() <span class="keyword">match</span> &#123;</div><div class="line">    <span class="keyword">case</span> <span class="type">JobSucceeded</span> =&gt; &#123;</div><div class="line">      logInfo(<span class="string">"Job %d finished: %s, took %f s"</span>.format</div><div class="line">        (waiter.jobId, callSite.shortForm, (<span class="type">System</span>.nanoTime - start) / <span class="number">1e9</span>))</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">case</span> <span class="type">JobFailed</span>(exception: <span class="type">Exception</span>) =&gt;</div><div class="line">      logInfo(<span class="string">"Job %d failed: %s, took %f s"</span>.format</div><div class="line">        (waiter.jobId, callSite.shortForm, (<span class="type">System</span>.nanoTime - start) / <span class="number">1e9</span>))</div><div class="line">      <span class="keyword">throw</span> exception</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="作业提交的调度"><a href="#作业提交的调度" class="headerlink" title="作业提交的调度"></a>作业提交的调度</h3><p>在Spark源码1.4.0中，DAGScheduler的submitJob函数不再使用DAGEventProcessActor进行事件处理和消息通信，而是使用DAGSchedulerEventProcessLoop类实例eventProcessLoop进行JobSubmitted事件的post动作。<br>下面是submitJob函数代码：<br><figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * Submit a job to the job scheduler and get a JobWaiter object back. The JobWaiter object</div><div class="line"> * can be used to block until the the job finishes executing or can be used to cancel the job.</div><div class="line"> */</div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">submitJob</span></span>[<span class="type">T</span>, <span class="type">U</span>](</div><div class="line">    rdd: <span class="type">RDD</span>[<span class="type">T</span>],</div><div class="line">    func: (<span class="type">TaskContext</span>, <span class="type">Iterator</span>[<span class="type">T</span>]) =&gt; <span class="type">U</span>,</div><div class="line">    partitions: <span class="type">Seq</span>[<span class="type">Int</span>],</div><div class="line">    callSite: <span class="type">CallSite</span>,</div><div class="line">    allowLocal: <span class="type">Boolean</span>,</div><div class="line">    resultHandler: (<span class="type">Int</span>, <span class="type">U</span>) =&gt; <span class="type">Unit</span>,</div><div class="line">    properties: <span class="type">Properties</span>): <span class="type">JobWaiter</span>[<span class="type">U</span>] = &#123;</div><div class="line">  <span class="comment">// Check to make sure we are not launching a task on a partition that does not exist.</span></div><div class="line">  <span class="keyword">val</span> maxPartitions = rdd.partitions.length</div><div class="line">  partitions.find(p =&gt; p &gt;= maxPartitions || p &lt; <span class="number">0</span>).foreach &#123; p =&gt;</div><div class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="type">IllegalArgumentException</span>(</div><div class="line">      <span class="string">"Attempting to access a non-existent partition: "</span> + p + <span class="string">". "</span> +</div><div class="line">        <span class="string">"Total number of partitions: "</span> + maxPartitions)</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="keyword">val</span> jobId = nextJobId.getAndIncrement()</div><div class="line">  <span class="keyword">if</span> (partitions.size == <span class="number">0</span>) &#123;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="type">JobWaiter</span>[<span class="type">U</span>](<span class="keyword">this</span>, jobId, <span class="number">0</span>, resultHandler)</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  assert(partitions.size &gt; <span class="number">0</span>)</div><div class="line">  <span class="keyword">val</span> func2 = func.asInstanceOf[(<span class="type">TaskContext</span>, <span class="type">Iterator</span>[_]) =&gt; _]</div><div class="line">  <span class="keyword">val</span> waiter = <span class="keyword">new</span> <span class="type">JobWaiter</span>(<span class="keyword">this</span>, jobId, partitions.size, resultHandler)</div><div class="line">  eventProcessLoop.post(<span class="type">JobSubmitted</span>(</div><div class="line">    jobId, rdd, func2, partitions.toArray, allowLocal, callSite, waiter, properties))</div><div class="line">  waiter</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>当eventProcessLoop对象投递了JobSubmitted事件之后，对象内的eventThread线程实例对事件进行处理，不断从事件队列中取出事件，调用onReceive函数处理事件，当匹配到JobSubmitted事件后，调用DAGScheduler的handleJobSubmitted函数并传入jobid、rdd等参数来处理Job。<br><img src="http://7nj1qk.com1.z0.glb.clouddn.com/@/spark/internal/jobSubmit.jpg" alt=""></p>
+<h3 id="handleJobSubmitted函数"><a href="#handleJobSubmitted函数" class="headerlink" title="handleJobSubmitted函数"></a>handleJobSubmitted函数</h3><p>Job处理过程中handleJobSubmitted比较关键，该函数主要负责RDD的依赖性分析，生成finalStage，并根据finalStage来产生ActiveJob。<br>在handleJobSubmitted函数源码中，给出了部分注释：<br><figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">private</span>[scheduler] <span class="function"><span class="keyword">def</span> <span class="title">handleJobSubmitted</span></span>(jobId: <span class="type">Int</span>,</div><div class="line">    finalRDD: <span class="type">RDD</span>[_],</div><div class="line">    func: (<span class="type">TaskContext</span>, <span class="type">Iterator</span>[_]) =&gt; _,</div><div class="line">    partitions: <span class="type">Array</span>[<span class="type">Int</span>],</div><div class="line">    allowLocal: <span class="type">Boolean</span>,</div><div class="line">    callSite: <span class="type">CallSite</span>,</div><div class="line">    listener: <span class="type">JobListener</span>,</div><div class="line">    properties: <span class="type">Properties</span>) &#123;</div><div class="line">  <span class="keyword">var</span> finalStage: <span class="type">Stage</span> = <span class="literal">null</span></div><div class="line">  <span class="keyword">try</span> &#123;</div><div class="line">    <span class="comment">// New stage creation may throw an exception if, for example, jobs are run on a</span></div><div class="line">    <span class="comment">// HadoopRDD whose underlying HDFS files have been deleted.</span></div><div class="line">    finalStage = newStage(finalRDD, partitions.size, <span class="type">None</span>, jobId, callSite)</div><div class="line">  &#125; <span class="keyword">catch</span> &#123;</div><div class="line">    <span class="comment">//错误处理，告诉监听器作业失败，返回....</span></div><div class="line">    <span class="keyword">case</span> e: <span class="type">Exception</span> =&gt;</div><div class="line">      logWarning(<span class="string">"Creating new stage failed due to exception - job: "</span> + jobId, e)</div><div class="line">      listener.jobFailed(e)</div><div class="line">      <span class="keyword">return</span></div><div class="line">  &#125;</div><div class="line">  <span class="keyword">if</span> (finalStage != <span class="literal">null</span>) &#123;</div><div class="line">    <span class="keyword">val</span> job = <span class="keyword">new</span> <span class="type">ActiveJob</span>(jobId, finalStage, func, partitions, callSite, listener, properties)</div><div class="line">    clearCacheLocs()</div><div class="line">    logInfo(<span class="string">"Got job %s (%s) with %d output partitions (allowLocal=%s)"</span>.format(</div><div class="line">      job.jobId, callSite.shortForm, partitions.length, allowLocal))</div><div class="line">    logInfo(<span class="string">"Final stage: "</span> + finalStage + <span class="string">"("</span> + finalStage.name + <span class="string">")"</span>)</div><div class="line">    logInfo(<span class="string">"Parents of final stage: "</span> + finalStage.parents)</div><div class="line">    logInfo(<span class="string">"Missing parents: "</span> + getMissingParentStages(finalStage))</div><div class="line">    <span class="keyword">val</span> shouldRunLocally =</div><div class="line">      localExecutionEnabled &amp;&amp; allowLocal &amp;&amp; finalStage.parents.isEmpty &amp;&amp; partitions.length == <span class="number">1</span></div><div class="line">    <span class="keyword">val</span> jobSubmissionTime = clock.getTimeMillis()</div><div class="line">    <span class="keyword">if</span> (shouldRunLocally) &#123;</div><div class="line">      <span class="comment">// 很短、没有父stage的本地操作，比如 first() or take() 的操作本地执行</span></div><div class="line">      <span class="comment">// Compute very short actions like first() or take() with no parent stages locally.</span></div><div class="line">      listenerBus.post(</div><div class="line">        <span class="type">SparkListenerJobStart</span>(job.jobId, jobSubmissionTime, <span class="type">Seq</span>.empty, properties))</div><div class="line">      runLocally(job)</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">      <span class="comment">// collect等操作走的是这个过程，更新相关的关系映射，用监听器监听，然后提交作业</span></div><div class="line">      jobIdToActiveJob(jobId) = job</div><div class="line">      activeJobs += job</div><div class="line">      finalStage.resultOfJob = <span class="type">Some</span>(job)</div><div class="line">      <span class="keyword">val</span> stageIds = jobIdToStageIds(jobId).toArray</div><div class="line">      <span class="keyword">val</span> stageInfos = stageIds.flatMap(id =&gt; stageIdToStage.get(id).map(_.latestInfo))</div><div class="line">      listenerBus.post(</div><div class="line">        <span class="type">SparkListenerJobStart</span>(job.jobId, jobSubmissionTime, stageInfos, properties))</div><div class="line">      <span class="comment">// 提交stage</span></div><div class="line">      submitStage(finalStage)</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">  <span class="comment">// 提交stage</span></div><div class="line">  submitWaitingStages()</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>该篇文章介绍了DAGScheduler从SparkContext中进行实例化，到执行Action操作时提交任务调用runJob函数，进而介绍了提交任务的消息调度，和处理Job函数handleJobSubmitted函数。<br>由于在handleJobSubmitted函数中涉及到依赖性分析和stage的源码内容，于是我计划在下一篇文章里进行介绍和源码分析。</p>
+<p><strong>转载请注明作者Jason Ding及其出处</strong><br><a href="http://jasonding1354.gitcafe.io/" target="_blank" rel="external">GitCafe博客主页(http://jasonding1354.gitcafe.io/)</a><br><a href="http://jasonding1354.github.io/" target="_blank" rel="external">Github博客主页(http://jasonding1354.github.io/)</a><br><a href="http://blog.csdn.net/jasonding1354" target="_blank" rel="external">CSDN博客(http://blog.csdn.net/jasonding1354)</a><br><a href="http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles" target="_blank" rel="external">简书主页(http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles)</a><br><strong>Google搜索jasonding1354进入我的博客主页</strong></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Spark/">Spark</a>
+  </div>
+
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Spark/">Spark</a>
+</div>
+
+
+
+<div class="article-share" id="share">
+
+  
+<div class="jiathis_style">
+    <span class="jiathis_txt">分享到：</span>
+    <a class="jiathis_button_tsina">新浪微博</a>
+    <a class="jiathis_button_weixin">微信</a>
+    <a class="jiathis_button_twitter">Twitter</a>
+    <a class="jiathis_button_evernote">EverNote</a>
+    <a href="http://www.jiathis.com/share?uid=1501277" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript" >
+    var jiathis_config={
+    data_track_clickback:true,
+    sm:"copy,renren,cqq",
+    pic:"",
+    summary:"",
+    
+  </script> 
+<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=
+1394018007141544" charset="utf-8"></script>      
+
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2015/07/15/Spark/【Spark Core】DAGScheduler源码浅析2/" title="【Spark Core】DAGScheduler源码浅析2">
+  <strong>之后的一篇</strong><br/>
+  <span>
+  【Spark Core】DAGScheduler源码浅析2</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2015/07/14/Spark/【Spark】Spark的Shuffle机制/"  title="【Spark】Spark的Shuffle机制">
+ <strong>之前的一篇</strong><br/> 
+ <span>【Spark】Spark的Shuffle机制
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section class="comment">
+	<div class="ds-thread"></div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#DAGScheduler"><span class="toc-number">1.</span> <span class="toc-text">DAGScheduler</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DAGScheduler实例化"><span class="toc-number">2.</span> <span class="toc-text">DAGScheduler实例化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#作业提交与DAGScheduler操作"><span class="toc-number">3.</span> <span class="toc-text">作业提交与DAGScheduler操作</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#DAGScheduler的runJob函数"><span class="toc-number">3.1.</span> <span class="toc-text">DAGScheduler的runJob函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#作业提交的调度"><span class="toc-number">3.2.</span> <span class="toc-text">作业提交的调度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#handleJobSubmitted函数"><span class="toc-number">3.3.</span> <span class="toc-text">handleJobSubmitted函数</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">4.</span> <span class="toc-text">小结</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+<div class="maps">
+    <p class="asidetitle">访问统计</p>
+    <br>
+    <script type="text/javascript" src="//ra.revolvermaps.com/0/0/6.js?i=0leibswamim&amp;m=0&amp;s=210&amp;c=ff0000&amp;cr1=ffffff&amp;f=arial&amp;l=0" async="async"></script>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">Categories</p>
+		<ul>
+		
+			<li><a href="/categories/Algorithm-Problem/" title="Algorithm Problem">Algorithm Problem<sup>1</sup></a></li>
+		
+			<li><a href="/categories/C/" title="C++">C++<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Classic-Algorithm/" title="Classic Algorithm">Classic Algorithm<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Cluster-Analysis/" title="Cluster Analysis">Cluster Analysis<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Design-Pattern/" title="Design Pattern">Design Pattern<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Developer-Kits/" title="Developer Kits">Developer Kits<sup>5</sup></a></li>
+		
+			<li><a href="/categories/Energy-Big-Data/" title="Energy Big Data">Energy Big Data<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Feature-Engineering/" title="Feature Engineering">Feature Engineering<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Functional/" title="Functional">Functional<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Functional-Programming/" title="Functional Programming">Functional Programming<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Git/" title="Git">Git<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Jobs/" title="Jobs">Jobs<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>4</sup></a></li>
+		
+			<li><a href="/categories/ML-Experiments/" title="ML Experiments">ML Experiments<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Machine-Learning/" title="Machine Learning">Machine Learning<sup>50</sup></a></li>
+		
+			<li><a href="/categories/Math/" title="Math">Math<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Programming/" title="Programming">Programming<sup>11</sup></a></li>
+		
+			<li><a href="/categories/Python/" title="Python">Python<sup>10</sup></a></li>
+		
+			<li><a href="/categories/Scala/" title="Scala">Scala<sup>27</sup></a></li>
+		
+			<li><a href="/categories/Scala-ML/" title="Scala-ML">Scala-ML<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Similarity-Search/" title="Similarity Search">Similarity Search<sup>4</sup></a></li>
+		
+			<li><a href="/categories/Small-Problems/" title="Small Problems">Small Problems<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Spark/" title="Spark">Spark<sup>23</sup></a></li>
+		
+			<li><a href="/categories/Thoughts/" title="Thoughts">Thoughts<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">Tag Cloud</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/Actor/" style="font-size: 10px;">Actor</a> <a href="/tags/Akka/" style="font-size: 14.55px;">Akka</a> <a href="/tags/Algorithm/" style="font-size: 10px;">Algorithm</a> <a href="/tags/Approximate-Nearest-Neighbor-Search/" style="font-size: 10px;">Approximate Nearest Neighbor Search</a> <a href="/tags/Bayesian-Analysis/" style="font-size: 10.91px;">Bayesian Analysis</a> <a href="/tags/Big-Data/" style="font-size: 10px;">Big Data</a> <a href="/tags/C/" style="font-size: 12.73px;">C++</a> <a href="/tags/Classification/" style="font-size: 11.82px;">Classification</a> <a href="/tags/Cluster-Analysis/" style="font-size: 10px;">Cluster Analysis</a> <a href="/tags/Computer-Vision/" style="font-size: 14.55px;">Computer Vision</a> <a href="/tags/Eclipse/" style="font-size: 10px;">Eclipse</a> <a href="/tags/Energy-Forecasting/" style="font-size: 10px;">Energy Forecasting</a> <a href="/tags/Feature-Engineering/" style="font-size: 10.91px;">Feature Engineering</a> <a href="/tags/Functional-Programming/" style="font-size: 16.36px;">Functional Programming</a> <a href="/tags/Gaussian-Process/" style="font-size: 10px;">Gaussian Process</a> <a href="/tags/Git/" style="font-size: 10.91px;">Git</a> <a href="/tags/GraphLab/" style="font-size: 10px;">GraphLab</a> <a href="/tags/IPython/" style="font-size: 10px;">IPython</a> <a href="/tags/Internet-of-Energy/" style="font-size: 10px;">Internet of Energy</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/Kaggle/" style="font-size: 10px;">Kaggle</a> <a href="/tags/Kernel-Method/" style="font-size: 10px;">Kernel Method</a> <a href="/tags/LSH/" style="font-size: 12.73px;">LSH</a> <a href="/tags/LaTex/" style="font-size: 10px;">LaTex</a> <a href="/tags/Linux/" style="font-size: 11.82px;">Linux</a> <a href="/tags/Machine-Learning/" style="font-size: 20px;">Machine Learning</a> <a href="/tags/Math/" style="font-size: 11.82px;">Math</a> <a href="/tags/Mathematics/" style="font-size: 13.64px;">Mathematics</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MeanShift/" style="font-size: 10px;">MeanShift</a> <a href="/tags/Mint/" style="font-size: 10px;">Mint</a> <a href="/tags/OpenCV/" style="font-size: 15.45px;">OpenCV</a> <a href="/tags/Probabilistic-Programming/" style="font-size: 10px;">Probabilistic Programming</a> <a href="/tags/Probability-Distributions/" style="font-size: 10px;">Probability Distributions</a> <a href="/tags/Programming/" style="font-size: 14.55px;">Programming</a> <a href="/tags/Python/" style="font-size: 17.27px;">Python</a> <a href="/tags/Regression/" style="font-size: 11.82px;">Regression</a> <a href="/tags/Resume/" style="font-size: 10px;">Resume</a> <a href="/tags/SVM/" style="font-size: 12.73px;">SVM</a> <a href="/tags/Scala/" style="font-size: 19.09px;">Scala</a> <a href="/tags/Similarity-Search/" style="font-size: 10.91px;">Similarity Search</a> <a href="/tags/Source-code/" style="font-size: 10px;">Source code</a> <a href="/tags/Spark/" style="font-size: 18.18px;">Spark</a> <a href="/tags/Summary/" style="font-size: 10px;">Summary</a> <a href="/tags/Thoughts/" style="font-size: 10.91px;">Thoughts</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/Vim/" style="font-size: 11.82px;">Vim</a> <a href="/tags/Written-Test/" style="font-size: 10px;">Written Test</a> <a href="/tags/Zeppelin/" style="font-size: 10px;">Zeppelin</a> <a href="/tags/boost/" style="font-size: 10px;">boost</a> <a href="/tags/cpp/" style="font-size: 13.64px;">cpp</a> <a href="/tags/opencv/" style="font-size: 10.91px;">opencv</a> <a href="/tags/p-Stable-LSH/" style="font-size: 10px;">p-Stable LSH</a> <a href="/tags/scikit-learn/" style="font-size: 10px;">scikit-learn</a> <a href="/tags/sklearn/" style="font-size: 10.91px;">sklearn</a> <a href="/tags/互联网时代/" style="font-size: 10px;">互联网时代</a> <a href="/tags/位置敏感哈希/" style="font-size: 10.91px;">位置敏感哈希</a> <a href="/tags/分治/" style="font-size: 10px;">分治</a> <a href="/tags/单元测试/" style="font-size: 10px;">单元测试</a> <a href="/tags/反思/" style="font-size: 10px;">反思</a> <a href="/tags/效率/" style="font-size: 10px;">效率</a> <a href="/tags/核方法/" style="font-size: 10px;">核方法</a> <a href="/tags/算法框架/" style="font-size: 10px;">算法框架</a> <a href="/tags/设计模式/" style="font-size: 11.82px;">设计模式</a>
+    </div>
+  </div>
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle"><a href="/archives">Archives</a></p>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">February 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">November 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">29</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a><span class="archive-list-count">16</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">10</span></li></ul>
+  </div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
+</div>
+
+</aside>
+
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Jason Ding in HUST <br/>
+			I would share moments of life here! </p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/1698420390" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/jasonding1354" target="_blank" title="github"></a>
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2016 
+		
+		<a href="http://blog.jasonding.top" target="_blank" title="Jason Ding">Jason Ding</a>
+		
+		</p>
+		<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+  
+  _st('install','uYyEuxJdzzAGXTax33mt','2.0.0');
+</script>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"jasonding"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+  </body>
+</html>

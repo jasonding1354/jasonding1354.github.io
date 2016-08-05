@@ -1,0 +1,497 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>【Jobs】用LaTeX制作简历 | Jason&#39;s Techblog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Jason Ding">
+    
+    <meta name="description" content="TeX与LaTeXTeX是由著名的计算机科学家Donald E. Knuth（高德纳）发明的排版系统，利用TeX可以很容易地生成高质量的dvi文件，打印输出。利用dvips,dvipdfmx,pdfLaTeX等程序生成pdf,ps,文件，LaTeX2html生成html文件。 它在学术界十分流行，特">
+    
+    
+    
+    
+    <link rel="alternate" href="/atom.xml" title="Jason&#39;s Techblog" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/author.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/author.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F3cc71cd5738b99a1db174951e194ba55' type='text/javascript'%3E%3C/script%3E"));
+
+
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F1dcf1fa58b0eca1ac5bd089ee6a6e78c' type='text/javascript'%3E%3C/script%3E"));
+
+
+</script>
+
+
+    <!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Jason&#39;s Techblog" title="Jason&#39;s Techblog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Jason&#39;s Techblog">Jason&#39;s Techblog</a></h1>
+				<h2 class="blog-motto">Technician =&gt; Scientist =&gt; Philosopher =&gt; Artists</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="http://jasonding.top">Main</a></li>
+					
+					<li>
+					
+						<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" class="st-default-search-input" maxlength="20" placeholder="Search" />
+						</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody">
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/04/05/Jobs/【Jobs】用LaTeX制作简历/" title="【Jobs】用LaTeX制作简历" itemprop="url">【Jobs】用LaTeX制作简历</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://blog.jasonding.top" title="Jason Ding">Jason Ding</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2015-04-05T02:30:09.000Z" itemprop="datePublished">2015-04-05</time>
+    Updated:<time datetime="2016-03-16T06:24:42.000Z" itemprop="dateModified">2016-03-16</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#TeX与LaTeX"><span class="toc-number">1.</span> <span class="toc-text">TeX与LaTeX</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#TeX格式"><span class="toc-number">1.1.</span> <span class="toc-text">TeX格式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LaTeX是什么"><span class="toc-number">1.2.</span> <span class="toc-text">LaTeX是什么</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#LaTeX相关软件"><span class="toc-number">2.</span> <span class="toc-text">LaTeX相关软件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#TeX系统类"><span class="toc-number">2.1.</span> <span class="toc-text">TeX系统类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#TeX-Live的安装"><span class="toc-number">2.2.</span> <span class="toc-text">TeX Live的安装</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#moderncv共享简历模板"><span class="toc-number">3.</span> <span class="toc-text">moderncv共享简历模板</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#文件说明"><span class="toc-number">3.1.</span> <span class="toc-text">文件说明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#修改模板"><span class="toc-number">3.2.</span> <span class="toc-text">修改模板</span></a></li></ol></li></ol>
+		</div>
+		
+		<h2 id="TeX与LaTeX"><a href="#TeX与LaTeX" class="headerlink" title="TeX与LaTeX"></a>TeX与LaTeX</h2><p>TeX是由著名的计算机科学家Donald E. Knuth（高德纳）发明的排版系统，利用TeX可以很容易地生成高质量的dvi文件，打印输出。利用dvips,dvipdfmx,pdfLaTeX等程序生成pdf,ps,文件，LaTeX2html生成html文件。 它在学术界十分流行，特别是数学、物理学和计算机科学界。TeX被普遍认为是一个很好的 排版工具，特别是在处理复杂的数学公式时。利用诸如是LaTeX等终端软件，TeX就能够排版出精美的文本。通过CTAN上的宏包可以扩展其功能，可以作幻灯片，定义模板。中文支持可以由CCT、CJK等来完成。</p>
+<p>LaTeX（音译“拉泰赫”）是一种基于ΤΕΧ的排版系统，由美国计算机学家莱斯利·兰伯特（Leslie Lamport）在20世纪80年代初期开发，利用这种格式，即使使用者没有排版和程序设计的知识也可以充分发挥由TeX所提供的强大功能，能在几天，甚至几小时内生成很多具有书籍质量的印刷品。对于生成复杂表格和数学公式，这一点表现得尤为突出。因此它非常适用于生成高印刷质量的科技和数学类文档。这个系统同样适用于生成从简单的信件到完整书籍的所有其他种类的文档。</p>
+<h3 id="TeX格式"><a href="#TeX格式" class="headerlink" title="TeX格式"></a>TeX格式</h3><p>最基本的TeX程序只是由一些很原始的命令组成，它们可以完成简单的排版操作和程序设计功能。然而，TeX也允许用这些原始命令定义一些更复杂的高级命令。这样就可以利用低级的块结构，形成一个用户界面相当友好的环境。<br>在处理器运行期间，该程序首先读取所谓的格式文件，其中包含各种以原始语言写成的高级命令，也包含分割单词的连字号安排模式。接着处理程序就处理源文件，其中包含要处理的真正文本，以及在格式文件中已定义了的格式命令。<br>创建新格式是一件需要由具有丰富知识的程序员来做的事情。把定义写到一个源文件中，这个文件接着被一个名叫iniTeX的特殊版本的TeX程序处理。它采用一种紧凑的方式存贮这些新格式，这样就可以被通常TeX程序很快地读取。</p>
+<h3 id="LaTeX是什么"><a href="#LaTeX是什么" class="headerlink" title="LaTeX是什么"></a>LaTeX是什么</h3><p>原始的TeX已经有了一组宏集，但是这些命令仍然很底层，不够方便、直观，于是Leslie Lamport写了另一组宏，称为LaTeX，主要是它版本配置和文中内容适度分开处理。</p>
+<p>LaTeX是当今世界上最流行和使用最为广泛的TeX宏集。它加进了很多的功能以使得使用者可以更为方便的利用TeX的强大功能。使用LaTeX基本上不需要使用者自己设计命令和宏等，因为LaTeX已经替你做好了。因此，即使使用者并不是很了解TeX，也可以在短短的时间内生成高质量的文档。对于生成复杂的数学公式，LaTeX表现的更为出色。</p>
+<h2 id="LaTeX相关软件"><a href="#LaTeX相关软件" class="headerlink" title="LaTeX相关软件"></a>LaTeX相关软件</h2><h3 id="TeX系统类"><a href="#TeX系统类" class="headerlink" title="TeX系统类"></a>TeX系统类</h3><p>TeX 系统是 TeX 相关软件、宏包、文档以及辅助程序的集合体。每一个使用 TeX/LaTeX 的用户都必须首先在计算机上正确安装一个 TeX 系统。<br><strong>TeX Live</strong><br>推荐 Windows 用户和 Linux/Unix 用户使用。<br>TeX Live 简称 TL，是国际 TeX 用户组（TUG）维护的一个 TeX 系统。一般来说，是最「正宗」的 TeX 系统。TL 有两种安装方式。</p>
+<ul>
+<li>网络安装，安装包体积小，但是安装时会不断从服务器上下载所需要的内容，需要保证网络畅通。并且，如果网速特别慢的话，使用网络安装方式可能要折腾好一会儿。</li>
+<li>本地安装，安装包体积大，但是包括了安装所需要的所有内容。所以，安装时不需要联网。<br>二者只是方式方法上有差异，本质上是一样的。根据各人的具体情况选择吧。<br><a href="http://tug.org/texlive/" target="_blank" rel="external">http://tug.org/texlive/</a><br>TeX Live 2014 安装指南：<br><a href="http://tieba.baidu.com/p/3314124049" target="_blank" rel="external">http://tieba.baidu.com/p/3314124049</a></li>
+</ul>
+<p><strong>MacTeX</strong><br>推荐 Mac OS X 用户使用。<br>MacTeX 实质就是 TUG 为 TeX Live 在 Mac OS X 上做的优化，安装和使用都十分方便。<br><a href="http://tug.org/mactex/" target="_blank" rel="external">http://tug.org/mactex/</a></p>
+<p><strong>W32TeX</strong><br>推荐对存储空间有需求的 Windows 高级用户使用。<br>W32TeX 只能运行在 Windows 系统上，由日本 TeX 同好维护。TL 的 Windows 版实际上就是 W32TeX 的一个封装。W32TeX 的特点是，更新快、体积小。<br>下载和安装说明，可以参考 W32TeX 官网上的页面（中文页面由我和 Clerk Ma 共同翻译）。<br><a href="http://w32tex.org/index-zh.html" target="_blank" rel="external">http://w32tex.org/index-zh.html</a></p>
+<p><strong>MiKTeX</strong><br>推荐对存储欧诺关键有需求的 Windows 普通用户使用。<br>MiKTeX 是 Windows 上的著名 TeX 系统。<br><a href="http://miktex.org" target="_blank" rel="external">http://miktex.org</a></p>
+<p><strong>CTeX</strong><br>一般情况下，不推荐使用。<br>CTeX 是中文 TeX 社区的「老大」吴凌云开发的 TeX 系统，其实质是对 MiKTeX 的一个封装。<br>不推荐 CTeX 的原因参见：<br><a href="http://tieba.baidu.com/p/2665622350" target="_blank" rel="external">http://tieba.baidu.com/p/2665622350</a></p>
+<p>另外，TeX 源文件是纯文本文件，可以使用 TeX 专用的编辑器，也可以使用专业的文本/代码编辑器编辑。<br>想要编译出 PDF 文档，所有的编辑器，都不能脱离 TeX 系统独立使用，必须在安装好 TeX 系统的基础上才行。</p>
+<h3 id="TeX-Live的安装"><a href="#TeX-Live的安装" class="headerlink" title="TeX Live的安装"></a>TeX Live的安装</h3><p>我从学校<a href="http://mirror.hust.edu.cn/CTAN/systems/texlive/" target="_blank" rel="external">华科的texlive镜像</a>下载了完整的ISO镜像文件（2.4GB），挂载镜像安装。<br>安装步骤可参考<a href="http://zhuanlan.zhihu.com/LaTeX/19779481" target="_blank" rel="external">TeX Live 2014安装引导流程</a>。<br>使用批处理文件进行安装的时候，需要perl-tk的支持，所以需要实现安装perl。</p>
+<h2 id="moderncv共享简历模板"><a href="#moderncv共享简历模板" class="headerlink" title="moderncv共享简历模板"></a>moderncv共享简历模板</h2><p>moderncv是一个简历模板，针对LaTeX的菜鸟而言，可以通过修改该模板附带的例子轻松生成pdf简历。</p>
+<h3 id="文件说明"><a href="#文件说明" class="headerlink" title="文件说明"></a>文件说明</h3><p>.sty文件都是定义简历风格的文件，还有那个moderncv.cls文件，这些都是编写LaTeX风格源码生成的文件。<br>针对我们要修改的文件主要关注.tex文件。<br>在example文件夹中，有三个简历模板文件，其中template.tex和template-zh.tex文件分别是英文模板和中文模板。<br>我们可以先建立一个文件夹，将之前提到的.sty文件、.cls文件、.tex模板文件放进去，并将模板文件改成自己想要的名字。</p>
+<h3 id="修改模板"><a href="#修改模板" class="headerlink" title="修改模板"></a>修改模板</h3><p><strong>1.moderncv主题</strong></p>
+<blockquote>
+<p>\moderncvstyle{classic} </p>
+</blockquote>
+<p>其中选项参数是 ‘casual’, ‘classic’, ‘oldstyle’ 和 ’banking’。</p>
+<blockquote>
+<p>\moderncvcolor{blue} </p>
+</blockquote>
+<p>选项参数是 ‘blue’ (默认)、‘orange’、‘green’、‘red’、‘purple’ 和 ‘grey’。<br><strong>2.调整页面距离</strong></p>
+<blockquote>
+<p>\usepackage[scale=0.80]{geometry}</p>
+</blockquote>
+<p>调整内容最左侧距边界的距离。</p>
+<blockquote>
+<p>\setlength{\hintscolumnwidth}{2.4cm}</p>
+</blockquote>
+<p>该参数用于改变日期栏的宽度。<br><strong>3.添加内容</strong></p>
+<blockquote>
+<p>\section{教育背景}<br>\cventry{2013.9-至今}{硕士}{华中科技大学}{信息与通信工程}{\textit{加权成绩}}{} </p>
+</blockquote>
+<p>cventry标签需要6个{}，最左侧的{}可以填写时间日期。</p>
+<blockquote>
+<p>\section{个人技能}<br>\cvitem{英语}{CET-6}</p>
+</blockquote>
+<p>cvitem标签要求2个{}，第一个{}可以填写一项条款。</p>
+<blockquote>
+<p>\subsection{项目描述}</p>
+</blockquote>
+<p>使用subsection标签来添加子块。</p>
+<blockquote>
+<p>\begin{itemize}</p>
+<p>\item 项目1<br>\item 项目2<br>\item 项目3<br>\end{itemize}</p>
+</blockquote>
+<p>可以用begin{itemize}标签和end{itemize}标签来设置条款列表。</p>
+<p><strong>转载请注明作者Jason Ding及其出处</strong><br><a href="http://jasonding1354.gitcafe.io/" target="_blank" rel="external">GitCafe博客主页(http://jasonding1354.gitcafe.io/)</a><br><a href="http://jasonding1354.github.io/" target="_blank" rel="external">Github博客主页(http://jasonding1354.github.io/)</a><br><a href="http://blog.csdn.net/jasonding1354" target="_blank" rel="external">CSDN博客(http://blog.csdn.net/jasonding1354)</a><br><a href="http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles" target="_blank" rel="external">简书主页(http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles)</a><br><strong>百度搜索jasonding1354进入我的博客主页</strong></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/LaTex/">LaTex</a><a href="/tags/Resume/">Resume</a>
+  </div>
+
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Jobs/">Jobs</a>
+</div>
+
+
+
+<div class="article-share" id="share">
+
+  
+<div class="jiathis_style">
+    <span class="jiathis_txt">分享到：</span>
+    <a class="jiathis_button_tsina">新浪微博</a>
+    <a class="jiathis_button_weixin">微信</a>
+    <a class="jiathis_button_twitter">Twitter</a>
+    <a class="jiathis_button_evernote">EverNote</a>
+    <a href="http://www.jiathis.com/share?uid=1501277" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript" >
+    var jiathis_config={
+    data_track_clickback:true,
+    sm:"copy,renren,cqq",
+    pic:"",
+    summary:"",
+    
+  </script> 
+<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=
+1394018007141544" charset="utf-8"></script>      
+
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2015/04/05/Machine Learning/【计算机视觉】提取视频中的前景物体/" title="【计算机视觉】提取视频中的前景物体">
+  <strong>之后的一篇</strong><br/>
+  <span>
+  【计算机视觉】提取视频中的前景物体</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2015/03/28/C++/【C++】C++问题——类模板分离编译、函数对象、智能指针/"  title="【C++】C++问题——类模板分离编译、函数对象、智能指针">
+ <strong>之前的一篇</strong><br/> 
+ <span>【C++】C++问题——类模板分离编译、函数对象、智能指针
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section class="comment">
+	<div class="ds-thread"></div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#TeX与LaTeX"><span class="toc-number">1.</span> <span class="toc-text">TeX与LaTeX</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#TeX格式"><span class="toc-number">1.1.</span> <span class="toc-text">TeX格式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LaTeX是什么"><span class="toc-number">1.2.</span> <span class="toc-text">LaTeX是什么</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#LaTeX相关软件"><span class="toc-number">2.</span> <span class="toc-text">LaTeX相关软件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#TeX系统类"><span class="toc-number">2.1.</span> <span class="toc-text">TeX系统类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#TeX-Live的安装"><span class="toc-number">2.2.</span> <span class="toc-text">TeX Live的安装</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#moderncv共享简历模板"><span class="toc-number">3.</span> <span class="toc-text">moderncv共享简历模板</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#文件说明"><span class="toc-number">3.1.</span> <span class="toc-text">文件说明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#修改模板"><span class="toc-number">3.2.</span> <span class="toc-text">修改模板</span></a></li></ol></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+<div class="maps">
+    <p class="asidetitle">访问统计</p>
+    <br>
+    <script type="text/javascript" src="//ra.revolvermaps.com/0/0/6.js?i=0leibswamim&amp;m=0&amp;s=210&amp;c=ff0000&amp;cr1=ffffff&amp;f=arial&amp;l=0" async="async"></script>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">Categories</p>
+		<ul>
+		
+			<li><a href="/categories/Algorithm-Problem/" title="Algorithm Problem">Algorithm Problem<sup>1</sup></a></li>
+		
+			<li><a href="/categories/C/" title="C++">C++<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Classic-Algorithm/" title="Classic Algorithm">Classic Algorithm<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Cluster-Analysis/" title="Cluster Analysis">Cluster Analysis<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Design-Pattern/" title="Design Pattern">Design Pattern<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Developer-Kits/" title="Developer Kits">Developer Kits<sup>5</sup></a></li>
+		
+			<li><a href="/categories/Energy-Big-Data/" title="Energy Big Data">Energy Big Data<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Feature-Engineering/" title="Feature Engineering">Feature Engineering<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Functional/" title="Functional">Functional<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Functional-Programming/" title="Functional Programming">Functional Programming<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Git/" title="Git">Git<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Jobs/" title="Jobs">Jobs<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>4</sup></a></li>
+		
+			<li><a href="/categories/ML-Experiments/" title="ML Experiments">ML Experiments<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Machine-Learning/" title="Machine Learning">Machine Learning<sup>50</sup></a></li>
+		
+			<li><a href="/categories/Math/" title="Math">Math<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Programming/" title="Programming">Programming<sup>11</sup></a></li>
+		
+			<li><a href="/categories/Python/" title="Python">Python<sup>10</sup></a></li>
+		
+			<li><a href="/categories/Scala/" title="Scala">Scala<sup>27</sup></a></li>
+		
+			<li><a href="/categories/Scala-ML/" title="Scala-ML">Scala-ML<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Similarity-Search/" title="Similarity Search">Similarity Search<sup>4</sup></a></li>
+		
+			<li><a href="/categories/Small-Problems/" title="Small Problems">Small Problems<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Spark/" title="Spark">Spark<sup>23</sup></a></li>
+		
+			<li><a href="/categories/Thoughts/" title="Thoughts">Thoughts<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">Tag Cloud</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/Actor/" style="font-size: 10px;">Actor</a> <a href="/tags/Akka/" style="font-size: 14.55px;">Akka</a> <a href="/tags/Algorithm/" style="font-size: 10px;">Algorithm</a> <a href="/tags/Approximate-Nearest-Neighbor-Search/" style="font-size: 10px;">Approximate Nearest Neighbor Search</a> <a href="/tags/Bayesian-Analysis/" style="font-size: 10.91px;">Bayesian Analysis</a> <a href="/tags/Big-Data/" style="font-size: 10px;">Big Data</a> <a href="/tags/C/" style="font-size: 12.73px;">C++</a> <a href="/tags/Classification/" style="font-size: 11.82px;">Classification</a> <a href="/tags/Cluster-Analysis/" style="font-size: 10px;">Cluster Analysis</a> <a href="/tags/Computer-Vision/" style="font-size: 14.55px;">Computer Vision</a> <a href="/tags/Eclipse/" style="font-size: 10px;">Eclipse</a> <a href="/tags/Energy-Forecasting/" style="font-size: 10px;">Energy Forecasting</a> <a href="/tags/Feature-Engineering/" style="font-size: 10.91px;">Feature Engineering</a> <a href="/tags/Functional-Programming/" style="font-size: 16.36px;">Functional Programming</a> <a href="/tags/Gaussian-Process/" style="font-size: 10px;">Gaussian Process</a> <a href="/tags/Git/" style="font-size: 10.91px;">Git</a> <a href="/tags/GraphLab/" style="font-size: 10px;">GraphLab</a> <a href="/tags/IPython/" style="font-size: 10px;">IPython</a> <a href="/tags/Internet-of-Energy/" style="font-size: 10px;">Internet of Energy</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/Kaggle/" style="font-size: 10px;">Kaggle</a> <a href="/tags/Kernel-Method/" style="font-size: 10px;">Kernel Method</a> <a href="/tags/LSH/" style="font-size: 12.73px;">LSH</a> <a href="/tags/LaTex/" style="font-size: 10px;">LaTex</a> <a href="/tags/Linux/" style="font-size: 11.82px;">Linux</a> <a href="/tags/Machine-Learning/" style="font-size: 20px;">Machine Learning</a> <a href="/tags/Math/" style="font-size: 11.82px;">Math</a> <a href="/tags/Mathematics/" style="font-size: 13.64px;">Mathematics</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MeanShift/" style="font-size: 10px;">MeanShift</a> <a href="/tags/Mint/" style="font-size: 10px;">Mint</a> <a href="/tags/OpenCV/" style="font-size: 15.45px;">OpenCV</a> <a href="/tags/Probabilistic-Programming/" style="font-size: 10px;">Probabilistic Programming</a> <a href="/tags/Probability-Distributions/" style="font-size: 10px;">Probability Distributions</a> <a href="/tags/Programming/" style="font-size: 14.55px;">Programming</a> <a href="/tags/Python/" style="font-size: 17.27px;">Python</a> <a href="/tags/Regression/" style="font-size: 11.82px;">Regression</a> <a href="/tags/Resume/" style="font-size: 10px;">Resume</a> <a href="/tags/SVM/" style="font-size: 12.73px;">SVM</a> <a href="/tags/Scala/" style="font-size: 19.09px;">Scala</a> <a href="/tags/Similarity-Search/" style="font-size: 10.91px;">Similarity Search</a> <a href="/tags/Source-code/" style="font-size: 10px;">Source code</a> <a href="/tags/Spark/" style="font-size: 18.18px;">Spark</a> <a href="/tags/Summary/" style="font-size: 10px;">Summary</a> <a href="/tags/Thoughts/" style="font-size: 10.91px;">Thoughts</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/Vim/" style="font-size: 11.82px;">Vim</a> <a href="/tags/Written-Test/" style="font-size: 10px;">Written Test</a> <a href="/tags/Zeppelin/" style="font-size: 10px;">Zeppelin</a> <a href="/tags/boost/" style="font-size: 10px;">boost</a> <a href="/tags/cpp/" style="font-size: 13.64px;">cpp</a> <a href="/tags/opencv/" style="font-size: 10.91px;">opencv</a> <a href="/tags/p-Stable-LSH/" style="font-size: 10px;">p-Stable LSH</a> <a href="/tags/scikit-learn/" style="font-size: 10px;">scikit-learn</a> <a href="/tags/sklearn/" style="font-size: 10.91px;">sklearn</a> <a href="/tags/互联网时代/" style="font-size: 10px;">互联网时代</a> <a href="/tags/位置敏感哈希/" style="font-size: 10.91px;">位置敏感哈希</a> <a href="/tags/分治/" style="font-size: 10px;">分治</a> <a href="/tags/单元测试/" style="font-size: 10px;">单元测试</a> <a href="/tags/反思/" style="font-size: 10px;">反思</a> <a href="/tags/效率/" style="font-size: 10px;">效率</a> <a href="/tags/核方法/" style="font-size: 10px;">核方法</a> <a href="/tags/算法框架/" style="font-size: 10px;">算法框架</a> <a href="/tags/设计模式/" style="font-size: 11.82px;">设计模式</a>
+    </div>
+  </div>
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle"><a href="/archives">Archives</a></p>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">February 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">November 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">29</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a><span class="archive-list-count">16</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">10</span></li></ul>
+  </div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
+</div>
+
+</aside>
+
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Jason Ding in HUST <br/>
+			I would share moments of life here! </p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/1698420390" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/jasonding1354" target="_blank" title="github"></a>
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2016 
+		
+		<a href="http://blog.jasonding.top" target="_blank" title="Jason Ding">Jason Ding</a>
+		
+		</p>
+		<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+  
+  _st('install','uYyEuxJdzzAGXTax33mt','2.0.0');
+</script>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"jasonding"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+  </body>
+</html>

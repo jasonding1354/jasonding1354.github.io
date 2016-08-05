@@ -1,0 +1,480 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>【Akka】在并发程序中使用Future | Jason&#39;s Techblog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Jason Ding">
+    
+    <meta name="description" content="引言在Akka中, 一个Future是用来获取某个并发操作的结果的数据结构。这个操作通常是由Actor执行或由Dispatcher直接执行的. 这个结果可以以同步（阻塞）或异步（非阻塞）的方式访问。Future提供了一种简单的方式来执行并行算法。
+Future直接使用Future中的一个常见用例是在">
+    
+    
+    
+    
+    <link rel="alternate" href="/atom.xml" title="Jason&#39;s Techblog" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/author.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/author.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F3cc71cd5738b99a1db174951e194ba55' type='text/javascript'%3E%3C/script%3E"));
+
+
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F1dcf1fa58b0eca1ac5bd089ee6a6e78c' type='text/javascript'%3E%3C/script%3E"));
+
+
+</script>
+
+
+    <!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Jason&#39;s Techblog" title="Jason&#39;s Techblog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Jason&#39;s Techblog">Jason&#39;s Techblog</a></h1>
+				<h2 class="blog-motto">Technician =&gt; Scientist =&gt; Philosopher =&gt; Artists</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="http://jasonding.top">Main</a></li>
+					
+					<li>
+					
+						<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" class="st-default-search-input" maxlength="20" placeholder="Search" />
+						</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody">
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2016/01/21/Scala/【Akka】在并发程序中使用Future/" title="【Akka】在并发程序中使用Future" itemprop="url">【Akka】在并发程序中使用Future</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://blog.jasonding.top" title="Jason Ding">Jason Ding</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2016-01-21T11:52:08.000Z" itemprop="datePublished">2016-01-21</time>
+    Updated:<time datetime="2016-03-16T06:24:42.000Z" itemprop="dateModified">2016-03-16</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#引言"><span class="toc-number">1.</span> <span class="toc-text">引言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Future直接使用"><span class="toc-number">2.</span> <span class="toc-text">Future直接使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#执行上下文（ExecutionContext）"><span class="toc-number">2.1.</span> <span class="toc-text">执行上下文（ExecutionContext）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#阻塞方式"><span class="toc-number">2.2.</span> <span class="toc-text">阻塞方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#非阻塞方式（回调方式）"><span class="toc-number">2.3.</span> <span class="toc-text">非阻塞方式（回调方式）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#创建返回Future-T-的方法"><span class="toc-number">2.4.</span> <span class="toc-text">创建返回Future[T]的方法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Future用于Actor"><span class="toc-number">3.</span> <span class="toc-text">Future用于Actor</span></a></li></ol>
+		</div>
+		
+		<h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>在Akka中, 一个<code>Future</code>是用来获取某个并发操作的结果的数据结构。这个操作通常是由Actor执行或由Dispatcher直接执行的. 这个结果可以以同步（阻塞）或异步（非阻塞）的方式访问。<br>Future提供了一种简单的方式来执行并行算法。</p>
+<h2 id="Future直接使用"><a href="#Future直接使用" class="headerlink" title="Future直接使用"></a>Future直接使用</h2><p>Future中的一个常见用例是在不需要使用Actor的情况下并发地执行计算。<br>Future有两种使用方式：</p>
+<blockquote>
+<ol>
+<li>阻塞方式（Blocking）：该方式下，父actor或主程序停止执行知道所有future完成各自任务。通过<code>scala.concurrent.Await</code>使用。</li>
+<li>非阻塞方式（Non-Blocking），也称为回调方式（Callback）：父actor或主程序在执行期间启动future，future任务和父actor并行执行，当每个future完成任务，将通知父actor。通过<code>onComplete</code>、<code>onSuccess</code>、<code>onFailure</code>方式使用。</li>
+</ol>
+</blockquote>
+<h3 id="执行上下文（ExecutionContext）"><a href="#执行上下文（ExecutionContext）" class="headerlink" title="执行上下文（ExecutionContext）"></a>执行上下文（ExecutionContext）</h3><p>为了运行回调和操作，Futures需要有一个<code>ExecutionContext</code>。<br>如果你在作用域内有一个<code>ActorSystem</code>，它会它自己派发器用作ExecutionContext，你也可以用ExecutionContext伴生对象提供的工厂方法来将Executors和ExecutorServices进行包裹，或者甚至创建自己的实例。<br>通过导入<code>ExecutionContext.Implicits.global</code>来导入默认的全局执行上下文。你可以把该执行上下文看做是一个线程池，ExecutionContext是在某个线程池执行任务的抽象。<br>如果在代码中没有导入该执行上下文，代码将无法编译。</p>
+<h3 id="阻塞方式"><a href="#阻塞方式" class="headerlink" title="阻塞方式"></a>阻塞方式</h3><p>第一个例子展示如何创建一个future，然后通过阻塞方式等待其计算结果。虽然阻塞方式不是一个很好的用法，但是可以说明问题。<br>这个例子中，通过在未来某个时间计算1+1，当计算结果后再返回。<br><figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> scala.concurrent.&#123;<span class="type">Await</span>, <span class="type">Future</span>&#125;</div><div class="line"><span class="keyword">import</span> scala.concurrent.duration._</div><div class="line"><span class="keyword">import</span> scala.concurrent.<span class="type">ExecutionContext</span>.<span class="type">Implicits</span>.global</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">object</span> <span class="title">FutureBlockDemo</span> <span class="keyword">extends</span> <span class="title">App</span></span>&#123;</div><div class="line">  <span class="keyword">implicit</span> <span class="keyword">val</span> baseTime = <span class="type">System</span>.currentTimeMillis</div><div class="line"></div><div class="line">  <span class="comment">// create a Future</span></div><div class="line">  <span class="keyword">val</span> f = <span class="type">Future</span> &#123;</div><div class="line">    <span class="type">Thread</span>.sleep(<span class="number">500</span>)</div><div class="line">    <span class="number">1</span>+<span class="number">1</span></div><div class="line">  &#125;</div><div class="line">  <span class="comment">// this is blocking(blocking is bad)</span></div><div class="line">  <span class="keyword">val</span> result = <span class="type">Await</span>.result(f, <span class="number">1</span> second)</div><div class="line">  <span class="comment">// 如果Future没有在Await规定的时间里返回,</span></div><div class="line">  <span class="comment">// 将抛出java.util.concurrent.TimeoutException</span></div><div class="line">  println(result)</div><div class="line">  <span class="type">Thread</span>.sleep(<span class="number">1000</span>)</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>代码解释：</p>
+<blockquote>
+<ol>
+<li>在上面的代码中，被传递给Future的代码块会被缺省的<code>Dispatcher</code>所执行，代码块的返回结果会被用来完成<code>Future</code>。 与从Actor返回的Future不同，这个Future拥有正确的类型, 我们还避免了管理Actor的开销。</li>
+<li><code>Await.result</code>方法将阻塞1秒时间来等待Future结果返回，如果Future在规定时间内没有返回，将抛出<code>java.util.concurrent.TimeoutException</code>异常。</li>
+<li>通过导入<code>scala.concurrent.duration._</code>，可以用一种方便的方式来声明时间间隔，如<code>100 nanos</code>，<code>500 millis</code>，<code>5 seconds</code>、<code>1 minute</code>、<code>1 hour</code>，<code>3 days</code>。还可以通过<code>Duration(100, MILLISECONDS)</code>，<code>Duration(200, &quot;millis&quot;)</code>来创建时间间隔。</li>
+</ol>
+</blockquote>
+<h3 id="非阻塞方式（回调方式）"><a href="#非阻塞方式（回调方式）" class="headerlink" title="非阻塞方式（回调方式）"></a>非阻塞方式（回调方式）</h3><p>有时你只需要监听<code>Future</code>的完成事件，对其进行响应，不是创建新的Future，而仅仅是产生副作用。<br>通过<code>onComplete</code>,<code>onSuccess</code>,<code>onFailure</code>三个回调函数来异步执行Future任务，而后两者仅仅是第一项的特例。</p>
+<p>使用onComplete的代码示例：<br><figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> scala.concurrent.&#123;<span class="type">Future</span>&#125;</div><div class="line"><span class="keyword">import</span> scala.concurrent.<span class="type">ExecutionContext</span>.<span class="type">Implicits</span>.global</div><div class="line"><span class="keyword">import</span> scala.util.&#123;<span class="type">Failure</span>, <span class="type">Success</span>&#125;</div><div class="line"><span class="keyword">import</span> scala.util.<span class="type">Random</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">object</span> <span class="title">FutureNotBlock</span> <span class="keyword">extends</span> <span class="title">App</span></span>&#123;</div><div class="line">  println(<span class="string">"starting calculation ..."</span>)</div><div class="line">  <span class="keyword">val</span> f = <span class="type">Future</span> &#123;</div><div class="line">    <span class="type">Thread</span>.sleep(<span class="type">Random</span>.nextInt(<span class="number">500</span>))</div><div class="line">    <span class="number">42</span></div><div class="line">  &#125;</div><div class="line"></div><div class="line">  println(<span class="string">"before onComplete"</span>)</div><div class="line">  f.onComplete&#123;</div><div class="line">    <span class="keyword">case</span> <span class="type">Success</span>(value) =&gt; println(<span class="string">s"Got the callback, meaning = <span class="subst">$value</span>"</span>)</div><div class="line">    <span class="keyword">case</span> <span class="type">Failure</span>(e) =&gt; e.printStackTrace</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="comment">// do the rest of your work</span></div><div class="line">  println(<span class="string">"A ..."</span>)</div><div class="line">  <span class="type">Thread</span>.sleep(<span class="number">100</span>)</div><div class="line">  println(<span class="string">"B ...."</span>)</div><div class="line">  <span class="type">Thread</span>.sleep(<span class="number">100</span>)</div><div class="line">  println(<span class="string">"C ...."</span>)</div><div class="line">  <span class="type">Thread</span>.sleep(<span class="number">100</span>)</div><div class="line">  println(<span class="string">"D ...."</span>)</div><div class="line">  <span class="type">Thread</span>.sleep(<span class="number">100</span>)</div><div class="line">  println(<span class="string">"E ...."</span>)</div><div class="line">  <span class="type">Thread</span>.sleep(<span class="number">100</span>)</div><div class="line"></div><div class="line">  <span class="type">Thread</span>.sleep(<span class="number">2000</span>)</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>使用onSuccess、onFailure的代码示例：<br><figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> scala.concurrent.&#123;<span class="type">Future</span>&#125;</div><div class="line"><span class="keyword">import</span> scala.concurrent.<span class="type">ExecutionContext</span>.<span class="type">Implicits</span>.global</div><div class="line"><span class="keyword">import</span> scala.util.&#123;<span class="type">Failure</span>, <span class="type">Success</span>&#125;</div><div class="line"><span class="keyword">import</span> scala.util.<span class="type">Random</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">object</span> <span class="title">FutureOnSuccessAndFailure</span> <span class="keyword">extends</span> <span class="title">App</span></span>&#123;</div><div class="line">  <span class="keyword">val</span> f = <span class="type">Future</span> &#123;</div><div class="line">    <span class="type">Thread</span>.sleep(<span class="type">Random</span>.nextInt(<span class="number">500</span>))</div><div class="line">    <span class="keyword">if</span> (<span class="type">Random</span>.nextInt(<span class="number">500</span>) &gt; <span class="number">250</span>) <span class="keyword">throw</span> <span class="keyword">new</span> <span class="type">Exception</span>(<span class="string">"Tikes!"</span>) <span class="keyword">else</span> <span class="number">42</span></div><div class="line">  &#125;</div><div class="line"></div><div class="line">  f onSuccess &#123;</div><div class="line">    <span class="keyword">case</span> result =&gt; println(<span class="string">s"Success: <span class="subst">$result</span>"</span>)</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  f onFailure &#123;</div><div class="line">    <span class="keyword">case</span> t =&gt; println(<span class="string">s"Exception: <span class="subst">$&#123;t.getMessage&#125;</span>"</span>)</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="comment">// do the rest of your work</span></div><div class="line">  println(<span class="string">"A ..."</span>)</div><div class="line">  <span class="type">Thread</span>.sleep(<span class="number">100</span>)</div><div class="line">  println(<span class="string">"B ...."</span>)</div><div class="line">  <span class="type">Thread</span>.sleep(<span class="number">100</span>)</div><div class="line">  println(<span class="string">"C ...."</span>)</div><div class="line">  <span class="type">Thread</span>.sleep(<span class="number">100</span>)</div><div class="line">  println(<span class="string">"D ...."</span>)</div><div class="line">  <span class="type">Thread</span>.sleep(<span class="number">100</span>)</div><div class="line">  println(<span class="string">"E ...."</span>)</div><div class="line">  <span class="type">Thread</span>.sleep(<span class="number">100</span>)</div><div class="line"></div><div class="line">  <span class="type">Thread</span>.sleep(<span class="number">1000</span>)</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>代码解释：<br>上面两段例子中，Future结构中随机延迟一段时间，然后返回结果或者抛出异常。<br>然后在回调函数中进行相关处理。</p>
+<h3 id="创建返回Future-T-的方法"><a href="#创建返回Future-T-的方法" class="headerlink" title="创建返回Future[T]的方法"></a>创建返回Future[T]的方法</h3><p>先看一下示例：<br><figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> scala.concurrent.&#123;<span class="type">Await</span>, <span class="type">Future</span>, future&#125;</div><div class="line"><span class="keyword">import</span> scala.concurrent.<span class="type">ExecutionContext</span>.<span class="type">Implicits</span>.global</div><div class="line"><span class="keyword">import</span> scala.util.&#123;<span class="type">Failure</span>, <span class="type">Success</span>&#125;</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">object</span> <span class="title">ReturnFuture</span> <span class="keyword">extends</span> <span class="title">App</span></span>&#123;</div><div class="line">  <span class="keyword">implicit</span> <span class="keyword">val</span> baseTime = <span class="type">System</span>.currentTimeMillis</div><div class="line"></div><div class="line">  <span class="comment">// `future` method is another way to create a future</span></div><div class="line">  <span class="comment">// It starts the computation asynchronously and retures a Future[Int] that</span></div><div class="line">  <span class="comment">// will hold the result of the computation.</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">longRunningComputation</span></span>(i: <span class="type">Int</span>): <span class="type">Future</span>[<span class="type">Int</span>] = future &#123;</div><div class="line">    <span class="type">Thread</span>.sleep(<span class="number">100</span>)</div><div class="line">    i + <span class="number">1</span></div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="comment">// this does not block</span></div><div class="line">  longRunningComputation(<span class="number">11</span>).onComplete &#123;</div><div class="line">    <span class="keyword">case</span> <span class="type">Success</span>(result) =&gt; println(<span class="string">s"result = <span class="subst">$result</span>"</span>)</div><div class="line">    <span class="keyword">case</span> <span class="type">Failure</span>(e) =&gt; e.printStackTrace</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="comment">// keep the jvm from shutting down</span></div><div class="line">  <span class="type">Thread</span>.sleep(<span class="number">1000</span>)</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>代码解释：<br>上面代码中的longRunningComputation返回一个<code>Future[Int]</code>，然后进行相关的异步操作。<br>其中<code>future</code>方法是创建一个future的另一种方法。它将启动一个异步计算并且返回包含计算结果的<code>Future[T]</code>。</p>
+<h2 id="Future用于Actor"><a href="#Future用于Actor" class="headerlink" title="Future用于Actor"></a>Future用于Actor</h2><p>通常有两种方法来从一个Actor获取回应: 第一种是发送一个消息<code>actor ! msg</code>，这种方法只在发送者是一个Actor时有效；第二种是通过一个Future。<br>使用Actor的<code>?</code>方法来发送消息会返回一个Future。 要等待并获取结果的最简单方法是:<br><figure class="highlight fortran"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> scala.concurrent.Await</div><div class="line"><span class="keyword">import</span> akka.pattern.ask</div><div class="line"><span class="keyword">import</span> scala.concurrent.duration._</div><div class="line"><span class="keyword">import</span> akka.util.Timeout</div><div class="line"></div><div class="line"><span class="keyword">implicit</span> val timeout = Timeout(<span class="number">5</span> seconds)</div><div class="line">val future = actor ? msg</div><div class="line">val result = Await.result(future, timeout.duration).asInstanceOf[String]</div></pre></td></tr></table></figure></p>
+<p>下面是使用<code>?</code>发送消息给actor，并等待回应的代码示例：<br><figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> akka.actor._</div><div class="line"><span class="keyword">import</span> akka.pattern.ask</div><div class="line"><span class="keyword">import</span> akka.util.<span class="type">Timeout</span></div><div class="line"><span class="keyword">import</span> scala.concurrent.&#123;<span class="type">Await</span>, <span class="type">Future</span>&#125;</div><div class="line"><span class="keyword">import</span> scala.language.postfixOps</div><div class="line"><span class="keyword">import</span> scala.concurrent.duration._</div><div class="line"></div><div class="line"><span class="keyword">case</span> <span class="class"><span class="keyword">object</span> <span class="title">AskNameMessage</span></span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">TestActor</span> <span class="keyword">extends</span> <span class="title">Actor</span> </span>&#123;</div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">receive</span> </span>= &#123;</div><div class="line">    <span class="keyword">case</span> <span class="type">AskNameMessage</span> =&gt; <span class="comment">// respond to the 'ask' request</span></div><div class="line">      sender ! <span class="string">"Fred"</span></div><div class="line">    <span class="keyword">case</span> _ =&gt; println(<span class="string">"that was unexpected"</span>)</div><div class="line">  &#125;</div><div class="line">&#125;</div><div class="line"><span class="class"><span class="keyword">object</span> <span class="title">AskDemo</span> <span class="keyword">extends</span> <span class="title">App</span></span>&#123;</div><div class="line">  <span class="comment">//create the system and actor</span></div><div class="line">  <span class="keyword">val</span> system = <span class="type">ActorSystem</span>(<span class="string">"AskDemoSystem"</span>)</div><div class="line">  <span class="keyword">val</span> myActor = system.actorOf(<span class="type">Props</span>[<span class="type">TestActor</span>], name=<span class="string">"myActor"</span>)</div><div class="line"></div><div class="line">  <span class="comment">// (1) this is one way to "ask" another actor for information</span></div><div class="line">  <span class="keyword">implicit</span> <span class="keyword">val</span> timeout = <span class="type">Timeout</span>(<span class="number">5</span> seconds)</div><div class="line">  <span class="keyword">val</span> future = myActor ? <span class="type">AskNameMessage</span></div><div class="line">  <span class="keyword">val</span> result = <span class="type">Await</span>.result(future, timeout.duration).asInstanceOf[<span class="type">String</span>]</div><div class="line">  println(result)</div><div class="line"></div><div class="line">  <span class="comment">// (2) a slightly different way to ask another actor for information</span></div><div class="line">  <span class="keyword">val</span> future2: <span class="type">Future</span>[<span class="type">String</span>] = ask(myActor, <span class="type">AskNameMessage</span>).mapTo[<span class="type">String</span>]</div><div class="line">  <span class="keyword">val</span> result2 = <span class="type">Await</span>.result(future2, <span class="number">1</span> second)</div><div class="line">  println(result2)</div><div class="line"></div><div class="line">  system.shutdown</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>代码解释：</p>
+<blockquote>
+<ol>
+<li><code>Await.result(future, timeout.duration).asInstanceOf[String]</code>会导致当前线程被阻塞，并等待actor通过它的应答来完成<code>Future</code>。但是阻塞会导致性能问题，所以是不推荐的。致阻塞的操作位于<code>Await.result</code>和<code>Await.ready</code>中，这样就方便定位阻塞的位置。</li>
+<li>还要注意actor返回的Future的类型是<code>Future[Any]</code>，这是因为actor是动态的。 这也是为什么上例中注释(1)使用了<code>asInstanceOf</code>。</li>
+<li>在使用非阻塞方式时，最好使用<code>mapTo</code>方法来将Future转换到期望的类型。如果转换成功，<code>mapTo</code>方法会返回一个包含结果的新的 Future，如果不成功，则返回<code>ClassCastException</code>异常。</li>
+</ol>
+</blockquote>
+<p><strong>转载请注明作者Jason Ding及其出处</strong><br><a href="http://jasonding1354.github.io/" target="_blank" rel="external">Github博客主页(http://jasonding1354.github.io/)</a><br><a href="http://jasonding1354.gitcafe.io/" target="_blank" rel="external">GitCafe博客主页(http://jasonding1354.gitcafe.io/)</a><br><a href="http://blog.csdn.net/jasonding1354" target="_blank" rel="external">CSDN博客(http://blog.csdn.net/jasonding1354)</a><br><a href="http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles" target="_blank" rel="external">简书主页(http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles)</a><br><strong>Google搜索jasonding1354进入我的博客主页</strong></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Scala/">Scala</a><a href="/tags/Akka/">Akka</a>
+  </div>
+
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Scala/">Scala</a>
+</div>
+
+
+
+<div class="article-share" id="share">
+
+  
+<div class="jiathis_style">
+    <span class="jiathis_txt">分享到：</span>
+    <a class="jiathis_button_tsina">新浪微博</a>
+    <a class="jiathis_button_weixin">微信</a>
+    <a class="jiathis_button_twitter">Twitter</a>
+    <a class="jiathis_button_evernote">EverNote</a>
+    <a href="http://www.jiathis.com/share?uid=1501277" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript" >
+    var jiathis_config={
+    data_track_clickback:true,
+    sm:"copy,renren,cqq",
+    pic:"",
+    summary:"",
+    
+  </script> 
+<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=
+1394018007141544" charset="utf-8"></script>      
+
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2016/02/01/Scala/【Akka】Akka应用调研报告/" title="【Akka】Akka应用调研报告">
+  <strong>之后的一篇</strong><br/>
+  <span>
+  【Akka】Akka应用调研报告</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2016/01/20/Linux/【Linux】Ubuntu上配置静态IP/"  title="【Linux】Ubuntu上配置静态IP">
+ <strong>之前的一篇</strong><br/> 
+ <span>【Linux】Ubuntu上配置静态IP
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section class="comment">
+	<div class="ds-thread"></div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#引言"><span class="toc-number">1.</span> <span class="toc-text">引言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Future直接使用"><span class="toc-number">2.</span> <span class="toc-text">Future直接使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#执行上下文（ExecutionContext）"><span class="toc-number">2.1.</span> <span class="toc-text">执行上下文（ExecutionContext）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#阻塞方式"><span class="toc-number">2.2.</span> <span class="toc-text">阻塞方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#非阻塞方式（回调方式）"><span class="toc-number">2.3.</span> <span class="toc-text">非阻塞方式（回调方式）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#创建返回Future-T-的方法"><span class="toc-number">2.4.</span> <span class="toc-text">创建返回Future[T]的方法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Future用于Actor"><span class="toc-number">3.</span> <span class="toc-text">Future用于Actor</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+<div class="maps">
+    <p class="asidetitle">访问统计</p>
+    <br>
+    <script type="text/javascript" src="//ra.revolvermaps.com/0/0/6.js?i=0leibswamim&amp;m=0&amp;s=210&amp;c=ff0000&amp;cr1=ffffff&amp;f=arial&amp;l=0" async="async"></script>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">Categories</p>
+		<ul>
+		
+			<li><a href="/categories/Algorithm-Problem/" title="Algorithm Problem">Algorithm Problem<sup>1</sup></a></li>
+		
+			<li><a href="/categories/C/" title="C++">C++<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Classic-Algorithm/" title="Classic Algorithm">Classic Algorithm<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Cluster-Analysis/" title="Cluster Analysis">Cluster Analysis<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Design-Pattern/" title="Design Pattern">Design Pattern<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Developer-Kits/" title="Developer Kits">Developer Kits<sup>5</sup></a></li>
+		
+			<li><a href="/categories/Energy-Big-Data/" title="Energy Big Data">Energy Big Data<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Feature-Engineering/" title="Feature Engineering">Feature Engineering<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Functional/" title="Functional">Functional<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Functional-Programming/" title="Functional Programming">Functional Programming<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Git/" title="Git">Git<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Jobs/" title="Jobs">Jobs<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>4</sup></a></li>
+		
+			<li><a href="/categories/ML-Experiments/" title="ML Experiments">ML Experiments<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Machine-Learning/" title="Machine Learning">Machine Learning<sup>50</sup></a></li>
+		
+			<li><a href="/categories/Math/" title="Math">Math<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Programming/" title="Programming">Programming<sup>11</sup></a></li>
+		
+			<li><a href="/categories/Python/" title="Python">Python<sup>10</sup></a></li>
+		
+			<li><a href="/categories/Scala/" title="Scala">Scala<sup>27</sup></a></li>
+		
+			<li><a href="/categories/Scala-ML/" title="Scala-ML">Scala-ML<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Similarity-Search/" title="Similarity Search">Similarity Search<sup>4</sup></a></li>
+		
+			<li><a href="/categories/Small-Problems/" title="Small Problems">Small Problems<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Spark/" title="Spark">Spark<sup>23</sup></a></li>
+		
+			<li><a href="/categories/Thoughts/" title="Thoughts">Thoughts<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">Tag Cloud</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/Actor/" style="font-size: 10px;">Actor</a> <a href="/tags/Akka/" style="font-size: 14.55px;">Akka</a> <a href="/tags/Algorithm/" style="font-size: 10px;">Algorithm</a> <a href="/tags/Approximate-Nearest-Neighbor-Search/" style="font-size: 10px;">Approximate Nearest Neighbor Search</a> <a href="/tags/Bayesian-Analysis/" style="font-size: 10.91px;">Bayesian Analysis</a> <a href="/tags/Big-Data/" style="font-size: 10px;">Big Data</a> <a href="/tags/C/" style="font-size: 12.73px;">C++</a> <a href="/tags/Classification/" style="font-size: 11.82px;">Classification</a> <a href="/tags/Cluster-Analysis/" style="font-size: 10px;">Cluster Analysis</a> <a href="/tags/Computer-Vision/" style="font-size: 14.55px;">Computer Vision</a> <a href="/tags/Eclipse/" style="font-size: 10px;">Eclipse</a> <a href="/tags/Energy-Forecasting/" style="font-size: 10px;">Energy Forecasting</a> <a href="/tags/Feature-Engineering/" style="font-size: 10.91px;">Feature Engineering</a> <a href="/tags/Functional-Programming/" style="font-size: 16.36px;">Functional Programming</a> <a href="/tags/Gaussian-Process/" style="font-size: 10px;">Gaussian Process</a> <a href="/tags/Git/" style="font-size: 10.91px;">Git</a> <a href="/tags/GraphLab/" style="font-size: 10px;">GraphLab</a> <a href="/tags/IPython/" style="font-size: 10px;">IPython</a> <a href="/tags/Internet-of-Energy/" style="font-size: 10px;">Internet of Energy</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/Kaggle/" style="font-size: 10px;">Kaggle</a> <a href="/tags/Kernel-Method/" style="font-size: 10px;">Kernel Method</a> <a href="/tags/LSH/" style="font-size: 12.73px;">LSH</a> <a href="/tags/LaTex/" style="font-size: 10px;">LaTex</a> <a href="/tags/Linux/" style="font-size: 11.82px;">Linux</a> <a href="/tags/Machine-Learning/" style="font-size: 20px;">Machine Learning</a> <a href="/tags/Math/" style="font-size: 11.82px;">Math</a> <a href="/tags/Mathematics/" style="font-size: 13.64px;">Mathematics</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MeanShift/" style="font-size: 10px;">MeanShift</a> <a href="/tags/Mint/" style="font-size: 10px;">Mint</a> <a href="/tags/OpenCV/" style="font-size: 15.45px;">OpenCV</a> <a href="/tags/Probabilistic-Programming/" style="font-size: 10px;">Probabilistic Programming</a> <a href="/tags/Probability-Distributions/" style="font-size: 10px;">Probability Distributions</a> <a href="/tags/Programming/" style="font-size: 14.55px;">Programming</a> <a href="/tags/Python/" style="font-size: 17.27px;">Python</a> <a href="/tags/Regression/" style="font-size: 11.82px;">Regression</a> <a href="/tags/Resume/" style="font-size: 10px;">Resume</a> <a href="/tags/SVM/" style="font-size: 12.73px;">SVM</a> <a href="/tags/Scala/" style="font-size: 19.09px;">Scala</a> <a href="/tags/Similarity-Search/" style="font-size: 10.91px;">Similarity Search</a> <a href="/tags/Source-code/" style="font-size: 10px;">Source code</a> <a href="/tags/Spark/" style="font-size: 18.18px;">Spark</a> <a href="/tags/Summary/" style="font-size: 10px;">Summary</a> <a href="/tags/Thoughts/" style="font-size: 10.91px;">Thoughts</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/Vim/" style="font-size: 11.82px;">Vim</a> <a href="/tags/Written-Test/" style="font-size: 10px;">Written Test</a> <a href="/tags/Zeppelin/" style="font-size: 10px;">Zeppelin</a> <a href="/tags/boost/" style="font-size: 10px;">boost</a> <a href="/tags/cpp/" style="font-size: 13.64px;">cpp</a> <a href="/tags/opencv/" style="font-size: 10.91px;">opencv</a> <a href="/tags/p-Stable-LSH/" style="font-size: 10px;">p-Stable LSH</a> <a href="/tags/scikit-learn/" style="font-size: 10px;">scikit-learn</a> <a href="/tags/sklearn/" style="font-size: 10.91px;">sklearn</a> <a href="/tags/互联网时代/" style="font-size: 10px;">互联网时代</a> <a href="/tags/位置敏感哈希/" style="font-size: 10.91px;">位置敏感哈希</a> <a href="/tags/分治/" style="font-size: 10px;">分治</a> <a href="/tags/单元测试/" style="font-size: 10px;">单元测试</a> <a href="/tags/反思/" style="font-size: 10px;">反思</a> <a href="/tags/效率/" style="font-size: 10px;">效率</a> <a href="/tags/核方法/" style="font-size: 10px;">核方法</a> <a href="/tags/算法框架/" style="font-size: 10px;">算法框架</a> <a href="/tags/设计模式/" style="font-size: 11.82px;">设计模式</a>
+    </div>
+  </div>
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle"><a href="/archives">Archives</a></p>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">February 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">November 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">29</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a><span class="archive-list-count">16</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">10</span></li></ul>
+  </div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
+</div>
+
+</aside>
+
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Jason Ding in HUST <br/>
+			I would share moments of life here! </p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/1698420390" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/jasonding1354" target="_blank" title="github"></a>
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2016 
+		
+		<a href="http://blog.jasonding.top" target="_blank" title="Jason Ding">Jason Ding</a>
+		
+		</p>
+		<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+  
+  _st('install','uYyEuxJdzzAGXTax33mt','2.0.0');
+</script>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"jasonding"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+  </body>
+</html>

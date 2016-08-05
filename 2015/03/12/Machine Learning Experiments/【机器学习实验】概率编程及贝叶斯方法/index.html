@@ -1,0 +1,485 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>【机器学习实验】概率编程及贝叶斯方法 | Jason&#39;s Techblog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Jason Ding">
+    
+    <meta name="description" content="引言贝叶斯方法是天生用来做推断的方法，然而它常隐藏在课本的数学分析的背后。随着近年来贝叶斯方法在机器学习竞赛中成功应用，其重要性又引起了学习者的兴趣，但是其难点在于贝叶斯数学和概率编程之间的衔接。《Probabilistic Programming and Bayesian Methods for ">
+    
+    
+    
+    
+    <link rel="alternate" href="/atom.xml" title="Jason&#39;s Techblog" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/author.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/author.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F3cc71cd5738b99a1db174951e194ba55' type='text/javascript'%3E%3C/script%3E"));
+
+
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F1dcf1fa58b0eca1ac5bd089ee6a6e78c' type='text/javascript'%3E%3C/script%3E"));
+
+
+</script>
+
+
+    <!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Jason&#39;s Techblog" title="Jason&#39;s Techblog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Jason&#39;s Techblog">Jason&#39;s Techblog</a></h1>
+				<h2 class="blog-motto">Technician =&gt; Scientist =&gt; Philosopher =&gt; Artists</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="http://jasonding.top">Main</a></li>
+					
+					<li>
+					
+						<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" class="st-default-search-input" maxlength="20" placeholder="Search" />
+						</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody">
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/03/12/Machine Learning Experiments/【机器学习实验】概率编程及贝叶斯方法/" title="【机器学习实验】概率编程及贝叶斯方法" itemprop="url">【机器学习实验】概率编程及贝叶斯方法</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://blog.jasonding.top" title="Jason Ding">Jason Ding</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2015-03-12T09:06:42.000Z" itemprop="datePublished">2015-03-12</time>
+    Updated:<time datetime="2016-03-16T06:24:42.000Z" itemprop="dateModified">2016-03-16</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#引言"><span class="toc-number">1.</span> <span class="toc-text">引言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#贝叶斯思想"><span class="toc-number">2.</span> <span class="toc-text">贝叶斯思想</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#贝叶斯推断实战"><span class="toc-number">3.</span> <span class="toc-text">贝叶斯推断实战</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#频率派方法是错误的吗？"><span class="toc-number">3.1.</span> <span class="toc-text">频率派方法是错误的吗？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#关于大数据"><span class="toc-number">3.2.</span> <span class="toc-text">关于大数据</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#贝叶斯框架"><span class="toc-number">4.</span> <span class="toc-text">贝叶斯框架</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#入门实验"><span class="toc-number">5.</span> <span class="toc-text">入门实验</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#抛硬币实验"><span class="toc-number">5.1.</span> <span class="toc-text">抛硬币实验</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二项分布与Beta分布"><span class="toc-number">5.2.</span> <span class="toc-text">二项分布与Beta分布</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">6.</span> <span class="toc-text">小结</span></a></li></ol>
+		</div>
+		
+		<h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>贝叶斯方法是天生用来做推断的方法，然而它常隐藏在课本的数学分析的背后。<br>随着近年来贝叶斯方法在机器学习竞赛中成功应用，其重要性又引起了学习者的兴趣，但是其难点在于贝叶斯数学和概率编程之间的衔接。<a href="http://nbviewer.ipython.org/github/CamDavidsonPilon/Probabilistic-Programming-and-Bayesian-Methods-for-Hackers/blob/master/Prologue/Prologue.ipynb" target="_blank" rel="external">《Probabilistic Programming and Bayesian Methods for Hackers》</a>一书试图弥补以上的遗憾。<br>有关概率编程和贝叶斯方法的实验，我将以该在线书籍作为学习资料，希望从中能将理论知识和编程实践想结合，以加深对理论的理解，以提高解决具体问题和数学建模的能力。</p>
+<p>我们期望使用贝叶斯推断来进行统计分析，利用计算机的计算能力通过概率编程来解决问题。该方法去除了原本数学分析的干预。PyMC是一个马尔可夫链蒙特卡罗采样(Markov chain Monte Carlo Sampling)Python工具包，它实现了Metropolis-Hastings算法，包含了画图、拟合优度(goodness-of-fit)和聚合诊断(convergence diagnostics)的方法。</p>
+<h2 id="贝叶斯思想"><a href="#贝叶斯思想" class="headerlink" title="贝叶斯思想"></a>贝叶斯思想</h2><blockquote>
+<p>比如测试一个算法的正确性，我们通过一个个测试用例来验证算法的正确性，每次测试都让我们对算法的准确性更加有信心，但是我们无法保证算法是没有bug的，除非测试了所有可能的问题，但这常常是不实际的。<br>贝叶斯推断是同样的一个道理，通过成功的结果来更新信任度，在没有验证所有可能的结果之前，我们无法绝对肯定。</p>
+</blockquote>
+<p>现在，我们来对比一下贝叶斯和频率派对于概率的解释。<br>从贝叶斯的世界观中，概率是一个事件发生的可信度(believability)的度量，也就是说，我们对一件事情发生是多么有信心。<br>而频率派的观点，他们设定概率是事件的长期频率。比如飞机发生事故的概率，频率派解释为飞机事故的长期频率。这在很多事件的概率问题上看上去确实有逻辑合理性，但当一个事件不会经常出现，无法统计长期的发生频率的话，就很难解释通了。比如总统选举的概率，因为该选举只发生一次。<br>贝叶斯观点认为，概率是事件发生的可信度或者信心的测度。对于一个事件的发生，如果将这种可信度设为0，那么说明我们对该事件发生没有信心；相反，如果将这种可信度设为1，那么说明我们十分肯定该事件一定会发生。0到1之间的可信度是对结果发生的权重的考虑。这样的定义与飞机发生事故的概率的解释是一致的：通过观测了飞机事故的发生频率，在没有附加信息的情况下，飞机事故的可信度应该等于该频率。</p>
+<p>我们设定可信度的测量是针对一个个体的，而不是对于自然而言的。这是因为，不同的个体具有不同的信息，所以其对于事件发生的信任程度也不同。<br>将可信度认为是一种概率的哲学观点对人类是很自然的，我们持续不断地与世界万物互动接触，总是看到一部分真相，却收集了一些证据来构成这种可信度。<br>贝叶斯派通过观察到更多的证据和现象来更正自己的信任度，尤其是当证据与初始认为的一致时，该证据就更不能被忽视了。我们将更新的可信度设为P(A|X)，解释为在给定证据X时，事件A发生的概率。这被称作后验概率。</p>
+<blockquote>
+<ol>
+<li>先验概率P(A)：硬币有50%的机会向上；后验概率P(A|X)：你看到了硬币落到地上时正面朝上，这就是信息X，于是我们就将硬币朝上的概率设为1.0，硬币朝下的概率设为0.0。</li>
+<li>先验概率P(A)：大型复杂的程序代码可能bug；后验概率P(A|X)：如果代码通过了所有的测试用例X，尽管仍然有bug存在的可能性，但是该可能性已经减小了。</li>
+</ol>
+</blockquote>
+<h2 id="贝叶斯推断实战"><a href="#贝叶斯推断实战" class="headerlink" title="贝叶斯推断实战"></a>贝叶斯推断实战</h2><p>如果是频率派和贝叶斯派编写一个函数，输入一个统计问题，而返回的结果是不同的。频率派的推断方程会返回一个数来表示一个估计，而贝叶斯派的方程将返回一个概率。<br>以之前代码调试问题为例，当询问“代码通过了所有测试，那么该代码是不是没有bug了”，频率派的方程会返回“是”；而贝叶斯派的方程将返回“是”和“否”的概率。</p>
+<blockquote>
+<p>令N为我们手上数据证据的数量，当我们收集了无限多个证据，即N→∞，贝叶斯的结果和频率派的结果是一致的。所以，对于很大的N，统计推断或多或少有一定客观性；而对于较小的N，该推断就不太稳定了：频率派估计就有较大的方差和较大的置信区间(confidence intervals)。这却是贝叶斯分析擅长的，贝叶斯派引入了先验概率，返回一个概率，这样就保有了对于小数据集情况下统计推断所反映出来的不确定性(uncertainty)。</p>
+</blockquote>
+<p>有人会认为，当N很大的时候，人们会不太在意这两种技术的区别，因为此时它们提供了类似的推断，甚至更倾向于计算简单的频率派方法。<br>而有专家[Andrew Gelman (2005)]认为，样本数量永远不会很大。如果N很小，为了得到一个足够精确的推论，你需要获得更多的数据。但是一旦N足够大，你便开始细分数据以学习更多（比如，在一个公开的民意投票中，一旦你对于全国的情况有一个很好的估计，你便会划分不同的人群来进行更多的估计，比如按照性别，不同的年龄，不同的地域等）。N不会很充足，因为一旦你认为有充足的数据，你便转向更加细致的问题，这样你便需要更多的数据。</p>
+<h3 id="频率派方法是错误的吗？"><a href="#频率派方法是错误的吗？" class="headerlink" title="频率派方法是错误的吗？"></a>频率派方法是错误的吗？</h3><p>频率派方法依然很有用，并且在很多领域都是先进水平(state-of-the-art)。像最小二乘线性回归、LASSO回归、期望最大算法都很有用、很快速。贝叶斯方法补充了这些技术的不足，或者用弹性建模(flexible modeling)来阐述潜在的系统。</p>
+<h3 id="关于大数据"><a href="#关于大数据" class="headerlink" title="关于大数据"></a>关于大数据</h3><p>反常的是，大数据的预测分析问题常常使用相对简单的算法，因此，我们辩解大数据预测的困难点不在于算法的使用，而是存储和使用大数据的难度。<br>更多的难以分析的问题包含中数据(medium data)以至于小数据(small data)。</p>
+<h2 id="贝叶斯框架"><a href="#贝叶斯框架" class="headerlink" title="贝叶斯框架"></a>贝叶斯框架</h2><p><img src="http://jason-images.qiniudn.com/@/ML/experiment/bayesian_intro/bayesian1.jpg" alt=""></p>
+<h2 id="入门实验"><a href="#入门实验" class="headerlink" title="入门实验"></a>入门实验</h2><h3 id="抛硬币实验"><a href="#抛硬币实验" class="headerlink" title="抛硬币实验"></a>抛硬币实验</h3><p>假设你不知道抛硬币正面朝上的的概率，你定义该真实比率为p，但是并没有关于p的任何先验知识。 于是，我们尝试抛硬币并记录其观测结果。有趣的问题来了，随着我们观察到越来越多的数据，我们的推断是如何发生变化的？</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line">%matplotlib inline</div><div class="line"><span class="keyword">from</span> IPython.core.pylabtools <span class="keyword">import</span> figsize</div><div class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</div><div class="line"><span class="keyword">from</span> matplotlib <span class="keyword">import</span> pyplot <span class="keyword">as</span> plt</div><div class="line">figsize(<span class="number">11</span>, <span class="number">9</span>)</div><div class="line"></div><div class="line"><span class="keyword">import</span> scipy.stats <span class="keyword">as</span> stats</div><div class="line"></div><div class="line"></div><div class="line">dist = stats.beta</div><div class="line"><span class="comment"># 多次试验</span></div><div class="line">n_trials = [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">8</span>, <span class="number">15</span>, <span class="number">50</span>, <span class="number">500</span>]</div><div class="line"><span class="comment"># 构造500个符合伯努利分布的随机抽样</span></div><div class="line">data = stats.bernoulli.rvs(<span class="number">0.5</span>, size=n_trials[<span class="number">-1</span>])</div><div class="line">x = np.linspace(<span class="number">0</span>, <span class="number">1</span>, <span class="number">100</span>)</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment"># 使用伯努利分布的共轭先验——Beta分布</span></div><div class="line"><span class="keyword">for</span> k, N <span class="keyword">in</span> enumerate(n_trials):</div><div class="line">    sx = plt.subplot(len(n_trials) / <span class="number">2</span>, <span class="number">2</span>, k + <span class="number">1</span>)</div><div class="line">    plt.xlabel(<span class="string">"$p$, probability of heads"</span>) \</div><div class="line">        <span class="keyword">if</span> k <span class="keyword">in</span> [<span class="number">0</span>, len(n_trials) - <span class="number">1</span>] <span class="keyword">else</span> <span class="keyword">None</span></div><div class="line">    plt.setp(sx.get_yticklabels(), visible=<span class="keyword">False</span>)<span class="comment">#不显示y轴刻度</span></div><div class="line">    heads = data[:N].sum()<span class="comment">#统计1的个数</span></div><div class="line">    y = dist.pdf(x, <span class="number">1</span> + heads, <span class="number">1</span> + N - heads)<span class="comment">#构造Beta分布</span></div><div class="line">    plt.plot(x, y, label=<span class="string">"observe %d tosses,\n %d heads"</span> % (N, heads))</div><div class="line">    plt.fill_between(x, <span class="number">0</span>, y, color=<span class="string">"#FF99CC"</span>, alpha=<span class="number">0.4</span>)<span class="comment">#填充色彩到曲线下区域</span></div><div class="line">    plt.vlines(<span class="number">0.5</span>, <span class="number">0</span>, <span class="number">4</span>, color=<span class="string">"k"</span>, linestyles=<span class="string">"--"</span>, lw=<span class="number">1</span>)<span class="comment">#在0.5处画虚线</span></div><div class="line"></div><div class="line">    leg = plt.legend()</div><div class="line">    leg.get_frame().set_alpha(<span class="number">0.4</span>)</div><div class="line">    plt.autoscale(tight=<span class="keyword">True</span>)</div><div class="line">    </div><div class="line">plt.suptitle(<span class="string">"Bayesian updating of posterior probabilities"</span>,</div><div class="line">             y=<span class="number">1.02</span>,</div><div class="line">             fontsize=<span class="number">14</span>)</div><div class="line"></div><div class="line">plt.tight_layout()</div></pre></td></tr></table></figure>
+<p><img src="http://jason-images.qiniudn.com/@/ML/experiment/bayesian_intro/bayesian_test1.png" alt=""><br>上图，我们随着观测抛硬币的数据的增多，绘制了一系列后验概率的更新情况。<br><strong>该后验概率由这个曲线来表征，其不确定程度正比于曲线的宽度。</strong>我们开始观察数据的过程中，后验概率开始平移，不断变化。最终，该概率变得紧缩且越来越接近其真实值p=0.5。<br>但注意到，最终图像的峰值不一定在0.5处，这是很正常的。回顾之前，我们假设我们对p的值没有一个先验知识。实际上，如果我们观测了8次的结果，其中只有1次硬币朝上，那么得到的分布情况与峰值在0.5周围的情况相比偏倚很大。随着更多数据的积累，我们会发现该概率逐渐被分配在p=0.5处。</p>
+<h3 id="二项分布与Beta分布"><a href="#二项分布与Beta分布" class="headerlink" title="二项分布与Beta分布"></a>二项分布与Beta分布</h3><p><strong>二项分布</strong><br>在概率论和统计学中，二项分布是n个独立的[是/非]试验中成功的次数的离散概率分布，其中每次试验的成功概率为p。<br>比如：</p>
+<ul>
+<li>抛一次硬币出现正面的概率是0.5，抛10次硬币，出现k次正面的概率。</li>
+<li>掷一次骰子出现六点的概率是1/6，掷 6次骰子，出现k次六点的概率。<br>每次抛硬币或者掷骰子都和上次的结果无关，所以每次实验都是独立的。二项分布是一个离散分布，k的取值范围为从0到n，只有n+1种可能的结果。</li>
+</ul>
+<p>scipy.stats.binom为二项分布，下面用它计算抛十次硬币，出现k次正面的概率分布。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">n = <span class="number">10</span></div><div class="line">k = np.arange(n+<span class="number">1</span>)</div><div class="line">pcoin = stats.binom.pmf(k, n, <span class="number">0.5</span>)<span class="comment">#k -&gt; quantiles, n and p -&gt; shape parameters</span></div><div class="line">plt.stem(k, pcoin)<span class="comment">#绘制火柴棍图</span></div><div class="line">plt.margins(<span class="number">0.1</span>,<span class="number">0.05</span>)<span class="comment">#设置自动缩放的边缘</span></div></pre></td></tr></table></figure></p>
+<p><img src="http://jason-images.qiniudn.com/@/ML/experiment/bayesian_intro/bayesian_intro_test_7_0.png" alt=""></p>
+<p>下面是投掷6次骰子，出现6点的概率分布。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">n = <span class="number">6</span></div><div class="line">k = np.arange(n+<span class="number">1</span>)</div><div class="line">pdice = stats.binom.pmf(k, n, <span class="number">1.0</span>/<span class="number">6</span>)</div><div class="line">plt.stem(k, pdice)</div><div class="line">plt.margins(<span class="number">0.1</span>)</div></pre></td></tr></table></figure></p>
+<p><img src="http://jason-images.qiniudn.com/@/ML/experiment/bayesian_intro/bayesian_intro_test_8_0.png" alt=""></p>
+<p><strong>Beta分布</strong><br>贝塔分布是一个作为伯努利分布和二项式分布的共轭先验分布的密度函数，在机器学习和数理统计学中有重要应用。贝塔分布中的参数可以理解为伪计数，伯努利分布的似然函数可以表示为，表示一次事件发生的概率，它为贝塔有相同的形式，因此可以用贝塔分布作为其先验分布。</p>
+<p>对于硬币或者骰子这样的简单实验，我们事先能很准确地掌握系统成功的概率。然而通常情况下，系统成功的概率是未知的。为了测试系统的成功概率p，我们做n次试验，统计成功的次数k，于是很直观地就可以计算出p = k/n。然而由于系统成功的概率是未知的，这个公式<strong>计算出的p只是系统成功概率的最佳估计</strong>。也就是说实际上p也可能为其它的值，只是为其它的值的概率较小。<br>例如有某种特殊的硬币，我们事先完全无法确定它出现正面的概率。然后抛10次硬币，出现5次正面，于是我们认为硬币出现正面的概率最可能是0.5。但是即使硬币出现正面的概率为0.4，也会出现抛10次出现5次正面的情况。因此我们并不能完全确定硬币出现正面的概率就是0.5，所以p也是一个随机变量，它符合Beta分布。</p>
+<p>Beta分布是一个连续分布，由于它描述概率$p$的分布，因此其取值范围为0到1。 Beta分布有alpha和beta两个参数，其中alpha为成功次数加1，beta为失败次数加1。</p>
+<p>连续分布用概率密度函数描述，下面绘制实验10次，成功4次和5次时，系统成功概率p的分布情况。可以看出k=5时，曲线的峰值在p=0.5处，而k=4时，曲线的峰值在p=0.4处。<br>当n=30，k=12时，曲线的峰值还在p=0.4处，但是因为随着实验次数的增多，p取其他值的可能就会变小，对p的估计就更有信心，因此山峰就更陡峭了。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">n = <span class="number">10</span></div><div class="line">k = <span class="number">5</span></div><div class="line">p = np.linspace(<span class="number">0</span>, <span class="number">1</span>, <span class="number">100</span>)</div><div class="line">pbeta = stats.beta.pdf(p, k+<span class="number">1</span>, n-k+<span class="number">1</span>)</div><div class="line">plt.plot(p, pbeta, label=<span class="string">"k=5"</span>, lw=<span class="number">2</span>)</div><div class="line"></div><div class="line">k = <span class="number">4</span></div><div class="line">pbeta = stats.beta.pdf(p, k+<span class="number">1</span>, n-k+<span class="number">1</span>)</div><div class="line">plt.plot(p, pbeta, label=<span class="string">"k=4"</span>, lw=<span class="number">2</span>)</div><div class="line"></div><div class="line">n = <span class="number">30</span></div><div class="line">k = <span class="number">12</span></div><div class="line">pbeta = stats.beta.pdf(p, k+<span class="number">1</span>, n-k+<span class="number">1</span>)</div><div class="line">plt.plot(p, pbeta, label=<span class="string">"k=3"</span>, lw=<span class="number">2</span>)</div><div class="line">plt.xlabel(<span class="string">"$p$"</span>)</div><div class="line">plt.legend(loc=<span class="string">"best"</span>);<span class="comment">#放置曲线的label说明</span></div></pre></td></tr></table></figure>
+<p><img src="http://jason-images.qiniudn.com/@/ML/experiment/bayesian_intro/bayesian_intro_test_9_0.png" alt=""></p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>这一小节，我们先对贝叶斯概念有个初步的了解，在下一小节中，我将进一步地介绍不同的数学分布，并引入pymc库的使用。</p>
+<p><strong>转载请注明作者Jason Ding及其出处</strong><br><a href="http://jasonding1354.github.io/" target="_blank" rel="external">Github博客主页(http://jasonding1354.github.io/)</a><br><a href="http://blog.csdn.net/jasonding1354" target="_blank" rel="external">CSDN博客(http://blog.csdn.net/jasonding1354)</a><br><a href="http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles" target="_blank" rel="external">简书主页(http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles)</a><br><strong>百度搜索jasonding1354进入我的博客主页</strong></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Machine-Learning/">Machine Learning</a><a href="/tags/Probabilistic-Programming/">Probabilistic Programming</a>
+  </div>
+
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/ML-Experiments/">ML Experiments</a>
+</div>
+
+
+
+<div class="article-share" id="share">
+
+  
+<div class="jiathis_style">
+    <span class="jiathis_txt">分享到：</span>
+    <a class="jiathis_button_tsina">新浪微博</a>
+    <a class="jiathis_button_weixin">微信</a>
+    <a class="jiathis_button_twitter">Twitter</a>
+    <a class="jiathis_button_evernote">EverNote</a>
+    <a href="http://www.jiathis.com/share?uid=1501277" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript" >
+    var jiathis_config={
+    data_track_clickback:true,
+    sm:"copy,renren,cqq",
+    pic:"",
+    summary:"",
+    
+  </script> 
+<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=
+1394018007141544" charset="utf-8"></script>      
+
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2015/03/23/C++/【C++】C++问题——显式构造函数、常量引用返回值、深浅拷贝/" title="【C++】C++问题——显式构造函数、常量引用返回值、深浅拷贝">
+  <strong>之后的一篇</strong><br/>
+  <span>
+  【C++】C++问题——显式构造函数、常量引用返回值、深浅拷贝</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2015/03/05/Machine Learning/【机器学习基础】线性可分支持向量机/"  title="【机器学习基础】线性可分支持向量机">
+ <strong>之前的一篇</strong><br/> 
+ <span>【机器学习基础】线性可分支持向量机
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section class="comment">
+	<div class="ds-thread"></div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#引言"><span class="toc-number">1.</span> <span class="toc-text">引言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#贝叶斯思想"><span class="toc-number">2.</span> <span class="toc-text">贝叶斯思想</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#贝叶斯推断实战"><span class="toc-number">3.</span> <span class="toc-text">贝叶斯推断实战</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#频率派方法是错误的吗？"><span class="toc-number">3.1.</span> <span class="toc-text">频率派方法是错误的吗？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#关于大数据"><span class="toc-number">3.2.</span> <span class="toc-text">关于大数据</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#贝叶斯框架"><span class="toc-number">4.</span> <span class="toc-text">贝叶斯框架</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#入门实验"><span class="toc-number">5.</span> <span class="toc-text">入门实验</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#抛硬币实验"><span class="toc-number">5.1.</span> <span class="toc-text">抛硬币实验</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二项分布与Beta分布"><span class="toc-number">5.2.</span> <span class="toc-text">二项分布与Beta分布</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">6.</span> <span class="toc-text">小结</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+<div class="maps">
+    <p class="asidetitle">访问统计</p>
+    <br>
+    <script type="text/javascript" src="//ra.revolvermaps.com/0/0/6.js?i=0leibswamim&amp;m=0&amp;s=210&amp;c=ff0000&amp;cr1=ffffff&amp;f=arial&amp;l=0" async="async"></script>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">Categories</p>
+		<ul>
+		
+			<li><a href="/categories/Algorithm-Problem/" title="Algorithm Problem">Algorithm Problem<sup>1</sup></a></li>
+		
+			<li><a href="/categories/C/" title="C++">C++<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Classic-Algorithm/" title="Classic Algorithm">Classic Algorithm<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Cluster-Analysis/" title="Cluster Analysis">Cluster Analysis<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Design-Pattern/" title="Design Pattern">Design Pattern<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Developer-Kits/" title="Developer Kits">Developer Kits<sup>5</sup></a></li>
+		
+			<li><a href="/categories/Energy-Big-Data/" title="Energy Big Data">Energy Big Data<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Feature-Engineering/" title="Feature Engineering">Feature Engineering<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Functional/" title="Functional">Functional<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Functional-Programming/" title="Functional Programming">Functional Programming<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Git/" title="Git">Git<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Jobs/" title="Jobs">Jobs<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>4</sup></a></li>
+		
+			<li><a href="/categories/ML-Experiments/" title="ML Experiments">ML Experiments<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Machine-Learning/" title="Machine Learning">Machine Learning<sup>50</sup></a></li>
+		
+			<li><a href="/categories/Math/" title="Math">Math<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Programming/" title="Programming">Programming<sup>11</sup></a></li>
+		
+			<li><a href="/categories/Python/" title="Python">Python<sup>10</sup></a></li>
+		
+			<li><a href="/categories/Scala/" title="Scala">Scala<sup>27</sup></a></li>
+		
+			<li><a href="/categories/Scala-ML/" title="Scala-ML">Scala-ML<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Similarity-Search/" title="Similarity Search">Similarity Search<sup>4</sup></a></li>
+		
+			<li><a href="/categories/Small-Problems/" title="Small Problems">Small Problems<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Spark/" title="Spark">Spark<sup>23</sup></a></li>
+		
+			<li><a href="/categories/Thoughts/" title="Thoughts">Thoughts<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">Tag Cloud</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/Actor/" style="font-size: 10px;">Actor</a> <a href="/tags/Akka/" style="font-size: 14.55px;">Akka</a> <a href="/tags/Algorithm/" style="font-size: 10px;">Algorithm</a> <a href="/tags/Approximate-Nearest-Neighbor-Search/" style="font-size: 10px;">Approximate Nearest Neighbor Search</a> <a href="/tags/Bayesian-Analysis/" style="font-size: 10.91px;">Bayesian Analysis</a> <a href="/tags/Big-Data/" style="font-size: 10px;">Big Data</a> <a href="/tags/C/" style="font-size: 12.73px;">C++</a> <a href="/tags/Classification/" style="font-size: 11.82px;">Classification</a> <a href="/tags/Cluster-Analysis/" style="font-size: 10px;">Cluster Analysis</a> <a href="/tags/Computer-Vision/" style="font-size: 14.55px;">Computer Vision</a> <a href="/tags/Eclipse/" style="font-size: 10px;">Eclipse</a> <a href="/tags/Energy-Forecasting/" style="font-size: 10px;">Energy Forecasting</a> <a href="/tags/Feature-Engineering/" style="font-size: 10.91px;">Feature Engineering</a> <a href="/tags/Functional-Programming/" style="font-size: 16.36px;">Functional Programming</a> <a href="/tags/Gaussian-Process/" style="font-size: 10px;">Gaussian Process</a> <a href="/tags/Git/" style="font-size: 10.91px;">Git</a> <a href="/tags/GraphLab/" style="font-size: 10px;">GraphLab</a> <a href="/tags/IPython/" style="font-size: 10px;">IPython</a> <a href="/tags/Internet-of-Energy/" style="font-size: 10px;">Internet of Energy</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/Kaggle/" style="font-size: 10px;">Kaggle</a> <a href="/tags/Kernel-Method/" style="font-size: 10px;">Kernel Method</a> <a href="/tags/LSH/" style="font-size: 12.73px;">LSH</a> <a href="/tags/LaTex/" style="font-size: 10px;">LaTex</a> <a href="/tags/Linux/" style="font-size: 11.82px;">Linux</a> <a href="/tags/Machine-Learning/" style="font-size: 20px;">Machine Learning</a> <a href="/tags/Math/" style="font-size: 11.82px;">Math</a> <a href="/tags/Mathematics/" style="font-size: 13.64px;">Mathematics</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MeanShift/" style="font-size: 10px;">MeanShift</a> <a href="/tags/Mint/" style="font-size: 10px;">Mint</a> <a href="/tags/OpenCV/" style="font-size: 15.45px;">OpenCV</a> <a href="/tags/Probabilistic-Programming/" style="font-size: 10px;">Probabilistic Programming</a> <a href="/tags/Probability-Distributions/" style="font-size: 10px;">Probability Distributions</a> <a href="/tags/Programming/" style="font-size: 14.55px;">Programming</a> <a href="/tags/Python/" style="font-size: 17.27px;">Python</a> <a href="/tags/Regression/" style="font-size: 11.82px;">Regression</a> <a href="/tags/Resume/" style="font-size: 10px;">Resume</a> <a href="/tags/SVM/" style="font-size: 12.73px;">SVM</a> <a href="/tags/Scala/" style="font-size: 19.09px;">Scala</a> <a href="/tags/Similarity-Search/" style="font-size: 10.91px;">Similarity Search</a> <a href="/tags/Source-code/" style="font-size: 10px;">Source code</a> <a href="/tags/Spark/" style="font-size: 18.18px;">Spark</a> <a href="/tags/Summary/" style="font-size: 10px;">Summary</a> <a href="/tags/Thoughts/" style="font-size: 10.91px;">Thoughts</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/Vim/" style="font-size: 11.82px;">Vim</a> <a href="/tags/Written-Test/" style="font-size: 10px;">Written Test</a> <a href="/tags/Zeppelin/" style="font-size: 10px;">Zeppelin</a> <a href="/tags/boost/" style="font-size: 10px;">boost</a> <a href="/tags/cpp/" style="font-size: 13.64px;">cpp</a> <a href="/tags/opencv/" style="font-size: 10.91px;">opencv</a> <a href="/tags/p-Stable-LSH/" style="font-size: 10px;">p-Stable LSH</a> <a href="/tags/scikit-learn/" style="font-size: 10px;">scikit-learn</a> <a href="/tags/sklearn/" style="font-size: 10.91px;">sklearn</a> <a href="/tags/互联网时代/" style="font-size: 10px;">互联网时代</a> <a href="/tags/位置敏感哈希/" style="font-size: 10.91px;">位置敏感哈希</a> <a href="/tags/分治/" style="font-size: 10px;">分治</a> <a href="/tags/单元测试/" style="font-size: 10px;">单元测试</a> <a href="/tags/反思/" style="font-size: 10px;">反思</a> <a href="/tags/效率/" style="font-size: 10px;">效率</a> <a href="/tags/核方法/" style="font-size: 10px;">核方法</a> <a href="/tags/算法框架/" style="font-size: 10px;">算法框架</a> <a href="/tags/设计模式/" style="font-size: 11.82px;">设计模式</a>
+    </div>
+  </div>
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle"><a href="/archives">Archives</a></p>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">February 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">November 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">29</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a><span class="archive-list-count">16</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">10</span></li></ul>
+  </div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
+</div>
+
+</aside>
+
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Jason Ding in HUST <br/>
+			I would share moments of life here! </p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/1698420390" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/jasonding1354" target="_blank" title="github"></a>
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2016 
+		
+		<a href="http://blog.jasonding.top" target="_blank" title="Jason Ding">Jason Ding</a>
+		
+		</p>
+		<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+  
+  _st('install','uYyEuxJdzzAGXTax33mt','2.0.0');
+</script>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"jasonding"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+  </body>
+</html>

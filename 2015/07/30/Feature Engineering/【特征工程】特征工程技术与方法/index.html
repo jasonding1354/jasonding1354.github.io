@@ -1,0 +1,477 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>【特征工程】特征工程技术与方法 | Jason&#39;s Techblog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Jason Ding">
+    
+    <meta name="description" content="引言在之前学习机器学习技术中，很少关注特征工程(Feature Engineering)，然而，单纯学习机器学习的算法流程，可能仍然不会使用这些算法，尤其是应用到实际问题的时候，常常不知道怎么提取特征来建模。特征是机器学习系统的原材料，对最终模型的影响是毋庸置疑的。
+特征工程的重要意义数据特征会直接">
+    
+    
+    
+    
+    <link rel="alternate" href="/atom.xml" title="Jason&#39;s Techblog" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/author.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/author.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F3cc71cd5738b99a1db174951e194ba55' type='text/javascript'%3E%3C/script%3E"));
+
+
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F1dcf1fa58b0eca1ac5bd089ee6a6e78c' type='text/javascript'%3E%3C/script%3E"));
+
+
+</script>
+
+
+    <!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Jason&#39;s Techblog" title="Jason&#39;s Techblog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Jason&#39;s Techblog">Jason&#39;s Techblog</a></h1>
+				<h2 class="blog-motto">Technician =&gt; Scientist =&gt; Philosopher =&gt; Artists</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="http://jasonding.top">Main</a></li>
+					
+					<li>
+					
+						<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" class="st-default-search-input" maxlength="20" placeholder="Search" />
+						</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody">
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/07/30/Feature Engineering/【特征工程】特征工程技术与方法/" title="【特征工程】特征工程技术与方法" itemprop="url">【特征工程】特征工程技术与方法</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://blog.jasonding.top" title="Jason Ding">Jason Ding</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2015-07-30T03:03:50.000Z" itemprop="datePublished">2015-07-30</time>
+    Updated:<time datetime="2016-03-16T06:24:42.000Z" itemprop="dateModified">2016-03-16</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#引言"><span class="toc-number">1.</span> <span class="toc-text">引言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#特征工程的重要意义"><span class="toc-number">2.</span> <span class="toc-text">特征工程的重要意义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#特征工程定义"><span class="toc-number">3.</span> <span class="toc-text">特征工程定义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#特征工程的子问题"><span class="toc-number">4.</span> <span class="toc-text">特征工程的子问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-机器学习中的特征（Feature）"><span class="toc-number">4.1.</span> <span class="toc-text">1. 机器学习中的特征（Feature）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-特征的重要性（Feature-Importance）"><span class="toc-number">4.2.</span> <span class="toc-text">2. 特征的重要性（Feature Importance）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-特征提取（Feature-Extraction）"><span class="toc-number">4.3.</span> <span class="toc-text">3. 特征提取（Feature Extraction）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-特征选择（Feature-Selection）"><span class="toc-number">4.4.</span> <span class="toc-text">4. 特征选择（Feature Selection）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-特征构建（Feature-Construction）"><span class="toc-number">4.5.</span> <span class="toc-text">5. 特征构建（Feature Construction）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-特征学习（Feature-Learning）"><span class="toc-number">4.6.</span> <span class="toc-text">6. 特征学习（Feature Learning）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#特征工程的流程"><span class="toc-number">5.</span> <span class="toc-text">特征工程的流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">6.</span> <span class="toc-text">参考资料</span></a></li></ol>
+		</div>
+		
+		<h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>在之前学习机器学习技术中，很少关注特征工程(Feature Engineering)，然而，单纯学习机器学习的算法流程，可能仍然不会使用这些算法，尤其是应用到实际问题的时候，常常不知道怎么提取特征来建模。<br>特征是机器学习系统的原材料，对最终模型的影响是毋庸置疑的。</p>
+<h2 id="特征工程的重要意义"><a href="#特征工程的重要意义" class="headerlink" title="特征工程的重要意义"></a>特征工程的重要意义</h2><p>数据特征会直接影响你使用的预测模型和实现的预测结果。准备和选择的特征越好，则实现的结果越好。<br>影响预测结果好坏的因素：<strong>模型的选择、可用的数据、特征的提取</strong>。<br><strong>优质的特征往往描述了数据的固有结构</strong>。</p>
+<p>大多数模型都可以通过数据中良好的结构很好的学习，即使不是最优的模型，优质的特征也可以得到不错的效果。优质特征的灵活性可以让你使用简单的模型运算的更快，更容易理解，更容易维护。<br>优质的特征可以在使用不是最优的模型参数的情况下得到不错的预测结果，这样你就不必费力去选择最适合的模型和最优的参数了。</p>
+<h2 id="特征工程定义"><a href="#特征工程定义" class="headerlink" title="特征工程定义"></a>特征工程定义</h2><p>特征工程是将原始数据转化为特征，更好表示预测模型处理的实际问题，提升对于未知数据的准确性。它是用目标问题所在的特定领域知识或者自动化的方法来生成、提取、删减或者组合变化得到特征。<br>下面的图给出了特征工程的概貌：<br><img src="http://7nj1qk.com1.z0.glb.clouddn.com/@/feature_engineering/intro/feature_engineering.jpg" alt=""></p>
+<h2 id="特征工程的子问题"><a href="#特征工程的子问题" class="headerlink" title="特征工程的子问题"></a>特征工程的子问题</h2><h3 id="1-机器学习中的特征（Feature）"><a href="#1-机器学习中的特征（Feature）" class="headerlink" title="1. 机器学习中的特征（Feature）"></a>1. 机器学习中的特征（Feature）</h3><p>在机器学习和模式识别中，特征是在观测现象中的一种独立、可测量的属性。选择信息量大的、有差别性的、独立的特征是模式识别、分类和回归问题的关键一步。<br>最初的原始特征数据集可能太大，或者信息冗余，因此在机器学习的应用中，一个初始步骤就是选择特征的子集，或构建一套新的特征集，减少功能来促进算法的学习，提高泛化能力和可解释性。</p>
+<p>在表格数据中，观测数据或实例（对应表格的一行）由不同的变量或者属性（表格的一列）构成，这里属性其实就是特征。但是与属性一词不同的是，特征是对于分析和解决问题有用、有意义的属性。<br>在机器视觉中，一幅图像是一个观测，但是特征可能是图中的一条线；在自然语言处理中，一个文本是一个观测，但是其中的段落或者词频可能才是一种特征；在语音识别中，一段语音是一个观测，但是一个词或者音素才是一种特征。</p>
+<h3 id="2-特征的重要性（Feature-Importance）"><a href="#2-特征的重要性（Feature-Importance）" class="headerlink" title="2. 特征的重要性（Feature Importance）"></a>2. 特征的重要性（Feature Importance）</h3><p>你可以客观的评价特征的实用性。判别特征的重要性是对特征进行选择的预先指标，特征根据重要性被分配分数，然后根据分数不同进行排序，其中高分的特征被选择出来放入训练数据集。<br>如果与因变量（预测的事物）高度相关，则这个特征可能很重要，其中相关系数和独立变量方法是常用的方法。</p>
+<p>在构建模型的过程中，一些复杂的预测模型会在算法内部进行特征重要性的评价和选择，如多元自适应回归样条法(Multivariate Adaptive Regression Splines， MARS)、随机森林(Random Forest)、梯度提升机(Gradient Boosted Machines)。这些模型在模型准备阶段会进行变量重要性的确定。</p>
+<h3 id="3-特征提取（Feature-Extraction）"><a href="#3-特征提取（Feature-Extraction）" class="headerlink" title="3. 特征提取（Feature Extraction）"></a>3. 特征提取（Feature Extraction）</h3><p>一些观测数据如果直接建模，其原始状态的数据太多。像图像、音频和文本数据，如果将其看做是表格数据，那么其中包含了数以千计的属性。<br>特征提取是自动地对原始观测降维，使其特征集合小到可以进行建模的过程。<br>对于表格式数据，可以使用主元素分析(Principal Component Analysis)、聚类等映射方法；对于图像数据，可以进行线(line)或边缘(edge)的提取；根据相应的领域，图像、视频和音频数据可以有很多数字信号处理的方法对其进行处理。</p>
+<h3 id="4-特征选择（Feature-Selection）"><a href="#4-特征选择（Feature-Selection）" class="headerlink" title="4. 特征选择（Feature Selection）"></a>4. 特征选择（Feature Selection）</h3><p>不同的特征对模型的准确度的影响不同，有些特征与要解决的问题不相关，有些特征是冗余信息，这些特征都应该被移除掉。<br>特征选择是自动地选择出对于问题最重要的那些特征子集的过程。<br>特征选择算法可以使用评分的方法来进行排序；还有些方法通过反复试验来搜索出特征子集，自动地创建并评估模型以得到客观的、预测效果最好的特征子集；还有一些方法，将特征选择作为模型的附加功能，像逐步回归法(Stepwise regression)<br>就是一个在模型构建过程中自动进行特征选择的算法。</p>
+<h3 id="5-特征构建（Feature-Construction）"><a href="#5-特征构建（Feature-Construction）" class="headerlink" title="5. 特征构建（Feature Construction）"></a>5. 特征构建（Feature Construction）</h3><p>特征重要性和选择是告诉使用者特征的客观特性，但这些工作之后，需要你人工进行特征的构建。<br>特征构建需要花费大量的时间对实际样本数据进行处理，思考数据的结构，和如何将特征数据输入给预测算法。<br>对于表格数据，特征构建意味着将特征进行混合或组合以得到新的特征，或通过对特征进行分解或切分来构造新的特征；对于文本数据，特征够自己按意味着设计出针对特定问题的文本指标；对于图像数据，这意味着自动过滤，得到相关的结构。</p>
+<h3 id="6-特征学习（Feature-Learning）"><a href="#6-特征学习（Feature-Learning）" class="headerlink" title="6. 特征学习（Feature Learning）"></a>6. 特征学习（Feature Learning）</h3><p>特征学习是在原始数据中自动识别和使用特征。<br>现代深度学习方法在特征学习领域有很多成功案例，比如自编码器和受限玻尔兹曼机。它们以无监督或半监督的方式实现自动的学习抽象的特征表示（压缩形式），其结果用于支撑像语音识别、图像分类、物体识别和其他领域的先进成果。<br>抽象的特征表达可以自动得到，但是你无法理解和利用这些学习得到的结果，只有黑盒的方式才可以使用这些特征。你不可能轻易懂得如何创造和那些效果很好的特征相似或相异的特征。这个技能是很难的，但同时它也是很有魅力的，很重要的。</p>
+<h2 id="特征工程的流程"><a href="#特征工程的流程" class="headerlink" title="特征工程的流程"></a>特征工程的流程</h2><p>机器学习中数据的转换过程：</p>
+<blockquote>
+<ol>
+<li>选择数据：收集整合数据，将数据规划化为一个数据集</li>
+<li>预处理数据：对数据进行清洗、格式化、采样</li>
+<li>转换数据：特征工程所在</li>
+<li>对数据建模：构建模型、评估模型、调整模型</li>
+</ol>
+</blockquote>
+<p>特征工程的迭代过程：</p>
+<blockquote>
+<ol>
+<li>对特征进行头脑风暴：深入分析问题，观察数据特点，参考其他问题的有关特征工程的方法并应用到自己问题中</li>
+<li>特征的设计：你可以自动提取特征，手动构造特征，或将两者相结合</li>
+<li>特征选择：使用不同的特征重要性评分方法或特征选择方法</li>
+<li>评估模型：利用所选择的特征对测试数据进行预测，评估模型准确性</li>
+</ol>
+</blockquote>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://en.wikipedia.org/wiki/Feature_learning" target="_blank" rel="external">Wiki:Feature learning</a><br><a href="http://tech.meituan.com/machinelearning-data-feature-process.html" target="_blank" rel="external">机器学习中的数据清洗与特征处理综述</a><br><a href="http://machinelearningmastery.com/discover-feature-engineering-how-to-engineer-features-and-how-to-get-good-at-it/" target="_blank" rel="external">Discover Feature Engineering, How to Engineer Features and How to Get Good at It</a><br><a href="http://blog.jobbole.com/74951/" target="_blank" rel="external">关于推荐系统中的特征工程</a></p>
+<p><strong>转载请注明作者Jason Ding及其出处</strong><br><a href="http://jasonding1354.github.io/" target="_blank" rel="external">Github博客主页(http://jasonding1354.github.io/)</a><br><a href="http://jasonding1354.gitcafe.io/" target="_blank" rel="external">GitCafe博客主页(http://jasonding1354.gitcafe.io/)</a><br><a href="http://blog.csdn.net/jasonding1354" target="_blank" rel="external">CSDN博客(http://blog.csdn.net/jasonding1354)</a><br><a href="http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles" target="_blank" rel="external">简书主页(http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles)</a><br><strong>Google搜索jasonding1354进入我的博客主页</strong></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Feature-Engineering/">Feature Engineering</a>
+  </div>
+
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Feature-Engineering/">Feature Engineering</a>
+</div>
+
+
+
+<div class="article-share" id="share">
+
+  
+<div class="jiathis_style">
+    <span class="jiathis_txt">分享到：</span>
+    <a class="jiathis_button_tsina">新浪微博</a>
+    <a class="jiathis_button_weixin">微信</a>
+    <a class="jiathis_button_twitter">Twitter</a>
+    <a class="jiathis_button_evernote">EverNote</a>
+    <a href="http://www.jiathis.com/share?uid=1501277" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript" >
+    var jiathis_config={
+    data_track_clickback:true,
+    sm:"copy,renren,cqq",
+    pic:"",
+    summary:"",
+    
+  </script> 
+<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=
+1394018007141544" charset="utf-8"></script>      
+
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2015/10/30/Python/【python】locals()、globals()与名字空间/" title="【python】locals()、globals()与名字空间">
+  <strong>之后的一篇</strong><br/>
+  <span>
+  【python】locals()、globals()与名字空间</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2015/07/24/Machine Learning/【机器学习基础】梯度提升决策树/"  title="【机器学习基础】梯度提升决策树">
+ <strong>之前的一篇</strong><br/> 
+ <span>【机器学习基础】梯度提升决策树
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section class="comment">
+	<div class="ds-thread"></div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#引言"><span class="toc-number">1.</span> <span class="toc-text">引言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#特征工程的重要意义"><span class="toc-number">2.</span> <span class="toc-text">特征工程的重要意义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#特征工程定义"><span class="toc-number">3.</span> <span class="toc-text">特征工程定义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#特征工程的子问题"><span class="toc-number">4.</span> <span class="toc-text">特征工程的子问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-机器学习中的特征（Feature）"><span class="toc-number">4.1.</span> <span class="toc-text">1. 机器学习中的特征（Feature）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-特征的重要性（Feature-Importance）"><span class="toc-number">4.2.</span> <span class="toc-text">2. 特征的重要性（Feature Importance）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-特征提取（Feature-Extraction）"><span class="toc-number">4.3.</span> <span class="toc-text">3. 特征提取（Feature Extraction）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-特征选择（Feature-Selection）"><span class="toc-number">4.4.</span> <span class="toc-text">4. 特征选择（Feature Selection）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-特征构建（Feature-Construction）"><span class="toc-number">4.5.</span> <span class="toc-text">5. 特征构建（Feature Construction）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-特征学习（Feature-Learning）"><span class="toc-number">4.6.</span> <span class="toc-text">6. 特征学习（Feature Learning）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#特征工程的流程"><span class="toc-number">5.</span> <span class="toc-text">特征工程的流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">6.</span> <span class="toc-text">参考资料</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+<div class="maps">
+    <p class="asidetitle">访问统计</p>
+    <br>
+    <script type="text/javascript" src="//ra.revolvermaps.com/0/0/6.js?i=0leibswamim&amp;m=0&amp;s=210&amp;c=ff0000&amp;cr1=ffffff&amp;f=arial&amp;l=0" async="async"></script>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">Categories</p>
+		<ul>
+		
+			<li><a href="/categories/Algorithm-Problem/" title="Algorithm Problem">Algorithm Problem<sup>1</sup></a></li>
+		
+			<li><a href="/categories/C/" title="C++">C++<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Classic-Algorithm/" title="Classic Algorithm">Classic Algorithm<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Cluster-Analysis/" title="Cluster Analysis">Cluster Analysis<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Design-Pattern/" title="Design Pattern">Design Pattern<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Developer-Kits/" title="Developer Kits">Developer Kits<sup>5</sup></a></li>
+		
+			<li><a href="/categories/Energy-Big-Data/" title="Energy Big Data">Energy Big Data<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Feature-Engineering/" title="Feature Engineering">Feature Engineering<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Functional/" title="Functional">Functional<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Functional-Programming/" title="Functional Programming">Functional Programming<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Git/" title="Git">Git<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Jobs/" title="Jobs">Jobs<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>4</sup></a></li>
+		
+			<li><a href="/categories/ML-Experiments/" title="ML Experiments">ML Experiments<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Machine-Learning/" title="Machine Learning">Machine Learning<sup>50</sup></a></li>
+		
+			<li><a href="/categories/Math/" title="Math">Math<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Programming/" title="Programming">Programming<sup>11</sup></a></li>
+		
+			<li><a href="/categories/Python/" title="Python">Python<sup>10</sup></a></li>
+		
+			<li><a href="/categories/Scala/" title="Scala">Scala<sup>27</sup></a></li>
+		
+			<li><a href="/categories/Scala-ML/" title="Scala-ML">Scala-ML<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Similarity-Search/" title="Similarity Search">Similarity Search<sup>4</sup></a></li>
+		
+			<li><a href="/categories/Small-Problems/" title="Small Problems">Small Problems<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Spark/" title="Spark">Spark<sup>23</sup></a></li>
+		
+			<li><a href="/categories/Thoughts/" title="Thoughts">Thoughts<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">Tag Cloud</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/Actor/" style="font-size: 10px;">Actor</a> <a href="/tags/Akka/" style="font-size: 14.55px;">Akka</a> <a href="/tags/Algorithm/" style="font-size: 10px;">Algorithm</a> <a href="/tags/Approximate-Nearest-Neighbor-Search/" style="font-size: 10px;">Approximate Nearest Neighbor Search</a> <a href="/tags/Bayesian-Analysis/" style="font-size: 10.91px;">Bayesian Analysis</a> <a href="/tags/Big-Data/" style="font-size: 10px;">Big Data</a> <a href="/tags/C/" style="font-size: 12.73px;">C++</a> <a href="/tags/Classification/" style="font-size: 11.82px;">Classification</a> <a href="/tags/Cluster-Analysis/" style="font-size: 10px;">Cluster Analysis</a> <a href="/tags/Computer-Vision/" style="font-size: 14.55px;">Computer Vision</a> <a href="/tags/Eclipse/" style="font-size: 10px;">Eclipse</a> <a href="/tags/Energy-Forecasting/" style="font-size: 10px;">Energy Forecasting</a> <a href="/tags/Feature-Engineering/" style="font-size: 10.91px;">Feature Engineering</a> <a href="/tags/Functional-Programming/" style="font-size: 16.36px;">Functional Programming</a> <a href="/tags/Gaussian-Process/" style="font-size: 10px;">Gaussian Process</a> <a href="/tags/Git/" style="font-size: 10.91px;">Git</a> <a href="/tags/GraphLab/" style="font-size: 10px;">GraphLab</a> <a href="/tags/IPython/" style="font-size: 10px;">IPython</a> <a href="/tags/Internet-of-Energy/" style="font-size: 10px;">Internet of Energy</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/Kaggle/" style="font-size: 10px;">Kaggle</a> <a href="/tags/Kernel-Method/" style="font-size: 10px;">Kernel Method</a> <a href="/tags/LSH/" style="font-size: 12.73px;">LSH</a> <a href="/tags/LaTex/" style="font-size: 10px;">LaTex</a> <a href="/tags/Linux/" style="font-size: 11.82px;">Linux</a> <a href="/tags/Machine-Learning/" style="font-size: 20px;">Machine Learning</a> <a href="/tags/Math/" style="font-size: 11.82px;">Math</a> <a href="/tags/Mathematics/" style="font-size: 13.64px;">Mathematics</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MeanShift/" style="font-size: 10px;">MeanShift</a> <a href="/tags/Mint/" style="font-size: 10px;">Mint</a> <a href="/tags/OpenCV/" style="font-size: 15.45px;">OpenCV</a> <a href="/tags/Probabilistic-Programming/" style="font-size: 10px;">Probabilistic Programming</a> <a href="/tags/Probability-Distributions/" style="font-size: 10px;">Probability Distributions</a> <a href="/tags/Programming/" style="font-size: 14.55px;">Programming</a> <a href="/tags/Python/" style="font-size: 17.27px;">Python</a> <a href="/tags/Regression/" style="font-size: 11.82px;">Regression</a> <a href="/tags/Resume/" style="font-size: 10px;">Resume</a> <a href="/tags/SVM/" style="font-size: 12.73px;">SVM</a> <a href="/tags/Scala/" style="font-size: 19.09px;">Scala</a> <a href="/tags/Similarity-Search/" style="font-size: 10.91px;">Similarity Search</a> <a href="/tags/Source-code/" style="font-size: 10px;">Source code</a> <a href="/tags/Spark/" style="font-size: 18.18px;">Spark</a> <a href="/tags/Summary/" style="font-size: 10px;">Summary</a> <a href="/tags/Thoughts/" style="font-size: 10.91px;">Thoughts</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/Vim/" style="font-size: 11.82px;">Vim</a> <a href="/tags/Written-Test/" style="font-size: 10px;">Written Test</a> <a href="/tags/Zeppelin/" style="font-size: 10px;">Zeppelin</a> <a href="/tags/boost/" style="font-size: 10px;">boost</a> <a href="/tags/cpp/" style="font-size: 13.64px;">cpp</a> <a href="/tags/opencv/" style="font-size: 10.91px;">opencv</a> <a href="/tags/p-Stable-LSH/" style="font-size: 10px;">p-Stable LSH</a> <a href="/tags/scikit-learn/" style="font-size: 10px;">scikit-learn</a> <a href="/tags/sklearn/" style="font-size: 10.91px;">sklearn</a> <a href="/tags/互联网时代/" style="font-size: 10px;">互联网时代</a> <a href="/tags/位置敏感哈希/" style="font-size: 10.91px;">位置敏感哈希</a> <a href="/tags/分治/" style="font-size: 10px;">分治</a> <a href="/tags/单元测试/" style="font-size: 10px;">单元测试</a> <a href="/tags/反思/" style="font-size: 10px;">反思</a> <a href="/tags/效率/" style="font-size: 10px;">效率</a> <a href="/tags/核方法/" style="font-size: 10px;">核方法</a> <a href="/tags/算法框架/" style="font-size: 10px;">算法框架</a> <a href="/tags/设计模式/" style="font-size: 11.82px;">设计模式</a>
+    </div>
+  </div>
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle"><a href="/archives">Archives</a></p>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">February 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">November 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">29</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a><span class="archive-list-count">16</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">10</span></li></ul>
+  </div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
+</div>
+
+</aside>
+
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Jason Ding in HUST <br/>
+			I would share moments of life here! </p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/1698420390" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/jasonding1354" target="_blank" title="github"></a>
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2016 
+		
+		<a href="http://blog.jasonding.top" target="_blank" title="Jason Ding">Jason Ding</a>
+		
+		</p>
+		<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+  
+  _st('install','uYyEuxJdzzAGXTax33mt','2.0.0');
+</script>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"jasonding"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+  </body>
+</html>

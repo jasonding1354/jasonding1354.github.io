@@ -1,0 +1,456 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>【机器学习基础】Logistic回归基础 | Jason&#39;s Techblog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Jason Ding">
+    
+    <meta name="description" content="soft binary classificationLogistics回归模型要解决的是分类问题，在之前的二元分类问题中，我们将数据分成正例和负例，但是像PLA算法一样，用单位阶跃函数来处理的这种瞬间跳跃的过程有时很难处理。于是，我们希望能得到正例的概率值是多少。
+logistic regressi">
+    
+    
+    
+    
+    <link rel="alternate" href="/atom.xml" title="Jason&#39;s Techblog" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/author.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/author.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F3cc71cd5738b99a1db174951e194ba55' type='text/javascript'%3E%3C/script%3E"));
+
+
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F1dcf1fa58b0eca1ac5bd089ee6a6e78c' type='text/javascript'%3E%3C/script%3E"));
+
+
+</script>
+
+
+    <!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Jason&#39;s Techblog" title="Jason&#39;s Techblog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Jason&#39;s Techblog">Jason&#39;s Techblog</a></h1>
+				<h2 class="blog-motto">Technician =&gt; Scientist =&gt; Philosopher =&gt; Artists</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="http://jasonding.top">Main</a></li>
+					
+					<li>
+					
+						<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" class="st-default-search-input" maxlength="20" placeholder="Search" />
+						</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody">
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/01/09/Machine Learning/【机器学习基础】Logistic回归基础/" title="【机器学习基础】Logistic回归基础" itemprop="url">【机器学习基础】Logistic回归基础</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://blog.jasonding.top" title="Jason Ding">Jason Ding</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2015-01-09T02:02:25.000Z" itemprop="datePublished">2015-01-09</time>
+    Updated:<time datetime="2016-03-16T06:24:42.000Z" itemprop="dateModified">2016-03-16</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#soft-binary-classification"><span class="toc-number">1.</span> <span class="toc-text">soft binary classification</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#logistic-regression的假设"><span class="toc-number">2.</span> <span class="toc-text">logistic regression的假设</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#logistic-regression的训练误差函数"><span class="toc-number">3.</span> <span class="toc-text">logistic regression的训练误差函数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#cross-entropy-error"><span class="toc-number">3.1.</span> <span class="toc-text">cross entropy error</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#最小化误差函数"><span class="toc-number">4.</span> <span class="toc-text">最小化误差函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#梯度下降法"><span class="toc-number">5.</span> <span class="toc-text">梯度下降法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#线性近似"><span class="toc-number">5.1.</span> <span class="toc-text">线性近似</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#梯度下降"><span class="toc-number">5.2.</span> <span class="toc-text">梯度下降</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#随机梯度下降法-Stochastic-Gradient-Descent"><span class="toc-number">6.</span> <span class="toc-text">随机梯度下降法(Stochastic Gradient Descent)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">7.</span> <span class="toc-text">参考资料</span></a></li></ol>
+		</div>
+		
+		<h2 id="soft-binary-classification"><a href="#soft-binary-classification" class="headerlink" title="soft binary classification"></a>soft binary classification</h2><p>Logistics回归模型要解决的是分类问题，在之前的二元分类问题中，我们将数据分成正例和负例，但是像PLA算法一样，用单位阶跃函数来处理的这种瞬间跳跃的过程有时很难处理。于是，我们希望能得到正例的概率值是多少。<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/logistic/soft_binary_classification.jpg" alt=""></p>
+<h2 id="logistic-regression的假设"><a href="#logistic-regression的假设" class="headerlink" title="logistic regression的假设"></a>logistic regression的假设</h2><p>我们在PLA和线性回归算法中都用数据的加权来计算一个分数s，在logistic回归中，我们用sigmoid函数来将这个分数s转化成0到1的概率值。<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/logistic/logistic_hypothesis1.jpg" alt=""><br>所以，用下面的h(x)来表示一个假设，而这个logistic函数θ(x)就是θ(x)=1/[1+exp(-x)]（该函数平滑且处处可微）。<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/logistic/logistic_hypothesis2.jpg" alt=""></p>
+<h2 id="logistic-regression的训练误差函数"><a href="#logistic-regression的训练误差函数" class="headerlink" title="logistic regression的训练误差函数"></a>logistic regression的训练误差函数</h2><p>我们设想目标函数f(x) = P(+1|x)，这里数据的正例和负例的概率分布其实是一个伯努利分布。那么，如果我们的假设h(x)要逼近f(x)函数，那么对于训练数据D，由h构成的似然度应该近似等于从这个伯努利分布中抽取数据的概率。<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/logistic/likelihood.jpg" alt=""><br>那么我们要求的最终假设g就是使得这个似然度最大的h。<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/logistic/likelihood_logistic1.jpg" alt=""><br>接下来，我们来衡量这个可能性(likelihood)，这里将数据的先验概率P(xi)化成灰色，因为它对于所有的数据来说都是一样的，所以相当于是一个常数，整理一下，我们可以看到这个可能性正比于所有的h乘起来的结果（其中h(ynxn)包含了h(xi)和h(-xi)的情形）。<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/logistic/likelihood_logistic.jpg" alt=""></p>
+<h3 id="cross-entropy-error"><a href="#cross-entropy-error" class="headerlink" title="cross entropy error"></a>cross entropy error</h3><p>下面的图片告诉了我们，如何将这个可能性的式子进行化简，使得我们在后面的计算变得容易。我们用θ(·)函数代替了h，将式子取对数使得乘积的形式变成求和的形式，最后再添一个负号，将最大似然函数的形式变成了求解最小值的最优化问题。<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/logistic/cross_entropy_error1.png" alt=""><br>这里，我们定义了交叉熵误差来衡量我们的训练误差。<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/logistic/cross_entropy_error2.jpg" alt=""></p>
+<h2 id="最小化误差函数"><a href="#最小化误差函数" class="headerlink" title="最小化误差函数"></a>最小化误差函数</h2><p>我们得到了训练误差的具体形式，由于这个训练误差函数是可微并且是凸函数，所以依照之前的思路，对这个函数求梯度。<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/logistic/minimize_ein.jpg" alt=""><br>我们要使得梯度为0，这里虽然我们得到了求取w的数学式子，但是这个式子并不是一个闭合的公式，无法像线性回归一样直接求解一个矩阵来得到解，那么如何找到满足这个条件的w呢？</p>
+<h2 id="梯度下降法"><a href="#梯度下降法" class="headerlink" title="梯度下降法"></a>梯度下降法</h2><p>让我们回想一下PLA演算法中求w的过程，是通过错分的数据来一步一步修正的，从而得到最终的w。<br>这里，我们可以按照类似的思路，一步一步的去修正w，使得Ein的结果越来越小。<br>在logistic回归中，Ein的式子是平滑的。现在我们可以将这个Ein想象成一个山谷，我们要到达山谷的最低点，就是要沿着当前的梯度最大的方向每次迈出一小步，直到到达谷底，使得Ein最小，得到最佳解w。</p>
+<h3 id="线性近似"><a href="#线性近似" class="headerlink" title="线性近似"></a>线性近似</h3><p>要确定一个w使得Ein最小，不可能一步到位，指导思路还是由繁化简，用线性近似(linear approximation)的方式来解决问题，我们用多维度的泰勒展开公式来近似Ein，只要给定一个小的η，就可以近似这个Ein。<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/logistic/linear_approximation.jpg" alt=""><br>这里Ein(wt)和η都是已知的，Ein的梯度表示了下降的方向，也可以求出来，唯一要考虑的就是最好的向量v该如何选择。<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/logistic/linear_approximation2.jpg" alt=""></p>
+<h3 id="梯度下降"><a href="#梯度下降" class="headerlink" title="梯度下降"></a>梯度下降</h3><p>对于v和Ein的梯度这两个向量，使得其值是最小的方法就是让v向量的方向和Ein的梯度的方向想法，这样使得两个向量的内积是最小的，另外由于v的模是1，还需要有个归一化的步骤。<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/logistic/gradient_descent.jpg" alt=""><br>由于η和▽Ein(wt)的模都是一个常数，可以将其化简成为一个新的η’，也可以用常数η来表示。<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/logistic/gradient_descent2.jpg" alt=""><br>这样我们就得到了logistic回归求解最优化解的步骤。<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/logistic/whole_process.jpg" alt=""></p>
+<h2 id="随机梯度下降法-Stochastic-Gradient-Descent"><a href="#随机梯度下降法-Stochastic-Gradient-Descent" class="headerlink" title="随机梯度下降法(Stochastic Gradient Descent)"></a>随机梯度下降法(Stochastic Gradient Descent)</h2><p>在上一小节的梯度下降法的介绍中，我们知道在每一轮迭代中，计算梯度时要把所有的点对梯度的共享都要计算出来m，如下图所示：<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/logistic/stochastic_gradient.jpg" alt=""><br>这里在每一轮的时间复杂度都是O(N)，这样看起来是有些麻烦费时的。那有没有一种方法可以将每一轮的时间复杂度降为O(1)呢？<br>如上一节，我们每一次的要更新的v都是要和所算的梯度是反方向的，但是我们能不能通过一个点(xn,yn)而不是N个点来得到这个v呢？<br>我们可以将求和再除以N的过程想象成一个随机过程的平均，将这个期望用随机的一个抽样来代替。所以这里不是一个真正的梯度，而是在一个点上对err函数做偏微分，把整体的梯度看做是这个随机过程的期望值。<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/logistic/stochastic_gradient1.jpg" alt=""><br>这样，我们可以将随机梯度看做是真正的梯度减去随机的噪声，但是从期望值来说，可能和之前想要走的方向没有太大差别。<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/logistic/stochastic_gradient2.jpg" alt=""><br>所以我们得到了随机梯度下降的方法，这种方法的优点是比较简单，适合在线学习和大量的数据的情形，缺点是稳定性不好，尤其是η太大的话，可能情况很糟糕，所以这里的η经验上取0.1会比较好。<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/logistic/stochastic_gradient3.jpg" alt=""><br>其最终的表达式如下：<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/logistic/stochastic_gradient4.jpg" alt=""></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>机器学习基石课程，林轩田，台湾大学</p>
+<p><strong>转载请注明作者Jason Ding及其出处</strong><br><a href="http://jasonding1354.github.io/" target="_blank" rel="external">Github主页(http://jasonding1354.github.io/)</a><br><a href="http://blog.csdn.net/jasonding1354" target="_blank" rel="external">CSDN博客(http://blog.csdn.net/jasonding1354)</a><br><a href="http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles" target="_blank" rel="external">简书主页(http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles)</a></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Machine-Learning/">Machine Learning</a><a href="/tags/Regression/">Regression</a>
+  </div>
+
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Machine-Learning/">Machine Learning</a>
+</div>
+
+
+
+<div class="article-share" id="share">
+
+  
+<div class="jiathis_style">
+    <span class="jiathis_txt">分享到：</span>
+    <a class="jiathis_button_tsina">新浪微博</a>
+    <a class="jiathis_button_weixin">微信</a>
+    <a class="jiathis_button_twitter">Twitter</a>
+    <a class="jiathis_button_evernote">EverNote</a>
+    <a href="http://www.jiathis.com/share?uid=1501277" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript" >
+    var jiathis_config={
+    data_track_clickback:true,
+    sm:"copy,renren,cqq",
+    pic:"",
+    summary:"",
+    
+  </script> 
+<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=
+1394018007141544" charset="utf-8"></script>      
+
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2015/01/12/Programming/Boost库编译及在VS2012下的使用/" title="Boost库编译及在VS2012下的使用">
+  <strong>之后的一篇</strong><br/>
+  <span>
+  Boost库编译及在VS2012下的使用</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2015/01/07/Machine Learning/【机器学习基础】线性回归基础/"  title="【机器学习基础】线性回归基础">
+ <strong>之前的一篇</strong><br/> 
+ <span>【机器学习基础】线性回归基础
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section class="comment">
+	<div class="ds-thread"></div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#soft-binary-classification"><span class="toc-number">1.</span> <span class="toc-text">soft binary classification</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#logistic-regression的假设"><span class="toc-number">2.</span> <span class="toc-text">logistic regression的假设</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#logistic-regression的训练误差函数"><span class="toc-number">3.</span> <span class="toc-text">logistic regression的训练误差函数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#cross-entropy-error"><span class="toc-number">3.1.</span> <span class="toc-text">cross entropy error</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#最小化误差函数"><span class="toc-number">4.</span> <span class="toc-text">最小化误差函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#梯度下降法"><span class="toc-number">5.</span> <span class="toc-text">梯度下降法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#线性近似"><span class="toc-number">5.1.</span> <span class="toc-text">线性近似</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#梯度下降"><span class="toc-number">5.2.</span> <span class="toc-text">梯度下降</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#随机梯度下降法-Stochastic-Gradient-Descent"><span class="toc-number">6.</span> <span class="toc-text">随机梯度下降法(Stochastic Gradient Descent)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">7.</span> <span class="toc-text">参考资料</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+<div class="maps">
+    <p class="asidetitle">访问统计</p>
+    <br>
+    <script type="text/javascript" src="//ra.revolvermaps.com/0/0/6.js?i=0leibswamim&amp;m=0&amp;s=210&amp;c=ff0000&amp;cr1=ffffff&amp;f=arial&amp;l=0" async="async"></script>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">Categories</p>
+		<ul>
+		
+			<li><a href="/categories/Algorithm-Problem/" title="Algorithm Problem">Algorithm Problem<sup>1</sup></a></li>
+		
+			<li><a href="/categories/C/" title="C++">C++<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Classic-Algorithm/" title="Classic Algorithm">Classic Algorithm<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Cluster-Analysis/" title="Cluster Analysis">Cluster Analysis<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Design-Pattern/" title="Design Pattern">Design Pattern<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Developer-Kits/" title="Developer Kits">Developer Kits<sup>5</sup></a></li>
+		
+			<li><a href="/categories/Energy-Big-Data/" title="Energy Big Data">Energy Big Data<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Feature-Engineering/" title="Feature Engineering">Feature Engineering<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Functional/" title="Functional">Functional<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Functional-Programming/" title="Functional Programming">Functional Programming<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Git/" title="Git">Git<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Jobs/" title="Jobs">Jobs<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>4</sup></a></li>
+		
+			<li><a href="/categories/ML-Experiments/" title="ML Experiments">ML Experiments<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Machine-Learning/" title="Machine Learning">Machine Learning<sup>50</sup></a></li>
+		
+			<li><a href="/categories/Math/" title="Math">Math<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Programming/" title="Programming">Programming<sup>11</sup></a></li>
+		
+			<li><a href="/categories/Python/" title="Python">Python<sup>10</sup></a></li>
+		
+			<li><a href="/categories/Scala/" title="Scala">Scala<sup>27</sup></a></li>
+		
+			<li><a href="/categories/Scala-ML/" title="Scala-ML">Scala-ML<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Similarity-Search/" title="Similarity Search">Similarity Search<sup>4</sup></a></li>
+		
+			<li><a href="/categories/Small-Problems/" title="Small Problems">Small Problems<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Spark/" title="Spark">Spark<sup>23</sup></a></li>
+		
+			<li><a href="/categories/Thoughts/" title="Thoughts">Thoughts<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">Tag Cloud</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/Actor/" style="font-size: 10px;">Actor</a> <a href="/tags/Akka/" style="font-size: 14.55px;">Akka</a> <a href="/tags/Algorithm/" style="font-size: 10px;">Algorithm</a> <a href="/tags/Approximate-Nearest-Neighbor-Search/" style="font-size: 10px;">Approximate Nearest Neighbor Search</a> <a href="/tags/Bayesian-Analysis/" style="font-size: 10.91px;">Bayesian Analysis</a> <a href="/tags/Big-Data/" style="font-size: 10px;">Big Data</a> <a href="/tags/C/" style="font-size: 12.73px;">C++</a> <a href="/tags/Classification/" style="font-size: 11.82px;">Classification</a> <a href="/tags/Cluster-Analysis/" style="font-size: 10px;">Cluster Analysis</a> <a href="/tags/Computer-Vision/" style="font-size: 14.55px;">Computer Vision</a> <a href="/tags/Eclipse/" style="font-size: 10px;">Eclipse</a> <a href="/tags/Energy-Forecasting/" style="font-size: 10px;">Energy Forecasting</a> <a href="/tags/Feature-Engineering/" style="font-size: 10.91px;">Feature Engineering</a> <a href="/tags/Functional-Programming/" style="font-size: 16.36px;">Functional Programming</a> <a href="/tags/Gaussian-Process/" style="font-size: 10px;">Gaussian Process</a> <a href="/tags/Git/" style="font-size: 10.91px;">Git</a> <a href="/tags/GraphLab/" style="font-size: 10px;">GraphLab</a> <a href="/tags/IPython/" style="font-size: 10px;">IPython</a> <a href="/tags/Internet-of-Energy/" style="font-size: 10px;">Internet of Energy</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/Kaggle/" style="font-size: 10px;">Kaggle</a> <a href="/tags/Kernel-Method/" style="font-size: 10px;">Kernel Method</a> <a href="/tags/LSH/" style="font-size: 12.73px;">LSH</a> <a href="/tags/LaTex/" style="font-size: 10px;">LaTex</a> <a href="/tags/Linux/" style="font-size: 11.82px;">Linux</a> <a href="/tags/Machine-Learning/" style="font-size: 20px;">Machine Learning</a> <a href="/tags/Math/" style="font-size: 11.82px;">Math</a> <a href="/tags/Mathematics/" style="font-size: 13.64px;">Mathematics</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MeanShift/" style="font-size: 10px;">MeanShift</a> <a href="/tags/Mint/" style="font-size: 10px;">Mint</a> <a href="/tags/OpenCV/" style="font-size: 15.45px;">OpenCV</a> <a href="/tags/Probabilistic-Programming/" style="font-size: 10px;">Probabilistic Programming</a> <a href="/tags/Probability-Distributions/" style="font-size: 10px;">Probability Distributions</a> <a href="/tags/Programming/" style="font-size: 14.55px;">Programming</a> <a href="/tags/Python/" style="font-size: 17.27px;">Python</a> <a href="/tags/Regression/" style="font-size: 11.82px;">Regression</a> <a href="/tags/Resume/" style="font-size: 10px;">Resume</a> <a href="/tags/SVM/" style="font-size: 12.73px;">SVM</a> <a href="/tags/Scala/" style="font-size: 19.09px;">Scala</a> <a href="/tags/Similarity-Search/" style="font-size: 10.91px;">Similarity Search</a> <a href="/tags/Source-code/" style="font-size: 10px;">Source code</a> <a href="/tags/Spark/" style="font-size: 18.18px;">Spark</a> <a href="/tags/Summary/" style="font-size: 10px;">Summary</a> <a href="/tags/Thoughts/" style="font-size: 10.91px;">Thoughts</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/Vim/" style="font-size: 11.82px;">Vim</a> <a href="/tags/Written-Test/" style="font-size: 10px;">Written Test</a> <a href="/tags/Zeppelin/" style="font-size: 10px;">Zeppelin</a> <a href="/tags/boost/" style="font-size: 10px;">boost</a> <a href="/tags/cpp/" style="font-size: 13.64px;">cpp</a> <a href="/tags/opencv/" style="font-size: 10.91px;">opencv</a> <a href="/tags/p-Stable-LSH/" style="font-size: 10px;">p-Stable LSH</a> <a href="/tags/scikit-learn/" style="font-size: 10px;">scikit-learn</a> <a href="/tags/sklearn/" style="font-size: 10.91px;">sklearn</a> <a href="/tags/互联网时代/" style="font-size: 10px;">互联网时代</a> <a href="/tags/位置敏感哈希/" style="font-size: 10.91px;">位置敏感哈希</a> <a href="/tags/分治/" style="font-size: 10px;">分治</a> <a href="/tags/单元测试/" style="font-size: 10px;">单元测试</a> <a href="/tags/反思/" style="font-size: 10px;">反思</a> <a href="/tags/效率/" style="font-size: 10px;">效率</a> <a href="/tags/核方法/" style="font-size: 10px;">核方法</a> <a href="/tags/算法框架/" style="font-size: 10px;">算法框架</a> <a href="/tags/设计模式/" style="font-size: 11.82px;">设计模式</a>
+    </div>
+  </div>
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle"><a href="/archives">Archives</a></p>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">February 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">November 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">29</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a><span class="archive-list-count">16</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">10</span></li></ul>
+  </div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
+</div>
+
+</aside>
+
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Jason Ding in HUST <br/>
+			I would share moments of life here! </p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/1698420390" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/jasonding1354" target="_blank" title="github"></a>
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2016 
+		
+		<a href="http://blog.jasonding.top" target="_blank" title="Jason Ding">Jason Ding</a>
+		
+		</p>
+		<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+  
+  _st('install','uYyEuxJdzzAGXTax33mt','2.0.0');
+</script>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"jasonding"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+  </body>
+</html>

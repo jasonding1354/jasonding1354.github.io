@@ -1,0 +1,469 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>【计算机视觉】借助图像直方图来检测特定物——MeanShift、CamShift算法 | Jason&#39;s Techblog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Jason Ding">
+    
+    <meta name="description" content="直方图引入直方图是一个简单的表，它给出了一幅图像或一组图像中拥有给定数值的像素数量。因此，灰度图像的直方图有256个条目（或称为容器）。0号容器给出值为0的像素数目，1号容器给出值为1的像素个数，以此类推。
+直方图反投影直方图是图像内容的一个重要特性。如果一幅图像的区域中显示的是一种独特的纹理或是一">
+    
+    
+    
+    
+    <link rel="alternate" href="/atom.xml" title="Jason&#39;s Techblog" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/author.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/author.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F3cc71cd5738b99a1db174951e194ba55' type='text/javascript'%3E%3C/script%3E"));
+
+
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F1dcf1fa58b0eca1ac5bd089ee6a6e78c' type='text/javascript'%3E%3C/script%3E"));
+
+
+</script>
+
+
+    <!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Jason&#39;s Techblog" title="Jason&#39;s Techblog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Jason&#39;s Techblog">Jason&#39;s Techblog</a></h1>
+				<h2 class="blog-motto">Technician =&gt; Scientist =&gt; Philosopher =&gt; Artists</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="http://jasonding.top">Main</a></li>
+					
+					<li>
+					
+						<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" class="st-default-search-input" maxlength="20" placeholder="Search" />
+						</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody">
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2014/10/14/Machine Learning/【计算机视觉】借助图像直方图来检测特定物——MeanShift、CamShift算法/" title="【计算机视觉】借助图像直方图来检测特定物——MeanShift、CamShift算法" itemprop="url">【计算机视觉】借助图像直方图来检测特定物——MeanShift、CamShift算法</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://blog.jasonding.top" title="Jason Ding">Jason Ding</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2014-10-14T09:28:31.000Z" itemprop="datePublished">2014-10-14</time>
+    Updated:<time datetime="2016-03-16T06:24:42.000Z" itemprop="dateModified">2016-03-16</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#直方图引入"><span class="toc-number">1.</span> <span class="toc-text">直方图引入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#直方图反投影"><span class="toc-number">2.</span> <span class="toc-text">直方图反投影</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HSV颜色空间"><span class="toc-number">3.</span> <span class="toc-text">HSV颜色空间</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#色调H"><span class="toc-number">3.1.</span> <span class="toc-text">色调H</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#饱和度S"><span class="toc-number">3.2.</span> <span class="toc-text">饱和度S</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#亮度V"><span class="toc-number">3.3.</span> <span class="toc-text">亮度V</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#应用示例：建立颜色概率模型"><span class="toc-number">4.</span> <span class="toc-text">应用示例：建立颜色概率模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#均值漂移-Mean-Shift-算法"><span class="toc-number">5.</span> <span class="toc-text">均值漂移(Mean Shift)算法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#原理"><span class="toc-number">5.1.</span> <span class="toc-text">原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#基本流程"><span class="toc-number">5.2.</span> <span class="toc-text">基本流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#优点"><span class="toc-number">5.3.</span> <span class="toc-text">优点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#不足"><span class="toc-number">5.4.</span> <span class="toc-text">不足</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#连续自适应的Meanshift-CamShift-算法"><span class="toc-number">6.</span> <span class="toc-text">连续自适应的Meanshift(CamShift)算法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#原理-1"><span class="toc-number">6.1.</span> <span class="toc-text">原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#具体步骤"><span class="toc-number">6.2.</span> <span class="toc-text">具体步骤</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">7.</span> <span class="toc-text">参考资料</span></a></li></ol>
+		</div>
+		
+		<h2 id="直方图引入"><a href="#直方图引入" class="headerlink" title="直方图引入"></a>直方图引入</h2><p>直方图是一个简单的表，它给出了一幅图像或一组图像中拥有给定数值的像素数量。因此，灰度图像的直方图有256个条目（或称为容器）。0号容器给出值为0的像素数目，1号容器给出值为1的像素个数，以此类推。</p>
+<h2 id="直方图反投影"><a href="#直方图反投影" class="headerlink" title="直方图反投影"></a>直方图反投影</h2><p>直方图是图像内容的一个重要特性。如果一幅图像的区域中显示的是一种独特的纹理或是一个独特的物体，那么这个区域的直方图可以看做一个概率函数，它给出的是某个像素属于该纹理或物体的概率。这使得我们可以借助图像的直方图来检测特定的内容。<br><strong>反投影直方图的方法是一种把目标概率分布映射到观测图像的简单方法。其作用是，替换一个输入图像中每一个像素值，使其变成感兴趣区域（ROI）的直方图中对应的概率值</strong><br>其在opencv2的C++ API为：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">cv::calcBackProject(&amp;image,			</div><div class="line">	<span class="number">1</span>,				<span class="comment">//一幅图像</span></div><div class="line">	channels,		<span class="comment">//通道数量</span></div><div class="line">	histogram,		<span class="comment">//进行反投影的直方图</span></div><div class="line">	result,			<span class="comment">//生成的反投影图像</span></div><div class="line">	ranges,			<span class="comment">//每个维度的值域</span></div><div class="line">	<span class="number">255.0</span>  			<span class="comment">//缩放因子</span></div><div class="line">	);</div></pre></td></tr></table></figure></p>
+<h2 id="HSV颜色空间"><a href="#HSV颜色空间" class="headerlink" title="HSV颜色空间"></a>HSV颜色空间</h2><p>HSV(Hue,Saturation,Value)是根据颜色的直观特性（色调H，饱和度S，亮度V）创建的一种颜色空间, 也称六角锥体模型(Hexcone Model)。</p>
+<h3 id="色调H"><a href="#色调H" class="headerlink" title="色调H"></a>色调H</h3><p>用角度度量，取值范围为0°～360°，从红色开始按逆时针方向计算，红色为0°，绿色为120°,蓝色为240°。它们的补色是：黄色为60°，青色为180°,品红为300°；</p>
+<h3 id="饱和度S"><a href="#饱和度S" class="headerlink" title="饱和度S"></a>饱和度S</h3><p>取值范围为0.0～1.0，值越大，颜色越饱和。</p>
+<h3 id="亮度V"><a href="#亮度V" class="headerlink" title="亮度V"></a>亮度V</h3><p>取值范围为0.0(黑色)～1.0(白色)。<br>HSV模型的三维表示从RGB立方体演化而来。设想从RGB沿立方体对角线的白色顶点向黑色顶点观察，就可以看到立方体的六边形外形。六边形边界表示色彩，水平轴表示纯度，明度沿垂直轴测量。<br><img src="http://jason-images.qiniudn.com/%40%2FML%2Fopencv%2Fmeanshift%2FHSV%E9%A2%9C%E8%89%B2%E7%A9%BA%E9%97%B4.gif" alt="HSV颜色空间"></p>
+<p>hue表示颜色的相位角，取值范围是0—360;S表示颜色的饱和度；S为一比例值，范围从0到1，它表示成所选颜色的纯度和该颜色最大的纯度之间的比率，通俗点讲,S表示的是某种颜色的“纯度”, S取值越大，表示色彩越纯，取值越小，表示色彩越灰。V表示色彩的明亮程度，范围从0到1。V等于0表示圆锥的底部定点，也就是黑色，V等于1表示圆锥的顶面，当V=1并且S=0时表示纯白色。<br><img src="http://jason-images.qiniudn.com/%40%2FML%2Fopencv%2Fmeanshift%2FHSV%E5%9C%86%E9%94%A5.gif" alt="HSV圆锥"></p>
+<h2 id="应用示例：建立颜色概率模型"><a href="#应用示例：建立颜色概率模型" class="headerlink" title="应用示例：建立颜色概率模型"></a>应用示例：建立颜色概率模型</h2><p>由于我们要进行的是通过一种算法来实现检测特定物体（尤其是人脸）的功能，所以通过这个示例的引入，来为后面介绍Mean Shift算法打下基础。<br>因为肤色在颜色空间的分析相当集中，但会受到光照和人种的影响。为了减少肤色收光照强度的影响，通常将颜色空间从RBG转换到亮度和色度分离的某个颜色空间，如HSV颜色空间，然后放弃亮度分量。<br><strong>采集肤色样本，吧肤色样本中的每个像素从RGB空间转换到HSV空间，统计其H分量的直方图，并对该直方图进行归一化处理，就可以得到肤色在H空间的概率分布，该概率分布就是所需的跟踪模式。</strong></p>
+<blockquote>
+<p>具体步骤如下：<br>1、将观测图像中每个像素从RGB空间映射到HSV空间，按公式计算H分量大小建立起统计直方图<br>2、根据直方图进行反向投影运算，即，将观测图像中的每个像素值，用其H分量在已建立的统计直方图中对应的值代替<br>3、所得到输出图像就是观测图像的颜色概率分布图像</p>
+</blockquote>
+<p>现在，用程序演示直方图反投影算法中使用颜色信息。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">class</span> ContentFinder</div><div class="line">&#123;</div><div class="line"><span class="keyword">private</span>:</div><div class="line">	<span class="keyword">float</span> hranges[<span class="number">2</span>];</div><div class="line">	<span class="keyword">const</span> <span class="keyword">float</span>* ranges[<span class="number">3</span>];</div><div class="line">	<span class="keyword">int</span> channels[<span class="number">3</span>];</div><div class="line">	<span class="keyword">float</span> threshold;</div><div class="line">	cv::MatND histogram;</div><div class="line"></div><div class="line"><span class="keyword">public</span>:</div><div class="line">	ContentFinder():threshold(<span class="number">-1.0</span>f)&#123;</div><div class="line">		ranges[<span class="number">0</span>] = hranges;<span class="comment">//所有通道的值相同</span></div><div class="line">		ranges[<span class="number">1</span>] = hranges;</div><div class="line">		ranges[<span class="number">2</span>] = hranges;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="comment">//设置直方图的阈值[0,1]</span></div><div class="line">	<span class="function"><span class="keyword">void</span> <span class="title">setThreshold</span><span class="params">(<span class="keyword">float</span> t)</span></span></div><div class="line">	&#123;</div><div class="line">		threshold = t;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="comment">//获取阈值</span></div><div class="line">	<span class="function"><span class="keyword">float</span> <span class="title">getThreshold</span><span class="params">()</span></span></div><div class="line">	&#123;</div><div class="line">		<span class="keyword">return</span> threshold;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="comment">//设置参考直方图</span></div><div class="line">	<span class="function"><span class="keyword">void</span> <span class="title">setHistogram</span><span class="params">(<span class="keyword">const</span> cv::MatND&amp; h)</span></span></div><div class="line">	&#123;</div><div class="line">		histogram = h;</div><div class="line">		cv::normalize(histogram,histogram,<span class="number">1.0</span>);<span class="comment">//输入直方图必须是归一化后的</span></div><div class="line">	&#125;</div><div class="line"></div><div class="line">	cv::<span class="function">Mat <span class="title">find</span><span class="params">(<span class="keyword">const</span> cv::Mat&amp; image,</span></span></div><div class="line">				<span class="keyword">float</span> minValue,<span class="keyword">float</span> maxValue,</div><div class="line">				<span class="keyword">int</span>* channels,<span class="keyword">int</span> dim);</div><div class="line"></div><div class="line">&#125;;</div><div class="line"></div><div class="line">cv::Mat ContentFinder::find(<span class="keyword">const</span> cv::Mat&amp; image,</div><div class="line">							<span class="keyword">float</span> minValue,<span class="keyword">float</span> maxValue,</div><div class="line">							<span class="keyword">int</span>* channels,<span class="keyword">int</span> dim)</div><div class="line">&#123;</div><div class="line">	cv::Mat result;</div><div class="line">	hranges[<span class="number">0</span>] = minValue;</div><div class="line">	hranges[<span class="number">1</span>] = maxValue;</div><div class="line"></div><div class="line">	<span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;dim;i++)</div><div class="line">	&#123;</div><div class="line">		<span class="keyword">this</span>-&gt;channels[i] = channels[i];</div><div class="line">	&#125;</div><div class="line">	cv::calcBackProject(&amp;image,<span class="number">1</span>,	<span class="comment">//输入图片</span></div><div class="line">						channels,	<span class="comment">//所有通道列表</span></div><div class="line">						histogram,	<span class="comment">//直方图</span></div><div class="line">						result,		<span class="comment">//反投影的结果</span></div><div class="line">						ranges,		<span class="comment">//值域</span></div><div class="line">						<span class="number">255.0</span>		<span class="comment">//缩放因子</span></div><div class="line">						);</div><div class="line">	<span class="comment">//进行阈值化以得到二值图像</span></div><div class="line">	<span class="keyword">if</span>(threshold &gt; <span class="number">0.0</span>)</div><div class="line">		cv::threshold(result,result,<span class="number">255</span>*threshold,<span class="number">255</span>,cv::THRESH_BINARY);</div><div class="line">	<span class="keyword">return</span> result;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="均值漂移-Mean-Shift-算法"><a href="#均值漂移-Mean-Shift-算法" class="headerlink" title="均值漂移(Mean Shift)算法"></a>均值漂移(Mean Shift)算法</h2><p>假设我们现在知道物体的近似位置，概率映射可用于找到的对象的确切位置。最有可能的位置是在已知窗口区域中得到最大概率的位置。因此，如果我们从最初的位置开始，并且迭代移动，边可以找到精确的位置。这便是均值漂移算法所要完成的任务。</p>
+<h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p>均值漂移算法以迭代的方式锁定概率函数的局部最大值。它主要是寻找预定义窗口中数据点的重心点，或者说加权平均值。该算法将窗口中心移动到数据点的重心处，并重复这个过程直到窗口重心收敛到一个稳定点。<br>从数学角度上说，Mean Shift算法<strong>利用概率密度的梯度爬升来寻找局部最优</strong>。当输入一个图像的范围，然后根据反向投影图和输入的方框进行Mean Shift迭代，它是向重心移动，即向反向投影图中概率大的地方移动，所以始终会移动到目标上，Mean Shift算法是一个<strong>变步长的梯度上升算法</strong>。<br>现考虑一个点集（这可以是经过直方图反投影的像素点的分布），现有一个小窗口，需要将其移至像素点最密集的区域。如下图所示：<br><img src="http://jason-images.qiniudn.com/%40%2FML%2Fopencv%2Fmeanshift%2Fmeanshift_basics.jpg" alt="meanshift_basics"><br>最初的窗口表示为C1这个大的蓝色圆圈，其原始中心为”C1_o”。随着这个中心点向局部密度较大的区域移动，得到了”C1_r”的中心点。随着这个过程的迭代，最终会得到一个最大像素点分布的区域，即C2，该区域包含了最多数量的点。</p>
+<p>总结下来，<strong>Mean Shift的基本思路</strong>是，从每个像素开始，首先估计有相似颜色的邻近像素点的密度（局部密度）的梯度，而后利用迭代算法求出局部密度的峰值（即重心点），把能够聚类到同一个峰值点的所有像素点划分成一个区域。</p>
+<h3 id="基本流程"><a href="#基本流程" class="headerlink" title="基本流程"></a>基本流程</h3><p>(1)选择跟踪窗口的大小和初始位置。在Mean Shift跟踪算法中，核窗宽(即核函数的定义域的大小，就是搜索窗口的大小)的大小起着非常重要的作用。因为它不但决定了参与Mean Shift迭代的样本数量，而且也反映了跟踪窗口的大小。通常，核窗宽由初始跟踪窗口的尺寸决定，而且在整个跟踪过程中不再发生变化。<br><img src="http://jason-images.qiniudn.com/%40%2FML%2Fopencv%2Fmeanshift%2Fmeanshift_step1.jpg" alt="meanshift_step1"><br>(2)计算跟踪窗口内的质心(或重心)。在离散二维(2D)概率分布图像中，计算某窗口的质心同物理上计算某物体的质心一样，即利用窗口的零阶矩M00和(x,y)的一阶矩(M10,M01)之间的关系，计算得到窗口的质心。<br><img src="http://jason-images.qiniudn.com/%40%2FML%2Fopencv%2Fmeanshift%2F%E5%85%AC%E5%BC%8F.jpg" alt="公式"><br><img src="http://jason-images.qiniudn.com/%40%2FML%2Fopencv%2Fmeanshift%2Fmeanshift_step2.jpg" alt="meanshift_step2"><br>(3)调整跟踪窗口的中心到质心；<br>(4)重复第二步和第三步，直到跟踪窗口中心和质心“会聚”，即每次窗口移动的距离小于一定的阈值。<br><img src="http://jason-images.qiniudn.com/%40%2FML%2Fopencv%2Fmeanshift%2Fmeanshift_step3.jpg" alt="meanshift_step3"></p>
+<p>一般一个图像就是个矩阵，像素点均匀的分布在图像上，就没有点的稠密性。所以怎样来定义点的概率密度，这才是最关键的。而我们可以根据像素点的颜色相近来定义为概率密度高。<br>其作为人脸跟踪的应用由下图演示：<br><img src="http://jason-images.qiniudn.com/%40%2FML%2Fopencv%2Fmeanshift%2Fmeanshift_face.gif" alt="meanshift_face"></p>
+<h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><p>Mean Shift作为一种高效的模式匹配算法，由于不需要进行全局搜索，而且搜索精度高，已经广泛地应用在各种模式识别、实时可视跟踪等领域。</p>
+<h3 id="不足"><a href="#不足" class="headerlink" title="不足"></a>不足</h3><p>缺乏必要的模型更新方法；整个跟踪过程中跟踪窗口的大小保持不变，当目标存在尺度变化的时候会导致尺度定位不准确。</p>
+<h2 id="连续自适应的Meanshift-CamShift-算法"><a href="#连续自适应的Meanshift-CamShift-算法" class="headerlink" title="连续自适应的Meanshift(CamShift)算法"></a>连续自适应的Meanshift(CamShift)算法</h2><p>Bradski根据Mean Shift算法的不足，提出了Camshift算法。CamShift算法，即Continuously Adaptive Mean-Shift算法，基本思想就是对视频图像的多帧进行MeanShift运算，将上一帧结果作为下一帧的初始值，迭代下去。<br>该算法采用不变矩对目标的尺寸进行估算，实现了连续自适应地调整跟踪窗口的大小和位置，并将其应用在对连续彩色图像序列中的运动目标的快速跟踪。<br>简单点说，Mean Shift是针对单张图片寻找最优迭代结果，而Camshift则是针对视频序列来处理，并对该序列中的每一帧图片都调用Mean Shift来寻找最优迭代结果。正是由于Camshift针对一个视频序列进行处理，从而保证其可以不断调整窗口的大小，如此一来，当目标的大小发生变化的时候，该算法就可以自适应地调整目标区域继续跟踪。</p>
+<h3 id="原理-1"><a href="#原理-1" class="headerlink" title="原理"></a>原理</h3><p>Camshift算法首先根据跟踪目标颜色概率模型，将视频图像转化为概率分布图像(PDI)，并初始化一个矩形搜索窗口，对每一帧PDI图像利用Mean Shift算法搜索目标匹配的最优区域，并根据搜索区域的不变矩估算跟踪目标的中心和大小，保存和输出当前帧搜索结果，并且用当前帧搜索结果作为下一帧图像初始化搜索窗口。如此循环，即可实现对目标的连续跟踪。Camshift算法是一种<strong>动态变化的非参数密度函数梯度估计方法</strong>。</p>
+<h3 id="具体步骤"><a href="#具体步骤" class="headerlink" title="具体步骤"></a>具体步骤</h3><p>(1)创建指定窗口的颜色概率分布图，初始化一个搜索窗口W，其大小为S<br><img src="http://jason-images.qiniudn.com/%40%2FML%2Fopencv%2Fmeanshift%2FCamshift_s1.png" alt="camshift_1"><br>由上图左图的直方图可以知道，选定区域最常见的色度范围。假设新的视频帧到来时，每个像素点的色度值被检测，通过直方图给出该像素点的概率值。<br>(2)利用Mean Shift算法使搜索窗口“收敛”；在2D概率分布图像中，计算搜索窗口的质心；调整搜索窗口的中心到计算的质心位置。重复该过程，直到“收敛”(即中心的位移小于给定的阈值)<br>(3)重新设置搜索窗口的大小S并计算跟踪目标的输出参数，并用新的窗口大小初始化下一帧Mean Shift的搜索窗口<br><img src="http://jason-images.qiniudn.com/%40%2FML%2Fopencv%2Fmeanshift%2FCamshift_s2.png" alt="camshift_2"><br>上图表示通过Camshift算法跟踪人脸时计算一个视频帧图像中可能存在人脸的图像。黑色像素概率值最低，白色像素概率值最高，灰色像素介于二者之间。<br>(4)跳转到第二步进行下一帧的循环</p>
+<p>下面是Camshift算法的人脸跟踪演示：<br><img src="http://jason-images.qiniudn.com/%40%2FML%2Fopencv%2Fmeanshift%2Fcamshift_face.gif" alt="camshift_face"></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="http://docs.opencv.org/trunk/doc/py_tutorials/py_video/py_meanshift/py_meanshift.html" target="_blank" rel="external">OpenCV 3.0.0-dev documentation</a><br>OpenCV 2 计算机视觉编程手册，科学出版社<br>基于OpenCV的人脸跟踪识别系统研究，雷静，西安电子科技大学，硕士学位论文，2010<br><a href="http://www.cnblogs.com/liqizhou/archive/2012/05/12/2497220.html" target="_blank" rel="external">Meanshift，聚类算法</a></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/OpenCV/">OpenCV</a><a href="/tags/MeanShift/">MeanShift</a>
+  </div>
+
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Machine-Learning/">Machine Learning</a>
+</div>
+
+
+
+<div class="article-share" id="share">
+
+  
+<div class="jiathis_style">
+    <span class="jiathis_txt">分享到：</span>
+    <a class="jiathis_button_tsina">新浪微博</a>
+    <a class="jiathis_button_weixin">微信</a>
+    <a class="jiathis_button_twitter">Twitter</a>
+    <a class="jiathis_button_evernote">EverNote</a>
+    <a href="http://www.jiathis.com/share?uid=1501277" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript" >
+    var jiathis_config={
+    data_track_clickback:true,
+    sm:"copy,renren,cqq",
+    pic:"",
+    summary:"",
+    
+  </script> 
+<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=
+1394018007141544" charset="utf-8"></script>      
+
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2014/10/16/Machine Learning/【计算机视觉】OpenCV中直方图处理函数简述/" title="【计算机视觉】OpenCV中直方图处理函数简述">
+  <strong>之后的一篇</strong><br/>
+  <span>
+  【计算机视觉】OpenCV中直方图处理函数简述</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2014/09/26/Programming/【编程拾遗】习得——积累编程过程中的经验/"  title="【编程拾遗】习得——积累编程过程中的经验">
+ <strong>之前的一篇</strong><br/> 
+ <span>【编程拾遗】习得——积累编程过程中的经验
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section class="comment">
+	<div class="ds-thread"></div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#直方图引入"><span class="toc-number">1.</span> <span class="toc-text">直方图引入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#直方图反投影"><span class="toc-number">2.</span> <span class="toc-text">直方图反投影</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HSV颜色空间"><span class="toc-number">3.</span> <span class="toc-text">HSV颜色空间</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#色调H"><span class="toc-number">3.1.</span> <span class="toc-text">色调H</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#饱和度S"><span class="toc-number">3.2.</span> <span class="toc-text">饱和度S</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#亮度V"><span class="toc-number">3.3.</span> <span class="toc-text">亮度V</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#应用示例：建立颜色概率模型"><span class="toc-number">4.</span> <span class="toc-text">应用示例：建立颜色概率模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#均值漂移-Mean-Shift-算法"><span class="toc-number">5.</span> <span class="toc-text">均值漂移(Mean Shift)算法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#原理"><span class="toc-number">5.1.</span> <span class="toc-text">原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#基本流程"><span class="toc-number">5.2.</span> <span class="toc-text">基本流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#优点"><span class="toc-number">5.3.</span> <span class="toc-text">优点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#不足"><span class="toc-number">5.4.</span> <span class="toc-text">不足</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#连续自适应的Meanshift-CamShift-算法"><span class="toc-number">6.</span> <span class="toc-text">连续自适应的Meanshift(CamShift)算法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#原理-1"><span class="toc-number">6.1.</span> <span class="toc-text">原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#具体步骤"><span class="toc-number">6.2.</span> <span class="toc-text">具体步骤</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">7.</span> <span class="toc-text">参考资料</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+<div class="maps">
+    <p class="asidetitle">访问统计</p>
+    <br>
+    <script type="text/javascript" src="//ra.revolvermaps.com/0/0/6.js?i=0leibswamim&amp;m=0&amp;s=210&amp;c=ff0000&amp;cr1=ffffff&amp;f=arial&amp;l=0" async="async"></script>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">Categories</p>
+		<ul>
+		
+			<li><a href="/categories/Algorithm-Problem/" title="Algorithm Problem">Algorithm Problem<sup>1</sup></a></li>
+		
+			<li><a href="/categories/C/" title="C++">C++<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Classic-Algorithm/" title="Classic Algorithm">Classic Algorithm<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Cluster-Analysis/" title="Cluster Analysis">Cluster Analysis<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Design-Pattern/" title="Design Pattern">Design Pattern<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Developer-Kits/" title="Developer Kits">Developer Kits<sup>5</sup></a></li>
+		
+			<li><a href="/categories/Energy-Big-Data/" title="Energy Big Data">Energy Big Data<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Feature-Engineering/" title="Feature Engineering">Feature Engineering<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Functional/" title="Functional">Functional<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Functional-Programming/" title="Functional Programming">Functional Programming<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Git/" title="Git">Git<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Jobs/" title="Jobs">Jobs<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>4</sup></a></li>
+		
+			<li><a href="/categories/ML-Experiments/" title="ML Experiments">ML Experiments<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Machine-Learning/" title="Machine Learning">Machine Learning<sup>50</sup></a></li>
+		
+			<li><a href="/categories/Math/" title="Math">Math<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Programming/" title="Programming">Programming<sup>11</sup></a></li>
+		
+			<li><a href="/categories/Python/" title="Python">Python<sup>10</sup></a></li>
+		
+			<li><a href="/categories/Scala/" title="Scala">Scala<sup>27</sup></a></li>
+		
+			<li><a href="/categories/Scala-ML/" title="Scala-ML">Scala-ML<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Similarity-Search/" title="Similarity Search">Similarity Search<sup>4</sup></a></li>
+		
+			<li><a href="/categories/Small-Problems/" title="Small Problems">Small Problems<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Spark/" title="Spark">Spark<sup>23</sup></a></li>
+		
+			<li><a href="/categories/Thoughts/" title="Thoughts">Thoughts<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">Tag Cloud</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/Actor/" style="font-size: 10px;">Actor</a> <a href="/tags/Akka/" style="font-size: 14.55px;">Akka</a> <a href="/tags/Algorithm/" style="font-size: 10px;">Algorithm</a> <a href="/tags/Approximate-Nearest-Neighbor-Search/" style="font-size: 10px;">Approximate Nearest Neighbor Search</a> <a href="/tags/Bayesian-Analysis/" style="font-size: 10.91px;">Bayesian Analysis</a> <a href="/tags/Big-Data/" style="font-size: 10px;">Big Data</a> <a href="/tags/C/" style="font-size: 12.73px;">C++</a> <a href="/tags/Classification/" style="font-size: 11.82px;">Classification</a> <a href="/tags/Cluster-Analysis/" style="font-size: 10px;">Cluster Analysis</a> <a href="/tags/Computer-Vision/" style="font-size: 14.55px;">Computer Vision</a> <a href="/tags/Eclipse/" style="font-size: 10px;">Eclipse</a> <a href="/tags/Energy-Forecasting/" style="font-size: 10px;">Energy Forecasting</a> <a href="/tags/Feature-Engineering/" style="font-size: 10.91px;">Feature Engineering</a> <a href="/tags/Functional-Programming/" style="font-size: 16.36px;">Functional Programming</a> <a href="/tags/Gaussian-Process/" style="font-size: 10px;">Gaussian Process</a> <a href="/tags/Git/" style="font-size: 10.91px;">Git</a> <a href="/tags/GraphLab/" style="font-size: 10px;">GraphLab</a> <a href="/tags/IPython/" style="font-size: 10px;">IPython</a> <a href="/tags/Internet-of-Energy/" style="font-size: 10px;">Internet of Energy</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/Kaggle/" style="font-size: 10px;">Kaggle</a> <a href="/tags/Kernel-Method/" style="font-size: 10px;">Kernel Method</a> <a href="/tags/LSH/" style="font-size: 12.73px;">LSH</a> <a href="/tags/LaTex/" style="font-size: 10px;">LaTex</a> <a href="/tags/Linux/" style="font-size: 11.82px;">Linux</a> <a href="/tags/Machine-Learning/" style="font-size: 20px;">Machine Learning</a> <a href="/tags/Math/" style="font-size: 11.82px;">Math</a> <a href="/tags/Mathematics/" style="font-size: 13.64px;">Mathematics</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MeanShift/" style="font-size: 10px;">MeanShift</a> <a href="/tags/Mint/" style="font-size: 10px;">Mint</a> <a href="/tags/OpenCV/" style="font-size: 15.45px;">OpenCV</a> <a href="/tags/Probabilistic-Programming/" style="font-size: 10px;">Probabilistic Programming</a> <a href="/tags/Probability-Distributions/" style="font-size: 10px;">Probability Distributions</a> <a href="/tags/Programming/" style="font-size: 14.55px;">Programming</a> <a href="/tags/Python/" style="font-size: 17.27px;">Python</a> <a href="/tags/Regression/" style="font-size: 11.82px;">Regression</a> <a href="/tags/Resume/" style="font-size: 10px;">Resume</a> <a href="/tags/SVM/" style="font-size: 12.73px;">SVM</a> <a href="/tags/Scala/" style="font-size: 19.09px;">Scala</a> <a href="/tags/Similarity-Search/" style="font-size: 10.91px;">Similarity Search</a> <a href="/tags/Source-code/" style="font-size: 10px;">Source code</a> <a href="/tags/Spark/" style="font-size: 18.18px;">Spark</a> <a href="/tags/Summary/" style="font-size: 10px;">Summary</a> <a href="/tags/Thoughts/" style="font-size: 10.91px;">Thoughts</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/Vim/" style="font-size: 11.82px;">Vim</a> <a href="/tags/Written-Test/" style="font-size: 10px;">Written Test</a> <a href="/tags/Zeppelin/" style="font-size: 10px;">Zeppelin</a> <a href="/tags/boost/" style="font-size: 10px;">boost</a> <a href="/tags/cpp/" style="font-size: 13.64px;">cpp</a> <a href="/tags/opencv/" style="font-size: 10.91px;">opencv</a> <a href="/tags/p-Stable-LSH/" style="font-size: 10px;">p-Stable LSH</a> <a href="/tags/scikit-learn/" style="font-size: 10px;">scikit-learn</a> <a href="/tags/sklearn/" style="font-size: 10.91px;">sklearn</a> <a href="/tags/互联网时代/" style="font-size: 10px;">互联网时代</a> <a href="/tags/位置敏感哈希/" style="font-size: 10.91px;">位置敏感哈希</a> <a href="/tags/分治/" style="font-size: 10px;">分治</a> <a href="/tags/单元测试/" style="font-size: 10px;">单元测试</a> <a href="/tags/反思/" style="font-size: 10px;">反思</a> <a href="/tags/效率/" style="font-size: 10px;">效率</a> <a href="/tags/核方法/" style="font-size: 10px;">核方法</a> <a href="/tags/算法框架/" style="font-size: 10px;">算法框架</a> <a href="/tags/设计模式/" style="font-size: 11.82px;">设计模式</a>
+    </div>
+  </div>
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle"><a href="/archives">Archives</a></p>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">February 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">November 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">29</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a><span class="archive-list-count">16</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">10</span></li></ul>
+  </div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
+</div>
+
+</aside>
+
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Jason Ding in HUST <br/>
+			I would share moments of life here! </p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/1698420390" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/jasonding1354" target="_blank" title="github"></a>
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2016 
+		
+		<a href="http://blog.jasonding.top" target="_blank" title="Jason Ding">Jason Ding</a>
+		
+		</p>
+		<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+  
+  _st('install','uYyEuxJdzzAGXTax33mt','2.0.0');
+</script>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"jasonding"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,473 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>【Energy Big Data】能源互联网和电力大数据 | Jason&#39;s Techblog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Jason Ding">
+    
+    <meta name="description" content="背景今年的政府工作报告突出了互联网在经济结构转型中的重要地位，报告明确指出：要制定“互联网+”行动计划，推动移动互联网、云计算、大数据、物联网等与现代制造业结合，促进电子商务、工业互联网和互联网金融健康发展。报告引发了各行各业对互联网行业的极大关注，未来产业与互联网的融合将贯穿相关行业业务的主线。
+">
+    
+    
+    
+    
+    <link rel="alternate" href="/atom.xml" title="Jason&#39;s Techblog" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/author.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/author.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F3cc71cd5738b99a1db174951e194ba55' type='text/javascript'%3E%3C/script%3E"));
+
+
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F1dcf1fa58b0eca1ac5bd089ee6a6e78c' type='text/javascript'%3E%3C/script%3E"));
+
+
+</script>
+
+
+    <!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Jason&#39;s Techblog" title="Jason&#39;s Techblog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Jason&#39;s Techblog">Jason&#39;s Techblog</a></h1>
+				<h2 class="blog-motto">Technician =&gt; Scientist =&gt; Philosopher =&gt; Artists</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="http://jasonding.top">Main</a></li>
+					
+					<li>
+					
+						<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" class="st-default-search-input" maxlength="20" placeholder="Search" />
+						</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody">
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/06/29/Energy Big Data/【Energy Big Data】能源互联网和电力大数据/" title="【Energy Big Data】能源互联网和电力大数据" itemprop="url">【Energy Big Data】能源互联网和电力大数据</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://blog.jasonding.top" title="Jason Ding">Jason Ding</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2015-06-29T08:09:56.000Z" itemprop="datePublished">2015-06-29</time>
+    Updated:<time datetime="2016-03-16T06:24:42.000Z" itemprop="dateModified">2016-03-16</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#背景"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#能源互联网"><span class="toc-number">2.</span> <span class="toc-text">能源互联网</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#能源互联网的关键环节"><span class="toc-number">3.</span> <span class="toc-text">能源互联网的关键环节</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-可再生能源作为主要能源廉价供应，并合理联网调度、利用"><span class="toc-number">3.1.</span> <span class="toc-text">(1)可再生能源作为主要能源廉价供应，并合理联网调度、利用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-支持超大规模分布式发电、储能及其他能源终端的接入平台"><span class="toc-number">3.2.</span> <span class="toc-text">(2)支持超大规模分布式发电、储能及其他能源终端的接入平台</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-类似互联网技术的能源共享实现"><span class="toc-number">3.3.</span> <span class="toc-text">(3)类似互联网技术的能源共享实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-能源的移动互联实现"><span class="toc-number">3.4.</span> <span class="toc-text">(4)能源的移动互联实现</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#能源互联网企业案例"><span class="toc-number">4.</span> <span class="toc-text">能源互联网企业案例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#C3能源分析引擎平台"><span class="toc-number">4.1.</span> <span class="toc-text">C3能源分析引擎平台</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Opower通过消费数据分析用户用电行为"><span class="toc-number">4.2.</span> <span class="toc-text">Opower通过消费数据分析用户用电行为</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AutoGrid通过能源分析优化需求管理"><span class="toc-number">4.3.</span> <span class="toc-text">AutoGrid通过能源分析优化需求管理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#法国电力公司（EDF）基于大数据的分析预测"><span class="toc-number">4.4.</span> <span class="toc-text">法国电力公司（EDF）基于大数据的分析预测</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#能源互联网的展望"><span class="toc-number">5.</span> <span class="toc-text">能源互联网的展望</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#电力大数据"><span class="toc-number">6.</span> <span class="toc-text">电力大数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#电力大数据的三种商业应用模式"><span class="toc-number">7.</span> <span class="toc-text">电力大数据的三种商业应用模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#对接智能电网优化需求响应"><span class="toc-number">7.1.</span> <span class="toc-text">对接智能电网优化需求响应</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#能源数据综合服务平台"><span class="toc-number">7.2.</span> <span class="toc-text">能源数据综合服务平台</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#支撑智能化节能产品研发"><span class="toc-number">7.3.</span> <span class="toc-text">支撑智能化节能产品研发</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#小结"><span class="toc-number">7.4.</span> <span class="toc-text">小结</span></a></li></ol></li></ol>
+		</div>
+		
+		<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>今年的政府工作报告突出了互联网在经济结构转型中的重要地位，报告明确指出：要制定“互联网+”行动计划，推动移动互联网、云计算、大数据、物联网等与现代制造业结合，促进电子商务、工业互联网和互联网金融健康发展。报告引发了各行各业对互联网行业的极大关注，未来产业与互联网的融合将贯穿相关行业业务的主线。</p>
+<p>能源行业是第三次工业革命的引领者，智能电网是“互联网+”的具体体现，“互联网+”必将给电网带来技术应用、服务模式、发展理念等方面的变化。</p>
+<p>“互联网+能源”意味着互联网与传统电网的结合，借鉴互联网发展电网核心技术，能够加强用户体验感，促进价值共享，打破行业发展边界，提高能源利用效率，实现真正意义上的能源资源共享，构建和谐的能源网络环境。能源互联网将是未来电网发展的特征。</p>
+<p>未来的<strong>能源管理是以能源互联网为基础</strong>，以“保证区域能源可靠供应，实现区域能源协调供给”为目标，并以电能为支撑，综合冷、热、电、热水等多种分布式能源，构建“源―网―荷”互动的区域型能源互联网络。它能够建立合理的能源分配与节能策略，降低用能开支，保障能源的持续可靠供应，确保终端用能安全，实现区域多种能源协调控制和综合能效管理。<br><img src="http://images.rfidworld.com.cn/FileUpLoadSavePath/2015-06/26949eb31fb97a9d2bc.jpg" alt=""></p>
+<h2 id="能源互联网"><a href="#能源互联网" class="headerlink" title="能源互联网"></a>能源互联网</h2><p>能源互联网是以现有电网为基础，利用新型清洁能源与互联网技术，通过微网技术，实现能源存储与共享的多级分布式开放系统。<br>其借鉴了现代互联网技术中的层次划分方法，将网络共分为4个层次。在以传统电力网络、智能电网保证能源传输转移的电网潮流层之上，网络通信层和信息融合层将利用现代化“信息打包”技术，最终将能源与信息标记为最基本的能量信息流，以供余能交易层消费与收纳。<br>若以互联网层次结构相比较，能源互联网的网络通信层以保证网络传输通信为目的，组成了能源互联网最基本的“路由层”，以保证余能交易层实体间信息通信与能量转移。</p>
+<p>在能源互联网中，路由层和余能交易层功能分别对应实体“能源路由器”的路由转发功能和“微电网”的能源选择与交易。</p>
+<p>其中，微网作为能源互联网的基本组成单元，通过新能源的采集、转换、汇集、存储、消纳形成最基本的“能源局域网”。在能源互联网的发展过程中，微网将作为能源互联网中的“微商”，驱动着能源互联网经济的发展;能源路由器以保障能源信息高效安全转移为目标，实现规范化、软件可定义化的能源信息路由控制系统，是能源互联网的核心控制单元。<br><img src="http://images.ofweek.com/Upload/News/2015-6/summary/2015629946667.jpg" alt=""></p>
+<p>国家电网公司董事长刘振亚在2015年2月3日出版了《全球能源互联网》一书，受到业界很多官员和院士的高度评价，包括一些省委书记和省长都在极度赞扬。刘总畅想：全球能源互联网将是以特高压电网为骨干网架（通道），以输送清洁能源为主导，全球互联泛在的坚强智能电网。将由跨国跨洲骨干网架和涵盖各国各电压等级电网的国家泛在智能电网构成，连接“一极一道”和各洲大型能源基地，适应各种分布式电源接入需要，能够将风能、太阳能、海洋能等清洁能源输送到各类用户，是服务范围广、配置能力强、安全可靠性高、绿色低碳的全球能源配置平台，也是实施“两个替代”的关键。</p>
+<p>这里说的“二个替代”是至清洁能源对化石能源的替代，以及电能对其他能源的替代。“一极一道”是指风能丰富的北极地区和光能丰富的赤道附近地区。显而易见，这一能源互联网是基于工业思维追求规模效益的认识，与我们所说的“因地制宜、因需而设、就地取材、就近供能、自下而上、参与互动”的互联网思维下的能源互联网是完全逆向的思维。</p>
+<h2 id="能源互联网的关键环节"><a href="#能源互联网的关键环节" class="headerlink" title="能源互联网的关键环节"></a>能源互联网的关键环节</h2><h3 id="1-可再生能源作为主要能源廉价供应，并合理联网调度、利用"><a href="#1-可再生能源作为主要能源廉价供应，并合理联网调度、利用" class="headerlink" title="(1)可再生能源作为主要能源廉价供应，并合理联网调度、利用"></a>(1)可再生能源作为主要能源廉价供应，并合理联网调度、利用</h3><p>以数据形式存在于信息互联网上的信息，其实是非常廉价且可以挖掘的，但是，能源互联网的主要载荷–能量，却只能从自然界中开采。而且还存在着成本高(相比信息而言)等等问题。<br>所以要满足互联网的特点，要保障精心构建的“能源互联网”有米下锅，必须让它能消化基本“无穷尽”供应的风能、太阳能等。<br>但由于这些渠道的能量供应有非常强的随机性、间断性和模糊性。目前将它们成功的并入电网，或用其他形式高效利用起来，还是一件很困难的事情。<br>当然这更是环境保护、节能减排方面的需要。</p>
+<h3 id="2-支持超大规模分布式发电、储能及其他能源终端的接入平台"><a href="#2-支持超大规模分布式发电、储能及其他能源终端的接入平台" class="headerlink" title="(2)支持超大规模分布式发电、储能及其他能源终端的接入平台"></a>(2)支持超大规模分布式发电、储能及其他能源终端的接入平台</h3><p>依靠PC、智能移动设备的等个人接入者，在信息互联网接入者的数量上占绝大多数;IT业者用几十年时间构建了一套由通讯协议、路由器、交换机、数据库、服务器等等一系列软硬件设施组成的庞大系统，是人类文明迄今为止最伟大的成就之一。<br>能源互联网想要达到这样的运转效率，需要的技术准备只多不少：比如需要一个极强的信息流处理能力，用来预测和监视消费者的需求变化、极端不稳定的能量生产供应变化;同时它还要指挥相应的能量调配部门完成上载与下载能源的分流与整合等等。数据和习惯都是超大规模的。<br>然后，还需要一个极强的能量流处理能力。以智能电网为例，设想中，它需要7*24小时完成功率以亿千瓦计的电流变、输、配调节，而且还必须满足实时的供需平衡(由电能特性决定)。还要再引入分布式清洁能源和市场竞争两个超复杂的变量。</p>
+<h3 id="3-类似互联网技术的能源共享实现"><a href="#3-类似互联网技术的能源共享实现" class="headerlink" title="(3)类似互联网技术的能源共享实现"></a>(3)类似互联网技术的能源共享实现</h3><p>信息互联网的一大魅力就在于它能够打破地域的限制，因为信息传输的门槛和成本都相对较低。<br>但当我们开始依靠现有的技术输送能量的时候，损耗问题就相当严重了。于是人们不得不考虑手段来降低损耗，这些方法要么单位成本极高(如直接运输，这个过程本身就要消耗大量的燃料)，要么建设成本和科研成本极高(如特高压输电技术)。</p>
+<h3 id="4-能源的移动互联实现"><a href="#4-能源的移动互联实现" class="headerlink" title="(4)能源的移动互联实现"></a>(4)能源的移动互联实现</h3><p>移动互联是目前互联网产业的一个重要趋势，但是类比到能量上，就完全是另一回事了。<br>可以便携的能量转换装置，要么效率太低(如内燃机)，要么太贵且用起来麻烦(如燃气机)，要么就是我们“喂不饱”(如电机);<br>储能问题是老生常谈的老大难;<br>无线充电技术虽然在已经能够给很多小的智能设备充电了，但是大规模应用上仍然问题多多，最简单的一问：那么多电磁能量散播到空间里，辐射谁受得了?<br>电动汽车，它的航程、方便性和可靠性等等，真能和同价位传统的汽油车一比了么?</p>
+<h2 id="能源互联网企业案例"><a href="#能源互联网企业案例" class="headerlink" title="能源互联网企业案例"></a>能源互联网企业案例</h2><h3 id="C3能源分析引擎平台"><a href="#C3能源分析引擎平台" class="headerlink" title="C3能源分析引擎平台"></a>C3能源分析引擎平台</h3><p>美国C3 energy公司以自行研发的C3数据集成器（C3 Data Integrator）为基础，整合来自公用事业公司内部和其他第三方的超过22种数据，包括公用事业公司拥有的仪表数据、能耗数据，第三方或用户的建筑物特性、企业运营情况、地理信息数据等，形成自己的分析引擎――C3 Energy Analytics Engine，提供电网实时监测和即时数据分析。<br>C3 能源分析引擎平台（C3 Energy Analytics Engine）将多个分散电力系统数据存储在云平台上，与工业标准、天气预报、楼宇信息、持久协议和其他外部的数据相结合；基于该平台开发了 3 个分析工具，分别是C3电网分析（C3 Energy Grid Analytics）、C3石油天然气分析（C3 Energy Oil &amp; Gas Analytics）和C3用户分析（C3 Energy Customer Analytics），以及多个应用APP。<br>C3电网分析主要服务于供应侧的诸如公用事业公司、调度机构、输配电公司等智能电网拥有者、操作者、使用者，用于电网运营中降低成本、预测并应对系统故障、掌握用户耗能情况等。C3 电网分析逐步形成了智能仪器控制、资产保护、预测性维护、需求响应分析、负荷预测等10种成熟的解决方案。<br>C3电力用户分析工具是双向的，一方面面向公共事业公司，帮助其了解用户用能情况，合理设计需求响应方案，提供能源投入冗余分析、能耗基准点、电力用户空间视图等服务类应用；另一方面通过公共事业公司授权面向用户，用户可以借此进行能耗管理，响应需求管理，调整自己的能耗安排。<br>所有解决方案的数据结果均会被C3分析引擎可视化，供应侧和需求侧的使用者都可以通过C3提供的软件界面直观地看到这些结果，他们也可以通过C3直接进行操作。<br>由于C3主要面向公用事业公司提供云平台和软件服务，合作一旦达成，相当于C3要成为该公用事业公司管辖范围内电网的一个“全方位管家”――从输电线到变电站到终端用户的仪表，以及该区域电网历史记录统统都要纳入风险管理。这就决定了每一项合作的展开一定会是长时间、大规模的。所开发的系统已在美国的巴尔的摩燃气电力公司（BGE）、太平洋燃气电力公司、东北电力公司（Northeast Utilities）等投入应用。</p>
+<h3 id="Opower通过消费数据分析用户用电行为"><a href="#Opower通过消费数据分析用户用电行为" class="headerlink" title="Opower通过消费数据分析用户用电行为"></a>Opower通过消费数据分析用户用电行为</h3><p>美国的Opower公司是于 2007 年创办的一家能源数据分析公司。Opower 与电气公司合作，获取家庭消费者的能源使用数据，为电气公司提供面向消费群体的节能方案，包括通过移动端推送能源账单，群发节能贴士类邮件，提供管控家用恒温器的软件服务等等。<br>Opower引以为傲的是它的云平台以及数据整合能力。它从所服务的公用事业公司取得大量的家庭能耗数据，整合行为科学理论、房龄信息、周边天气等，运用自己的软件系统进行用能分析，建立家庭耗能档案，并通过综合分析提出节能建议。Opower帮助售电公司发送给用户电力账单，通过个人历史比较、邻里比较来激发用户节能的意愿。这种方式让用户看到自己的电费在下降的时候，对环保的售电公司满意度不断增长。同时，Opower又帮助售电公司进行需求侧响应，发送短信给用户劝其避免在电力高峰时刻进行洗衣、制冷等高耗能活动。对于售电公司来说，这样一个通知系统简单粗暴、无需任何硬件设备，却在美国实现了3%的负荷转移。<br>和其他以“智能电网大数据”、“云处理”为噱头的创新型公司比起来，成立时间仅比Facebook晚3年、比Twitter晚1年的Opower，更具互联网公司的气质――关心用户卷入和粘性、注重个性化，把能源领域里往往最容易被忽视的家庭小用户作为了自己开疆拓土的方向。</p>
+<h3 id="AutoGrid通过能源分析优化需求管理"><a href="#AutoGrid通过能源分析优化需求管理" class="headerlink" title="AutoGrid通过能源分析优化需求管理"></a>AutoGrid通过能源分析优化需求管理</h3><p>AutoGrid是由前斯坦福大学智能电网研究室负责人AmitNarayan创办的服务于电力、能源行业的大数据公司，坐落在旧金山，不到50名员工，却汇集了来自复杂系统工程设计优化、通信、互联网、电力等不同领域的经验。<br>AutoGrid可以帮助电网各端匹配电力供应和需求，降低电网各端的成本。AutoGrid的客户覆盖发电端、输电端、配电端、用户，通过建立能源数据平台(Energy Data Platform, EDP)平台，收集并处理其客户接入智能电网的智能仪表等设备的数据，面向其客户或合作方提供需求响应优化及管理系统（Demand Response Optimization and Management System, DROMS），实现实时资源预测、资源优化、自动需求响应、客户通知引擎和事后分析等功能。单个DROMS集群每天可以产生数以亿计的能源消费的预测数据。<br>AutoGrid还可以提供客户供能范围内的整体能耗图景，而且是一个大规模的、动态的、不间断的能耗图景。基于EDP和DROMS，配电企业(AutiGrid的客户)可以更好的进行电力控制。当数据不断被累积，AutoGrid就能提供秒前、分钟前甚至周前的用电预测，可以帮助电力企业客户实现不影响舒适度和生产率情况下优化排产计划。<br>对于发电企业的客户来说，AutoGrid可以预测发电情况和电网负荷，实现优化调度。对用电企业的客户而言，AutoGrid可以预测用电量，结合电价信息，进行需求响应(Demond Response)。<br>AutoGrid配电公司、公用事业公司有着良好的联系。这种面向供应侧的公司相对更有优势，毕竟供应侧的目标（客户）数量比起需求侧动辄几百万、几千万的耗能用户要少很多且更加集中。了解公用事业公司和配电公司的需求，才能更有效地提高能源利用率。<br>AutoGrid这家成立不到四年的公司，凭借其PB级的数据分析和预测能力，打动了欧洲最大的能源企业E.ON，成为其投资者之一，E.ON还使用AutoGrid的能源数据平台来了解电网实时运营状态、更好地与用户互动。AutoGrid还受到微软的青睐，在今年2月，微软和AutoGrid合作，以AutoGrid的能源数据平台为基础，使得Microsoft Azure云平台可以服务电力和能源企业。AutoGrid高调地宣称，希望让大数据成为一种新的能源。AutoGrid的自信源于，电力行业的大数据市场将持续增长且创造巨大价值。</p>
+<h3 id="法国电力公司（EDF）基于大数据的分析预测"><a href="#法国电力公司（EDF）基于大数据的分析预测" class="headerlink" title="法国电力公司（EDF）基于大数据的分析预测"></a>法国电力公司（EDF）基于大数据的分析预测</h3><p>作为全球领先的电力基础设施服务提供商，法国电力公司（EDF）非常重视大数据在企业运营分析管理中的作用，通过设立专业机构、完善数据基础、增强分析能力，不断发掘数据资产价值，为企业战略转型与服务升级提供有效的决策支撑。<br>目前全法已经安装3500万智能电表，电表产生的数据量将在5-10年内达到PB级。智能电表采集的主要是个体家庭的用电负荷数据。以每个电表每10分钟抄表一次计算，3500万智能电表每年产生1.8万亿次抄表记录和600TB压缩前数据;每天产生5亿次抄表记录，和大约2TB的抄表数据。这些电表数据，结合气象数据、用电合同信息及电网数据，构成了法国电力的大数据。<br>法国电力以用户用电负荷曲线的海量存储和处理为突破口，利用大数据技术，形成了能够支撑在规定延迟内的复杂、并行处理能力并搭建了大数据存储架构，以此为基础构建了分布式数据发生器 CourboGen 系统，用于生成用户用电负荷曲线及其关联数据。其中数据接入的接入形式包括批处理或数据流两种;数据的预处理包括时间同步、异常数据检测及修正，以及改变数据表达形式等;数据处理包括按区域的指标计算、账单模拟、商业智能BI等。</p>
+<h2 id="能源互联网的展望"><a href="#能源互联网的展望" class="headerlink" title="能源互联网的展望"></a>能源互联网的展望</h2><p>能源互联网是基于互联网区域能源管理的末端“神经元”，它可以通过在分布式发电设备、储能设备、用电设备等环节部署各类能效监测终端、控制器、环境传感器、视频监控等采集控制单元，实现发电、用电、环境及安全数据的实时采集，。</p>
+<p>在能源互联网的推动下，智能用电将得到普及，电力将实现智能化应用。未来的电力客户，包括个人客户、工业客户等，与电网的关系将是互动关系。一方面，客户与电网之间的积极互动对提高用电能效非常有帮助，对电网的能效平衡也起到关键的作用。另一方面，客户的生活方式和生活品质将得到改变和提高。随着智能用电的推广，手机作为客户终端也成为智能用电的工具，可以实现能效分析、用电查询、电费交纳、家电控制、与电网互动等功能。随着以亿计客户的绑定关注，电力客户服务端将产生其他附加价值。</p>
+<p>“互联网+用电=智能用电”。智能用电可实现3个10%：能效水平提升10%；用电降低10%；削峰填谷10%。智能用电是用技术手段引导客户消费行为，为客户提供能效服务，使得客户合理用能，明显提升能效管理水平，实现“节能+智能”。在这种趋势下，客户与电网的互动将变成现实，电器智能化使用水平也将得到普及。</p>
+<p>未来，“互联网+电力服务”会催生新的服务模式，电力服务模式将产生明显变化，移动互联网服务的方式会得到普及，客户与电网双向互动将变为现实。随之而来的是，电网发展理念将发生变革，一方面，电能替代和绿色替代这两个替代将成为能源发展的主流，电能替代主要是指“以电代煤，以电代油，电从远方来，来的是清洁电”，绿色替代就是大幅增长的水能、风能、太阳能等清洁能源将替代火电。另一方面，需求侧管理也将更加科学合理，分布式能源并网容量的增多会加大用电客户与电网之间的互动需求，而智能用电、移动终端等的广泛应用也将促进电网与用电客户间的互动，便于电网侧做出合理的调度判断，使得用电需求相应更加科学合理。</p>
+<h2 id="电力大数据"><a href="#电力大数据" class="headerlink" title="电力大数据"></a>电力大数据</h2><p>电力是大数据理念、技术和方法在电力行业的实践。电力大数据涉及到发电、输电、变电、配电、用电、调度各环节，是跨单位、跨专业、跨业务数据分析与挖掘，以及数据可视化。<br>电力大数据由结构化数据和非结构化构成，随着智能电网建设和物联网的应用，非结构化数据呈现出快速增长的势头，其数量将大大超过结构化数据。电力大数据的特性满足大数据的五个特性，一是数据量大（Volume）、二是处理速度快（Velocity）、三是数据类型多(Variety)、四是价值大（Value）、五是精确性高（Veracity）。<br>电力大数据的应用一方面是与宏观经济、人民生活、社会保障、道路交通等信息融合，促进经济社会发展；另一方面，是电力行业或企业内部，跨专业、跨单位、跨部门的数据融合，提升行业、企业管理水平和经济效益。<br>电力大数据对电力数据进行分析挖掘，得到信息，然后将信息转化为知识，最后通过可视化展现与表达，与人们进行分享。</p>
+<p>电力行业和大数据技术的结合，催生了像“电力大数据”、“能源互联网”、“智慧城市”等新兴概念。通过使用先进的传感器、控制设备和软件应用程序，将电力生产端、电力传输端、电力消费端的数以亿计的设备、机器、系统连接起来，形成了“物联基础”。大数据分析、机器学习和预测是这种互联网络实现生命体特征的重要技术支撑：通过整合运行数据、气象数据、电网数据、电力市场数据等，进行大数据分析、负荷预测、发电预测，打通并优化电力生产和电力消费端的运作效率，需求和供应将可以进行随时的动态调整。智能发电、用电、储电设备，最终都将接入网络，借助信息流，形成自我优化的良性循环。</p>
+<h2 id="电力大数据的三种商业应用模式"><a href="#电力大数据的三种商业应用模式" class="headerlink" title="电力大数据的三种商业应用模式"></a>电力大数据的三种商业应用模式</h2><h3 id="对接智能电网优化需求响应"><a href="#对接智能电网优化需求响应" class="headerlink" title="对接智能电网优化需求响应"></a>对接智能电网优化需求响应</h3><p>也就是通过将能源生产、消费数据与内部智能设备、客户信息、电力运行等数据结合，充分挖掘客户行为特征，提高能源需求预测准确性，发现电力消费规律，提升企业运营效率效益。<br>对于电网企业来说，这个模式能够提高企业经营决策中所需数据的广度与深度，增强对企业经营发展趋势的洞察力和前瞻性，有效支撑决策管理。</p>
+<h3 id="能源数据综合服务平台"><a href="#能源数据综合服务平台" class="headerlink" title="能源数据综合服务平台"></a>能源数据综合服务平台</h3><p>该模式通过建设一个分析与应用平台，集成能源供给、消费、相关技术的各类数据，为包括政府、企业、学校、居民等不同类型参与方提供大数据分析和信息服务。该模式中，电网企业具有资金、技术、数据资源等方面优势，具备成为综合服务平台提供方的条件。</p>
+<h3 id="支撑智能化节能产品研发"><a href="#支撑智能化节能产品研发" class="headerlink" title="支撑智能化节能产品研发"></a>支撑智能化节能产品研发</h3><p>该模式主要将能源大数据、信息通讯与工业制造技术结合，通过对能源供给、消费、移动终端等不同数据源的数据进行综合分析，设计开发出节能环保产品，为用户提供付费低、能效高的能源使用与生活方式。<br>以智能家居产品为例，该模式既可为居民用户提供节能降费服务以及快捷便利的用户体验，也可对能源企业尤其是电力企业改善用户侧需求管理、减少发电装机等方面发挥作用。正在美国走向普及的智能电表也 是一例，它具有电量结算功能，在整个电网范围内标识售电商和用户，可通过更换芯片更换售电商。该模式中，电网企业不一定具备产品研发优势，但可利用电力数 据采集与分析方面的优势，既可通过与设备制造商合作改进用户需求侧管理，也可通过共同参与研发并在产品销售中获取收益。</p>
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>与其说是大数据为智能电网、能源互联网的建设提供的机遇，还不如说是，智能电网、能源互联网的发展，必然依赖大数据技术的发展和应用。是能源产业本身的发展变革必然面对大数据的采集、管理和信息处理的挑战。因此，大数据技术，不仅仅是能源产业某个技术环节所需要的专门性的技术，而是组成整个能源互联网的技术基石。将全面影响到电网的规划、技术的变革、设备升级、电网改造，以及设计规范、技术标准、运行规程乃至市场营销政策的统一等方方面面，它支撑的正是整个未来新结构的精细化能量管理的电力系统。</p>
+<p><strong>转载请注明作者Jason Ding及其出处</strong><br><a href="http://jasonding1354.gitcafe.io/" target="_blank" rel="external">GitCafe博客主页(http://jasonding1354.gitcafe.io/)</a><br><a href="http://jasonding1354.github.io/" target="_blank" rel="external">Github博客主页(http://jasonding1354.github.io/)</a><br><a href="http://blog.csdn.net/jasonding1354" target="_blank" rel="external">CSDN博客(http://blog.csdn.net/jasonding1354)</a><br><a href="http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles" target="_blank" rel="external">简书主页(http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles)</a><br><strong>百度搜索jasonding1354进入我的博客主页</strong></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Internet-of-Energy/">Internet of Energy</a><a href="/tags/Big-Data/">Big Data</a>
+  </div>
+
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Energy-Big-Data/">Energy Big Data</a>
+</div>
+
+
+
+<div class="article-share" id="share">
+
+  
+<div class="jiathis_style">
+    <span class="jiathis_txt">分享到：</span>
+    <a class="jiathis_button_tsina">新浪微博</a>
+    <a class="jiathis_button_weixin">微信</a>
+    <a class="jiathis_button_twitter">Twitter</a>
+    <a class="jiathis_button_evernote">EverNote</a>
+    <a href="http://www.jiathis.com/share?uid=1501277" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript" >
+    var jiathis_config={
+    data_track_clickback:true,
+    sm:"copy,renren,cqq",
+    pic:"",
+    summary:"",
+    
+  </script> 
+<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=
+1394018007141544" charset="utf-8"></script>      
+
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2015/06/30/Scala/【Scala】Scala的Predef对象/" title="【Scala】Scala的Predef对象">
+  <strong>之后的一篇</strong><br/>
+  <span>
+  【Scala】Scala的Predef对象</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2015/06/28/Scala/【Scala编程】格式化算术表达式程序/"  title="【Scala编程】格式化算术表达式程序">
+ <strong>之前的一篇</strong><br/> 
+ <span>【Scala编程】格式化算术表达式程序
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section class="comment">
+	<div class="ds-thread"></div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#背景"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#能源互联网"><span class="toc-number">2.</span> <span class="toc-text">能源互联网</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#能源互联网的关键环节"><span class="toc-number">3.</span> <span class="toc-text">能源互联网的关键环节</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-可再生能源作为主要能源廉价供应，并合理联网调度、利用"><span class="toc-number">3.1.</span> <span class="toc-text">(1)可再生能源作为主要能源廉价供应，并合理联网调度、利用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-支持超大规模分布式发电、储能及其他能源终端的接入平台"><span class="toc-number">3.2.</span> <span class="toc-text">(2)支持超大规模分布式发电、储能及其他能源终端的接入平台</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-类似互联网技术的能源共享实现"><span class="toc-number">3.3.</span> <span class="toc-text">(3)类似互联网技术的能源共享实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-能源的移动互联实现"><span class="toc-number">3.4.</span> <span class="toc-text">(4)能源的移动互联实现</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#能源互联网企业案例"><span class="toc-number">4.</span> <span class="toc-text">能源互联网企业案例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#C3能源分析引擎平台"><span class="toc-number">4.1.</span> <span class="toc-text">C3能源分析引擎平台</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Opower通过消费数据分析用户用电行为"><span class="toc-number">4.2.</span> <span class="toc-text">Opower通过消费数据分析用户用电行为</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AutoGrid通过能源分析优化需求管理"><span class="toc-number">4.3.</span> <span class="toc-text">AutoGrid通过能源分析优化需求管理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#法国电力公司（EDF）基于大数据的分析预测"><span class="toc-number">4.4.</span> <span class="toc-text">法国电力公司（EDF）基于大数据的分析预测</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#能源互联网的展望"><span class="toc-number">5.</span> <span class="toc-text">能源互联网的展望</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#电力大数据"><span class="toc-number">6.</span> <span class="toc-text">电力大数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#电力大数据的三种商业应用模式"><span class="toc-number">7.</span> <span class="toc-text">电力大数据的三种商业应用模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#对接智能电网优化需求响应"><span class="toc-number">7.1.</span> <span class="toc-text">对接智能电网优化需求响应</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#能源数据综合服务平台"><span class="toc-number">7.2.</span> <span class="toc-text">能源数据综合服务平台</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#支撑智能化节能产品研发"><span class="toc-number">7.3.</span> <span class="toc-text">支撑智能化节能产品研发</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#小结"><span class="toc-number">7.4.</span> <span class="toc-text">小结</span></a></li></ol></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+<div class="maps">
+    <p class="asidetitle">访问统计</p>
+    <br>
+    <script type="text/javascript" src="//ra.revolvermaps.com/0/0/6.js?i=0leibswamim&amp;m=0&amp;s=210&amp;c=ff0000&amp;cr1=ffffff&amp;f=arial&amp;l=0" async="async"></script>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">Categories</p>
+		<ul>
+		
+			<li><a href="/categories/Algorithm-Problem/" title="Algorithm Problem">Algorithm Problem<sup>1</sup></a></li>
+		
+			<li><a href="/categories/C/" title="C++">C++<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Classic-Algorithm/" title="Classic Algorithm">Classic Algorithm<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Cluster-Analysis/" title="Cluster Analysis">Cluster Analysis<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Design-Pattern/" title="Design Pattern">Design Pattern<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Developer-Kits/" title="Developer Kits">Developer Kits<sup>5</sup></a></li>
+		
+			<li><a href="/categories/Energy-Big-Data/" title="Energy Big Data">Energy Big Data<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Feature-Engineering/" title="Feature Engineering">Feature Engineering<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Functional/" title="Functional">Functional<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Functional-Programming/" title="Functional Programming">Functional Programming<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Git/" title="Git">Git<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Jobs/" title="Jobs">Jobs<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>4</sup></a></li>
+		
+			<li><a href="/categories/ML-Experiments/" title="ML Experiments">ML Experiments<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Machine-Learning/" title="Machine Learning">Machine Learning<sup>50</sup></a></li>
+		
+			<li><a href="/categories/Math/" title="Math">Math<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Programming/" title="Programming">Programming<sup>11</sup></a></li>
+		
+			<li><a href="/categories/Python/" title="Python">Python<sup>10</sup></a></li>
+		
+			<li><a href="/categories/Scala/" title="Scala">Scala<sup>27</sup></a></li>
+		
+			<li><a href="/categories/Scala-ML/" title="Scala-ML">Scala-ML<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Similarity-Search/" title="Similarity Search">Similarity Search<sup>4</sup></a></li>
+		
+			<li><a href="/categories/Small-Problems/" title="Small Problems">Small Problems<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Spark/" title="Spark">Spark<sup>23</sup></a></li>
+		
+			<li><a href="/categories/Thoughts/" title="Thoughts">Thoughts<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">Tag Cloud</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/Actor/" style="font-size: 10px;">Actor</a> <a href="/tags/Akka/" style="font-size: 14.55px;">Akka</a> <a href="/tags/Algorithm/" style="font-size: 10px;">Algorithm</a> <a href="/tags/Approximate-Nearest-Neighbor-Search/" style="font-size: 10px;">Approximate Nearest Neighbor Search</a> <a href="/tags/Bayesian-Analysis/" style="font-size: 10.91px;">Bayesian Analysis</a> <a href="/tags/Big-Data/" style="font-size: 10px;">Big Data</a> <a href="/tags/C/" style="font-size: 12.73px;">C++</a> <a href="/tags/Classification/" style="font-size: 11.82px;">Classification</a> <a href="/tags/Cluster-Analysis/" style="font-size: 10px;">Cluster Analysis</a> <a href="/tags/Computer-Vision/" style="font-size: 14.55px;">Computer Vision</a> <a href="/tags/Eclipse/" style="font-size: 10px;">Eclipse</a> <a href="/tags/Energy-Forecasting/" style="font-size: 10px;">Energy Forecasting</a> <a href="/tags/Feature-Engineering/" style="font-size: 10.91px;">Feature Engineering</a> <a href="/tags/Functional-Programming/" style="font-size: 16.36px;">Functional Programming</a> <a href="/tags/Gaussian-Process/" style="font-size: 10px;">Gaussian Process</a> <a href="/tags/Git/" style="font-size: 10.91px;">Git</a> <a href="/tags/GraphLab/" style="font-size: 10px;">GraphLab</a> <a href="/tags/IPython/" style="font-size: 10px;">IPython</a> <a href="/tags/Internet-of-Energy/" style="font-size: 10px;">Internet of Energy</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/Kaggle/" style="font-size: 10px;">Kaggle</a> <a href="/tags/Kernel-Method/" style="font-size: 10px;">Kernel Method</a> <a href="/tags/LSH/" style="font-size: 12.73px;">LSH</a> <a href="/tags/LaTex/" style="font-size: 10px;">LaTex</a> <a href="/tags/Linux/" style="font-size: 11.82px;">Linux</a> <a href="/tags/Machine-Learning/" style="font-size: 20px;">Machine Learning</a> <a href="/tags/Math/" style="font-size: 11.82px;">Math</a> <a href="/tags/Mathematics/" style="font-size: 13.64px;">Mathematics</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MeanShift/" style="font-size: 10px;">MeanShift</a> <a href="/tags/Mint/" style="font-size: 10px;">Mint</a> <a href="/tags/OpenCV/" style="font-size: 15.45px;">OpenCV</a> <a href="/tags/Probabilistic-Programming/" style="font-size: 10px;">Probabilistic Programming</a> <a href="/tags/Probability-Distributions/" style="font-size: 10px;">Probability Distributions</a> <a href="/tags/Programming/" style="font-size: 14.55px;">Programming</a> <a href="/tags/Python/" style="font-size: 17.27px;">Python</a> <a href="/tags/Regression/" style="font-size: 11.82px;">Regression</a> <a href="/tags/Resume/" style="font-size: 10px;">Resume</a> <a href="/tags/SVM/" style="font-size: 12.73px;">SVM</a> <a href="/tags/Scala/" style="font-size: 19.09px;">Scala</a> <a href="/tags/Similarity-Search/" style="font-size: 10.91px;">Similarity Search</a> <a href="/tags/Source-code/" style="font-size: 10px;">Source code</a> <a href="/tags/Spark/" style="font-size: 18.18px;">Spark</a> <a href="/tags/Summary/" style="font-size: 10px;">Summary</a> <a href="/tags/Thoughts/" style="font-size: 10.91px;">Thoughts</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/Vim/" style="font-size: 11.82px;">Vim</a> <a href="/tags/Written-Test/" style="font-size: 10px;">Written Test</a> <a href="/tags/Zeppelin/" style="font-size: 10px;">Zeppelin</a> <a href="/tags/boost/" style="font-size: 10px;">boost</a> <a href="/tags/cpp/" style="font-size: 13.64px;">cpp</a> <a href="/tags/opencv/" style="font-size: 10.91px;">opencv</a> <a href="/tags/p-Stable-LSH/" style="font-size: 10px;">p-Stable LSH</a> <a href="/tags/scikit-learn/" style="font-size: 10px;">scikit-learn</a> <a href="/tags/sklearn/" style="font-size: 10.91px;">sklearn</a> <a href="/tags/互联网时代/" style="font-size: 10px;">互联网时代</a> <a href="/tags/位置敏感哈希/" style="font-size: 10.91px;">位置敏感哈希</a> <a href="/tags/分治/" style="font-size: 10px;">分治</a> <a href="/tags/单元测试/" style="font-size: 10px;">单元测试</a> <a href="/tags/反思/" style="font-size: 10px;">反思</a> <a href="/tags/效率/" style="font-size: 10px;">效率</a> <a href="/tags/核方法/" style="font-size: 10px;">核方法</a> <a href="/tags/算法框架/" style="font-size: 10px;">算法框架</a> <a href="/tags/设计模式/" style="font-size: 11.82px;">设计模式</a>
+    </div>
+  </div>
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle"><a href="/archives">Archives</a></p>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">February 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">November 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">29</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a><span class="archive-list-count">16</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">10</span></li></ul>
+  </div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
+</div>
+
+</aside>
+
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Jason Ding in HUST <br/>
+			I would share moments of life here! </p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/1698420390" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/jasonding1354" target="_blank" title="github"></a>
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2016 
+		
+		<a href="http://blog.jasonding.top" target="_blank" title="Jason Ding">Jason Ding</a>
+		
+		</p>
+		<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+  
+  _st('install','uYyEuxJdzzAGXTax33mt','2.0.0');
+</script>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"jasonding"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+  </body>
+</html>

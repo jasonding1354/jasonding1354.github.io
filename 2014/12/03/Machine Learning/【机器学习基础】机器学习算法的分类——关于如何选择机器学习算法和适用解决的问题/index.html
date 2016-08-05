@@ -1,0 +1,488 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>【机器学习基础】机器学习算法的分类——关于如何选择机器学习算法和适用解决的问题 | Jason&#39;s Techblog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Jason Ding">
+    
+    <meta name="description" content="引子系统的学习机器学习课程让我觉得受益匪浅，有些基础问题的认识我觉得是非常有必要的，比如机器学习算法的类别。为什么这么说呢？我承认，作为初学者，可能无法在初期对一个学习的对象有全面而清晰的理解和审视，但是，对一些关键概念有一个初步并且较为清晰的认识，有助于让我们把握对问题的认识层次，说白了，就是帮助">
+    
+    
+    
+    
+    <link rel="alternate" href="/atom.xml" title="Jason&#39;s Techblog" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/author.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/author.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F3cc71cd5738b99a1db174951e194ba55' type='text/javascript'%3E%3C/script%3E"));
+
+
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F1dcf1fa58b0eca1ac5bd089ee6a6e78c' type='text/javascript'%3E%3C/script%3E"));
+
+
+</script>
+
+
+    <!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Jason&#39;s Techblog" title="Jason&#39;s Techblog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Jason&#39;s Techblog">Jason&#39;s Techblog</a></h1>
+				<h2 class="blog-motto">Technician =&gt; Scientist =&gt; Philosopher =&gt; Artists</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="http://jasonding.top">Main</a></li>
+					
+					<li>
+					
+						<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" class="st-default-search-input" maxlength="20" placeholder="Search" />
+						</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody">
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2014/12/03/Machine Learning/【机器学习基础】机器学习算法的分类——关于如何选择机器学习算法和适用解决的问题/" title="【机器学习基础】机器学习算法的分类——关于如何选择机器学习算法和适用解决的问题" itemprop="url">【机器学习基础】机器学习算法的分类——关于如何选择机器学习算法和适用解决的问题</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://blog.jasonding.top" title="Jason Ding">Jason Ding</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2014-12-03T14:16:45.000Z" itemprop="datePublished">2014-12-03</time>
+    Updated:<time datetime="2016-03-16T06:24:42.000Z" itemprop="dateModified">2016-03-16</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#引子"><span class="toc-number">1.</span> <span class="toc-text">引子</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#输入空间、特征空间和输出空间"><span class="toc-number">2.</span> <span class="toc-text">输入空间、特征空间和输出空间</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#各种学习型算法的分类"><span class="toc-number">3.</span> <span class="toc-text">各种学习型算法的分类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#以输出空间的不同作为分类依据"><span class="toc-number">3.1.</span> <span class="toc-text">以输出空间的不同作为分类依据</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#举例："><span class="toc-number">3.1.1.</span> <span class="toc-text">举例：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#结构学习（Structured-Learning）"><span class="toc-number">3.1.2.</span> <span class="toc-text">结构学习（Structured Learning）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#以数据标签的不同作为分类依据"><span class="toc-number">3.2.</span> <span class="toc-text">以数据标签的不同作为分类依据</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#无监督学习（unsupervised-learning）"><span class="toc-number">3.2.1.</span> <span class="toc-text">无监督学习（unsupervised learning）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#半监督学习（Semi-supervised-learning）"><span class="toc-number">3.2.2.</span> <span class="toc-text">半监督学习（Semi-supervised learning）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#增强学习（Reinforce-learning）"><span class="toc-number">3.2.3.</span> <span class="toc-text">增强学习（Reinforce learning）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#以与机器沟通方式的不同作为分类依据"><span class="toc-number">3.3.</span> <span class="toc-text">以与机器沟通方式的不同作为分类依据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#以输入空间的不同作为分类依据"><span class="toc-number">3.4.</span> <span class="toc-text">以输入空间的不同作为分类依据</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#原始特征的补充"><span class="toc-number">3.4.1.</span> <span class="toc-text">原始特征的补充</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">4.</span> <span class="toc-text">小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">5.</span> <span class="toc-text">参考资料</span></a></li></ol>
+		</div>
+		
+		<h2 id="引子"><a href="#引子" class="headerlink" title="引子"></a>引子</h2><p>系统的学习机器学习课程让我觉得受益匪浅，有些基础问题的认识我觉得是非常有必要的，比如机器学习算法的类别。<br>为什么这么说呢？我承认，作为初学者，可能无法在初期对一个学习的对象有全面而清晰的理解和审视，但是，对一些关键概念有一个初步并且较为清晰的认识，有助于让我们把握对问题的认识层次，说白了，就是帮助我们有目的的去学习心得知识，带着问题去学习，充满对解决问题的动力去实验，我觉得这种方式是有益并且良性的。<br>之前，我遇到过很多这方面的问题，可能出于对问题分析不够，在寻找解决的问题的方法或者模型的时候，有可能不知所措。造成这种情况的原因可能有两点：1、基础不深厚，不了解最常用的算法模型；2、学习过程中，缺乏对模型适用的实际问题的了解，缺乏将模型应用于实际问题的经验。<br>所以，在学习过程中，要特别注意的不光是深入研究算法的精髓，还要知道该算法的应用场合、适用条件和局限性。如果只是去探究原理，而不懂实际应用，只能是书呆子，只会纸上谈兵；如果只想拿来用，不去深究算法精髓，又只能游离在核心技术的边界，无法真正的领悟。只有结合理论和实践，才可以达到学习效果的最大化。从这条路径出发，一定要坚持不懈。</p>
+<h2 id="输入空间、特征空间和输出空间"><a href="#输入空间、特征空间和输出空间" class="headerlink" title="输入空间、特征空间和输出空间"></a>输入空间、特征空间和输出空间</h2><p>输入空间和输出空间其实就是输入和输出所有可能取值的集合。输入和输出空间可以是有限元素的集合，也可以是整个欧式空间。输入空间和输出空间可以是一个空间，也可以是不同的空间；通常情况下，输出空间要远远小于输入空间。<br>特征空间是所有特征向量存在的空间。特征空间的每一维对应于一个特征。有时假设输入空间与特征空间为相同的空间，对它们不予区分；有时假设输入空间与特征空间为不同的空间，将实例从输入空间映射到特征空间。<strong>模型实际上都是定义在特征空间上的。</strong><br>这就为机器学习算法的分类提供了很好的依据，可以根据输入空间、特征空间和输出空间的具体情况的不同，对算法限定的具体条件进行分类。</p>
+<h2 id="各种学习型算法的分类"><a href="#各种学习型算法的分类" class="headerlink" title="各种学习型算法的分类"></a>各种学习型算法的分类</h2><p>首先声明一下，下面的分类是我在学习相关课程和自己学习过程中进行的归纳，不尽完善，但是可以概括一定的问题，希望在此能总结一下，以备以后能理清思路并完善。<br>接下来介绍的算法的分类是根据初学者学习的内容的普遍角度展开的，分类角度从常用的分类方式到相对陌生的分类方式。</p>
+<h3 id="以输出空间的不同作为分类依据"><a href="#以输出空间的不同作为分类依据" class="headerlink" title="以输出空间的不同作为分类依据"></a>以输出空间的不同作为分类依据</h3><blockquote>
+<ul>
+<li>二类分类（binary classification）,俗称是非问题（say YES/NO）。其输出空间Y={-1，+1}</li>
+<li>多类别分类（multiclass classification），输出空间Y={1,2，…,K}</li>
+<li>回归问题（regression），输出空间Y=R，即实数范围，输出是无限种可能</li>
+<li>结构学习（structured learning），Y=structures，该学习模型也可以看做是多类别学习的一种，这里可能涉及到数量很大的类别</li>
+</ul>
+</blockquote>
+<h4 id="举例："><a href="#举例：" class="headerlink" title="举例："></a>举例：</h4><p>二类分类应用非常广泛，比如判断是否为垃圾邮件、广告投资是否能盈利、学习系统上在下一题答题是否正确。二类分类在机器学习中地位非常重要，是其他算法的基础。<br>多类别分类的应用，比如根据一张图片，得出图片中是苹果、橘子还是草莓等；还有像Google邮箱，将邮件自动分成垃圾邮件、重要邮件、社交邮件、促销邮件等。多类别分类在视觉或听觉的辨识中应用很广泛。<br>回归分析在股票价格预测和天气气温的预测上被广泛应用。</p>
+<h4 id="结构学习（Structured-Learning）"><a href="#结构学习（Structured-Learning）" class="headerlink" title="结构学习（Structured Learning）"></a>结构学习（Structured Learning）</h4><p>在自然语言处理中，自动的词性标注是很典型的结构学习的例子。比如给定机器一个句子，由于词语在不同的句子当中可能会有不同的词性，所以该方法是用来对句子的结构特性的理解。这种学习方法可以被看做是多类别分类，但与多类别分类不同的是，其目标的结构种类可能规模很大，其类别是隐藏在句子的背后的。<br>这种结构学习的例子还有例如说，生物中蛋白质3D立体结构，自然语言处理方面。<br>结构学习在有些地方被描述成标注（tagging）问题，标注问题的输入是一个观测序列，输出是一个标记序列或状态序列。标注问题的目标在于学习一个模型，使它能够对观测序列给出标记序列作为预测。</p>
+<h3 id="以数据标签的不同作为分类依据"><a href="#以数据标签的不同作为分类依据" class="headerlink" title="以数据标签的不同作为分类依据"></a>以数据标签的不同作为分类依据</h3><p>按照这种分类方法，最常见的类别就是监督学习（supervised learning）、无监督学习（unsupervised learning）和半监督学习（semi-supervised learning）。在上面讨论的以输出空间的不同作为分类依据中，介绍的基本都是监督学习，下面我们来具体看看另外两个。</p>
+<h4 id="无监督学习（unsupervised-learning）"><a href="#无监督学习（unsupervised-learning）" class="headerlink" title="无监督学习（unsupervised learning）"></a>无监督学习（unsupervised learning）</h4><blockquote>
+<ul>
+<li>聚类（clustering），{x[n]} =&gt; cluster(x) , 这里数据的类别是不知道的，根据某种规则得到不同的分类。<br>它可以近似看做无监督的多类别分类。</li>
+<li>密度估计（density estimation），{x[n]} =&gt; density(x) ,这里的density(x) 可以是一个概率密度函数或者概率函数。<br>它可以近似看做无监督的有界回归问题。</li>
+<li>异常检测（outlier detection）， {x[n]} =&gt; unusual(x) 。<br>它可以看做近似的无监督二类分类问题。</li>
+</ul>
+</blockquote>
+<p>聚类的例子像是将网络上各式各样的文章分成不同的主题，商业公司根据不同的顾客的资料，将顾客分成不同的族群，进而采取不同的促销策略。<br>密度估计的典型例子是根据位置的交通情况报告，预测事故危险多发的区域。<br>异常检测的例子是，根据网络的日志的情况，检测是否有异常入侵行为，这是一个极端的“是非题”，可以用非监督的方法来得出。</p>
+<h4 id="半监督学习（Semi-supervised-learning）"><a href="#半监督学习（Semi-supervised-learning）" class="headerlink" title="半监督学习（Semi-supervised learning）"></a>半监督学习（Semi-supervised learning）</h4><p>半监督学习（Semi-supervised Learning）是监督学习与无监督学习相结合的一种学习方法。它主要考虑如何利用少量的标注样本和大量的未标注样本进行训练和分类的问题。半监督学习是利用未标记的大量数据提升机器学习算法的表现效果。<br>半监督学习的主要算法有五类：基于概率的算法；在现有监督算法基础上作修改的方法；直接依赖于聚类假设的方法；基于多试图的方法；基于图的方法。<br>半监督学习的例子，比如Facebook上有关人脸照片的识别，可能只有一小部分人脸是被标记的，大部分是没有被标记的。</p>
+<h4 id="增强学习（Reinforce-learning）"><a href="#增强学习（Reinforce-learning）" class="headerlink" title="增强学习（Reinforce learning）"></a>增强学习（Reinforce learning）</h4><p>强化学习是一种以环境反馈作为输入的、特殊的、适应环境的机器学习方法。所谓强化学习是指从环境状态到行为映射的学习，以使系统行为从环境中获得的累积奖赏值最大。该方法不同与监督学习技术那样通过正例、反例来告知采取何种行为，而是通过试错（trial-and-error）的方法来发现最优行为策略。<br>这里的输出并不一定是你真正想要得到的输出，而是用过奖励或者惩罚的方式来告诉这个系统做的好还是不好。<br>比如一个线上广告系统，可以看做是顾客在训练这个广告系统。这个系统给顾客投放一个广告，即可能的输出，而顾客有没有点或者有没有因为这个广告赚钱，这评定了这个广告投放的好坏。这就让该广告系统学习到怎么样去放更适合的广告。</p>
+<h3 id="以与机器沟通方式的不同作为分类依据"><a href="#以与机器沟通方式的不同作为分类依据" class="headerlink" title="以与机器沟通方式的不同作为分类依据"></a>以与机器沟通方式的不同作为分类依据</h3><blockquote>
+<ul>
+<li>批量学习（batch learning），一次性批量输入给学习算法，可以被形象的称为填鸭式学习。</li>
+<li>线上学习（online learning），按照顺序，循序的学习，不断的去修正模型，进行优化。<br>hypothesis ‘improves’ through receiving data instances sequentially<br>前两种学习算法分类可以被看做是被动的学习算法。</li>
+<li>主动学习（active learning），可以被看做是机器有问问题的能力，指定输入x[n]，询问其输出y[n]<br>improve hypothesis with fewer labels (hopefully) by asking questions strategically<br>当label的获取成本非常昂贵时，会利用此法</li>
+</ul>
+</blockquote>
+<p>很多机器学习大都是批量学习的情况。<br>线上学习的例子有像是垃圾邮件过滤器中，邮件并不是一下子全部拿来训练并且辨识的，而是呈序列形式，一封一封的到来，这样子循序学习的方式不断更新。<br>主动学习的一个简单例子是，像QQ空间中，有好友照片的标注，即机器向人提问问题。</p>
+<h3 id="以输入空间的不同作为分类依据"><a href="#以输入空间的不同作为分类依据" class="headerlink" title="以输入空间的不同作为分类依据"></a>以输入空间的不同作为分类依据</h3><blockquote>
+<ul>
+<li>具体特征（concrete features），输入X的每一维特征都被人类进行的整理和分析，这种分析常常是与专业领域关联的</li>
+<li>原始特征（raw features），需要人或者机器进行转化，将原始特征转化成为具体的特征，在机器视觉和声音信号的辨识都是属于该类</li>
+<li>抽象特征（abstract features），</li>
+</ul>
+</blockquote>
+<p>抽象特征的例子，比如在一个在线教学系统中学生的编号信息，还有广告系统中广告的编号ID。使用它们都需要更多特征抽取的动作。</p>
+<h4 id="原始特征的补充"><a href="#原始特征的补充" class="headerlink" title="原始特征的补充"></a>原始特征的补充</h4><p>这里要补充一下raw features中有关时兴的深度学习（deep learning）的有关知识。<br><strong>深度学习是通过机器自动的进行特征提取的。它需要有大量的资料或者非监督式学习的方式去学习如何从中抽取出非常具体的特征。</strong><br>深度学习通过组合低层特征形成更加抽象的高层表示属性类别或特征，以发现数据的分布式特征表示。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>以上是我在初学阶段针对学习型算法的类别简述，可能有失准确的地方，还需要读者自行分析判断。最后，我还想对自己说一下，我在学习的过程中，不必追求将记录的内容表述的尽可能的细致全面，而是要在记录书写文字的过程中真正能加深对问题的理解，不断的进行自我思考。毕竟，我写这些内容不是为了出书，而是要灵活的积累学习中的关键内容，进行更好的知识管理。当然，如果能帮助到读者就更好了。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>机器学习基石课程，林轩田，台湾大学</p>
+<p><strong>转载请注明作者Jason Ding及其出处</strong><br><a href="http://jasonding1354.github.io/" target="_blank" rel="external">Github主页(http://jasonding1354.github.io/)</a><br><a href="http://blog.csdn.net/jasonding1354" target="_blank" rel="external">CSDN博客(http://blog.csdn.net/jasonding1354)</a><br><a href="http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles" target="_blank" rel="external">简书主页(http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles)</a></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Machine-Learning/">Machine Learning</a>
+  </div>
+
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Machine-Learning/">Machine Learning</a>
+</div>
+
+
+
+<div class="article-share" id="share">
+
+  
+<div class="jiathis_style">
+    <span class="jiathis_txt">分享到：</span>
+    <a class="jiathis_button_tsina">新浪微博</a>
+    <a class="jiathis_button_weixin">微信</a>
+    <a class="jiathis_button_twitter">Twitter</a>
+    <a class="jiathis_button_evernote">EverNote</a>
+    <a href="http://www.jiathis.com/share?uid=1501277" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript" >
+    var jiathis_config={
+    data_track_clickback:true,
+    sm:"copy,renren,cqq",
+    pic:"",
+    summary:"",
+    
+  </script> 
+<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=
+1394018007141544" charset="utf-8"></script>      
+
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2014/12/08/Machine Learning/【机器学习基础】从感知器模型说起/" title="【机器学习基础】从感知机模型说起">
+  <strong>之后的一篇</strong><br/>
+  <span>
+  【机器学习基础】从感知机模型说起</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2014/12/02/Machine Learning/【机器学习基础】生成模型和判别模型/"  title="【机器学习基础】生成模型和判别模型">
+ <strong>之前的一篇</strong><br/> 
+ <span>【机器学习基础】生成模型和判别模型
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section class="comment">
+	<div class="ds-thread"></div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#引子"><span class="toc-number">1.</span> <span class="toc-text">引子</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#输入空间、特征空间和输出空间"><span class="toc-number">2.</span> <span class="toc-text">输入空间、特征空间和输出空间</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#各种学习型算法的分类"><span class="toc-number">3.</span> <span class="toc-text">各种学习型算法的分类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#以输出空间的不同作为分类依据"><span class="toc-number">3.1.</span> <span class="toc-text">以输出空间的不同作为分类依据</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#举例："><span class="toc-number">3.1.1.</span> <span class="toc-text">举例：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#结构学习（Structured-Learning）"><span class="toc-number">3.1.2.</span> <span class="toc-text">结构学习（Structured Learning）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#以数据标签的不同作为分类依据"><span class="toc-number">3.2.</span> <span class="toc-text">以数据标签的不同作为分类依据</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#无监督学习（unsupervised-learning）"><span class="toc-number">3.2.1.</span> <span class="toc-text">无监督学习（unsupervised learning）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#半监督学习（Semi-supervised-learning）"><span class="toc-number">3.2.2.</span> <span class="toc-text">半监督学习（Semi-supervised learning）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#增强学习（Reinforce-learning）"><span class="toc-number">3.2.3.</span> <span class="toc-text">增强学习（Reinforce learning）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#以与机器沟通方式的不同作为分类依据"><span class="toc-number">3.3.</span> <span class="toc-text">以与机器沟通方式的不同作为分类依据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#以输入空间的不同作为分类依据"><span class="toc-number">3.4.</span> <span class="toc-text">以输入空间的不同作为分类依据</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#原始特征的补充"><span class="toc-number">3.4.1.</span> <span class="toc-text">原始特征的补充</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">4.</span> <span class="toc-text">小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">5.</span> <span class="toc-text">参考资料</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+<div class="maps">
+    <p class="asidetitle">访问统计</p>
+    <br>
+    <script type="text/javascript" src="//ra.revolvermaps.com/0/0/6.js?i=0leibswamim&amp;m=0&amp;s=210&amp;c=ff0000&amp;cr1=ffffff&amp;f=arial&amp;l=0" async="async"></script>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">Categories</p>
+		<ul>
+		
+			<li><a href="/categories/Algorithm-Problem/" title="Algorithm Problem">Algorithm Problem<sup>1</sup></a></li>
+		
+			<li><a href="/categories/C/" title="C++">C++<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Classic-Algorithm/" title="Classic Algorithm">Classic Algorithm<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Cluster-Analysis/" title="Cluster Analysis">Cluster Analysis<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Design-Pattern/" title="Design Pattern">Design Pattern<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Developer-Kits/" title="Developer Kits">Developer Kits<sup>5</sup></a></li>
+		
+			<li><a href="/categories/Energy-Big-Data/" title="Energy Big Data">Energy Big Data<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Feature-Engineering/" title="Feature Engineering">Feature Engineering<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Functional/" title="Functional">Functional<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Functional-Programming/" title="Functional Programming">Functional Programming<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Git/" title="Git">Git<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Jobs/" title="Jobs">Jobs<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>4</sup></a></li>
+		
+			<li><a href="/categories/ML-Experiments/" title="ML Experiments">ML Experiments<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Machine-Learning/" title="Machine Learning">Machine Learning<sup>50</sup></a></li>
+		
+			<li><a href="/categories/Math/" title="Math">Math<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Programming/" title="Programming">Programming<sup>11</sup></a></li>
+		
+			<li><a href="/categories/Python/" title="Python">Python<sup>10</sup></a></li>
+		
+			<li><a href="/categories/Scala/" title="Scala">Scala<sup>27</sup></a></li>
+		
+			<li><a href="/categories/Scala-ML/" title="Scala-ML">Scala-ML<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Similarity-Search/" title="Similarity Search">Similarity Search<sup>4</sup></a></li>
+		
+			<li><a href="/categories/Small-Problems/" title="Small Problems">Small Problems<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Spark/" title="Spark">Spark<sup>23</sup></a></li>
+		
+			<li><a href="/categories/Thoughts/" title="Thoughts">Thoughts<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">Tag Cloud</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/Actor/" style="font-size: 10px;">Actor</a> <a href="/tags/Akka/" style="font-size: 14.55px;">Akka</a> <a href="/tags/Algorithm/" style="font-size: 10px;">Algorithm</a> <a href="/tags/Approximate-Nearest-Neighbor-Search/" style="font-size: 10px;">Approximate Nearest Neighbor Search</a> <a href="/tags/Bayesian-Analysis/" style="font-size: 10.91px;">Bayesian Analysis</a> <a href="/tags/Big-Data/" style="font-size: 10px;">Big Data</a> <a href="/tags/C/" style="font-size: 12.73px;">C++</a> <a href="/tags/Classification/" style="font-size: 11.82px;">Classification</a> <a href="/tags/Cluster-Analysis/" style="font-size: 10px;">Cluster Analysis</a> <a href="/tags/Computer-Vision/" style="font-size: 14.55px;">Computer Vision</a> <a href="/tags/Eclipse/" style="font-size: 10px;">Eclipse</a> <a href="/tags/Energy-Forecasting/" style="font-size: 10px;">Energy Forecasting</a> <a href="/tags/Feature-Engineering/" style="font-size: 10.91px;">Feature Engineering</a> <a href="/tags/Functional-Programming/" style="font-size: 16.36px;">Functional Programming</a> <a href="/tags/Gaussian-Process/" style="font-size: 10px;">Gaussian Process</a> <a href="/tags/Git/" style="font-size: 10.91px;">Git</a> <a href="/tags/GraphLab/" style="font-size: 10px;">GraphLab</a> <a href="/tags/IPython/" style="font-size: 10px;">IPython</a> <a href="/tags/Internet-of-Energy/" style="font-size: 10px;">Internet of Energy</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/Kaggle/" style="font-size: 10px;">Kaggle</a> <a href="/tags/Kernel-Method/" style="font-size: 10px;">Kernel Method</a> <a href="/tags/LSH/" style="font-size: 12.73px;">LSH</a> <a href="/tags/LaTex/" style="font-size: 10px;">LaTex</a> <a href="/tags/Linux/" style="font-size: 11.82px;">Linux</a> <a href="/tags/Machine-Learning/" style="font-size: 20px;">Machine Learning</a> <a href="/tags/Math/" style="font-size: 11.82px;">Math</a> <a href="/tags/Mathematics/" style="font-size: 13.64px;">Mathematics</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MeanShift/" style="font-size: 10px;">MeanShift</a> <a href="/tags/Mint/" style="font-size: 10px;">Mint</a> <a href="/tags/OpenCV/" style="font-size: 15.45px;">OpenCV</a> <a href="/tags/Probabilistic-Programming/" style="font-size: 10px;">Probabilistic Programming</a> <a href="/tags/Probability-Distributions/" style="font-size: 10px;">Probability Distributions</a> <a href="/tags/Programming/" style="font-size: 14.55px;">Programming</a> <a href="/tags/Python/" style="font-size: 17.27px;">Python</a> <a href="/tags/Regression/" style="font-size: 11.82px;">Regression</a> <a href="/tags/Resume/" style="font-size: 10px;">Resume</a> <a href="/tags/SVM/" style="font-size: 12.73px;">SVM</a> <a href="/tags/Scala/" style="font-size: 19.09px;">Scala</a> <a href="/tags/Similarity-Search/" style="font-size: 10.91px;">Similarity Search</a> <a href="/tags/Source-code/" style="font-size: 10px;">Source code</a> <a href="/tags/Spark/" style="font-size: 18.18px;">Spark</a> <a href="/tags/Summary/" style="font-size: 10px;">Summary</a> <a href="/tags/Thoughts/" style="font-size: 10.91px;">Thoughts</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/Vim/" style="font-size: 11.82px;">Vim</a> <a href="/tags/Written-Test/" style="font-size: 10px;">Written Test</a> <a href="/tags/Zeppelin/" style="font-size: 10px;">Zeppelin</a> <a href="/tags/boost/" style="font-size: 10px;">boost</a> <a href="/tags/cpp/" style="font-size: 13.64px;">cpp</a> <a href="/tags/opencv/" style="font-size: 10.91px;">opencv</a> <a href="/tags/p-Stable-LSH/" style="font-size: 10px;">p-Stable LSH</a> <a href="/tags/scikit-learn/" style="font-size: 10px;">scikit-learn</a> <a href="/tags/sklearn/" style="font-size: 10.91px;">sklearn</a> <a href="/tags/互联网时代/" style="font-size: 10px;">互联网时代</a> <a href="/tags/位置敏感哈希/" style="font-size: 10.91px;">位置敏感哈希</a> <a href="/tags/分治/" style="font-size: 10px;">分治</a> <a href="/tags/单元测试/" style="font-size: 10px;">单元测试</a> <a href="/tags/反思/" style="font-size: 10px;">反思</a> <a href="/tags/效率/" style="font-size: 10px;">效率</a> <a href="/tags/核方法/" style="font-size: 10px;">核方法</a> <a href="/tags/算法框架/" style="font-size: 10px;">算法框架</a> <a href="/tags/设计模式/" style="font-size: 11.82px;">设计模式</a>
+    </div>
+  </div>
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle"><a href="/archives">Archives</a></p>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">February 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">November 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">29</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a><span class="archive-list-count">16</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">10</span></li></ul>
+  </div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
+</div>
+
+</aside>
+
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Jason Ding in HUST <br/>
+			I would share moments of life here! </p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/1698420390" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/jasonding1354" target="_blank" title="github"></a>
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2016 
+		
+		<a href="http://blog.jasonding.top" target="_blank" title="Jason Ding">Jason Ding</a>
+		
+		</p>
+		<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+  
+  _st('install','uYyEuxJdzzAGXTax33mt','2.0.0');
+</script>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"jasonding"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+  </body>
+</html>

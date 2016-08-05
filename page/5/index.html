@@ -1,0 +1,525 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>Jason&#39;s Techblog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Jason Ding">
+    
+    
+    
+    
+    <link rel="alternate" href="/atom.xml" title="Jason&#39;s Techblog" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/author.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/author.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F3cc71cd5738b99a1db174951e194ba55' type='text/javascript'%3E%3C/script%3E"));
+
+
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F1dcf1fa58b0eca1ac5bd089ee6a6e78c' type='text/javascript'%3E%3C/script%3E"));
+
+
+</script>
+
+
+    <!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Jason&#39;s Techblog" title="Jason&#39;s Techblog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Jason&#39;s Techblog">Jason&#39;s Techblog</a></h1>
+				<h2 class="blog-motto">Technician =&gt; Scientist =&gt; Philosopher =&gt; Artists</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="http://jasonding.top">Main</a></li>
+					
+					<li>
+					
+						<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" class="st-default-search-input" maxlength="20" placeholder="Search" />
+						</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      
+
+<div id="main">
+
+
+  <section class="post" itemscope itemprop="blogPost">
+  
+    <a href="/2015/07/07/Spark/【Spark】Spark基本概念/" title="【Spark】Spark基本概念" itemprop="url">
+  
+    <h1 itemprop="name">【Spark】Spark基本概念</h1>
+    
+     
+           <p itemprop="description" >Spark专用名词
+RDD —- resillient distributed dataset 弹性分布式数据集
+Operation —- 作用于RDD的各种操作分为transformation和action
+Job —- 作业，一个JOB包含多个RDD及作用于相应RDD上的各种</p>
+        
+    
+    <time datetime="2015-07-07T08:34:02.000Z" itemprop="datePublished">2015-07-07</time>
+  </a>
+</section>
+
+  <section class="post" itemscope itemprop="blogPost">
+  
+    <a href="/2015/07/07/Spark/【Spark】Spark的Standalone模式安装部署/" title="【Spark】Spark的Standalone模式安装部署" itemprop="url">
+  
+    <h1 itemprop="name">【Spark】Spark的Standalone模式安装部署</h1>
+    
+     
+           <p itemprop="description" >Spark运行模式Spark 有很多种模式，最简单就是单机本地模式，还有单机伪分布式模式，复杂的则运行在集群中，目前能很好的运行在 Yarn和 Mesos 中，当然 Spark 还有自带的 Standalone 模式，对于大多数情况 Standalone 模式就足够了，如果企业已</p>
+        
+    
+    <time datetime="2015-07-07T07:47:02.000Z" itemprop="datePublished">2015-07-07</time>
+  </a>
+</section>
+
+  <section class="post" itemscope itemprop="blogPost">
+  
+    <a href="/2015/07/06/Scala/【Scala】使用OptionSomeNone，避免使用null/" title="【Scala】使用Option、Some、None，避免使用null" itemprop="url">
+  
+    <h1 itemprop="name">【Scala】使用Option、Some、None，避免使用null</h1>
+    
+     
+           <p itemprop="description" >避免null使用大多数语言都有一个特殊的关键字或者对象来表示一个对象引用的是“无”，在Java，它是null。在Java 里，null 是一个关键字，不是一个对象，所以对它调用任何方法都是非法的。但是这对语言设计者来说是一件令人疑惑的选择。为什么要在程序员希望返回一个对象的时候返</p>
+        
+    
+    <time datetime="2015-07-06T15:06:29.000Z" itemprop="datePublished">2015-07-06</time>
+  </a>
+</section>
+
+  <section class="post" itemscope itemprop="blogPost">
+  
+    <a href="/2015/07/01/Scala/【Scala】Scala中的Nothing，Null，None，Nil/" title="【Scala】Scala中的Nothing，Null，None，Nil" itemprop="url">
+  
+    <h1 itemprop="name">【Scala】Scala中的Nothing，Null，None，Nil</h1>
+    
+     
+           <p itemprop="description" >NothingNothing是所有类型的子类，也是Null的子类。Nothing没有对象，但是可以用来定义类型。例如，如果一个方法抛出异常，则异常的返回值类型就是Nothing(虽然不会返回) 。
+1234def get(index:Int):Int = &amp;#123;	if(x </p>
+        
+    
+    <time datetime="2015-07-01T03:32:20.000Z" itemprop="datePublished">2015-07-01</time>
+  </a>
+</section>
+
+  <section class="post" itemscope itemprop="blogPost">
+  
+    <a href="/2015/06/30/Scala/【Scala】Scala的Predef对象/" title="【Scala】Scala的Predef对象" itemprop="url">
+  
+    <h1 itemprop="name">【Scala】Scala的Predef对象</h1>
+    
+     
+           <p itemprop="description" >隐式引用(Implicit Import)Scala会自动为每个程序加上几个隐式引用，就像Java程序会自动加上java.lang包一样。Scala中，以下三个包的内容会隐式引用到每个程序上。所不同的是，Scala还会隐式加进对Predef的引用，这极大方便了程序员的工作。123</p>
+        
+    
+    <time datetime="2015-06-30T06:44:11.000Z" itemprop="datePublished">2015-06-30</time>
+  </a>
+</section>
+
+  <section class="post" itemscope itemprop="blogPost">
+  
+    <a href="/2015/06/29/Energy Big Data/【Energy Big Data】能源互联网和电力大数据/" title="【Energy Big Data】能源互联网和电力大数据" itemprop="url">
+  
+    <h1 itemprop="name">【Energy Big Data】能源互联网和电力大数据</h1>
+    
+     
+           <p itemprop="description" >背景今年的政府工作报告突出了互联网在经济结构转型中的重要地位，报告明确指出：要制定“互联网+”行动计划，推动移动互联网、云计算、大数据、物联网等与现代制造业结合，促进电子商务、工业互联网和互联网金融健康发展。报告引发了各行各业对互联网行业的极大关注，未来产业与互联网的融合将贯穿相</p>
+        
+    
+    <time datetime="2015-06-29T08:09:56.000Z" itemprop="datePublished">2015-06-29</time>
+  </a>
+</section>
+
+  <section class="post" itemscope itemprop="blogPost">
+  
+    <a href="/2015/06/28/Scala/【Scala编程】格式化算术表达式程序/" title="【Scala编程】格式化算术表达式程序" itemprop="url">
+  
+    <h1 itemprop="name">【Scala编程】格式化算术表达式程序</h1>
+    
+     
+           <p itemprop="description" >格式化算术表达式程序为了练习模式匹配的使用，该博文介绍编写格式化算术表达式的程序，最终的呈现结果如下面这个二维布局的数学表达式所示，这里除法运算被垂直打印出来：12345671          - * (x + 1)2          -----------  x   1.5</p>
+        
+    
+    <time datetime="2015-06-28T02:14:08.000Z" itemprop="datePublished">2015-06-28</time>
+  </a>
+</section>
+
+  <section class="post" itemscope itemprop="blogPost">
+  
+    <a href="/2015/06/26/Scala/【Akka】Actor模型探索/" title="【Akka】Actor模型探索" itemprop="url">
+  
+    <h1 itemprop="name">【Akka】Actor模型探索</h1>
+    
+     
+           <p itemprop="description" >Akka是什么Akka就是为了改变编写高容错性和强可扩展性的并发程序而生的。通过使用Actor模型我们提升了抽象级别，为构建正确的可扩展并发应用提供了一个更好的平台。在容错性方面我们采取了“let it crash”（让它崩溃）模型，人们已经将这种模型用在了电信行业，构建出“自愈</p>
+        
+    
+    <time datetime="2015-06-26T02:43:00.000Z" itemprop="datePublished">2015-06-26</time>
+  </a>
+</section>
+
+  <section class="post" itemscope itemprop="blogPost">
+  
+    <a href="/2015/06/22/Scala/【Scala编程】函数式风格编写排序算法/" title="【Scala编程】函数式风格编写排序算法" itemprop="url">
+  
+    <h1 itemprop="name">【Scala编程】函数式风格编写排序算法</h1>
+    
+     
+           <p itemprop="description" >有关Scala编程实例在刚开始学习一门编程语言的时候，总是想去写一些比较大的程序和项目，但是由于基础不扎实，往往欲速则不达。所以，只能一步一步来，通过一些经典的小例子来实践和锻炼，最终不断加深编程的技能，坚持下来，相信慢慢就能够变得熟练。
+冒泡排序、选择排序、插入排序的一般写法这</p>
+        
+    
+    <time datetime="2015-06-22T03:27:42.000Z" itemprop="datePublished">2015-06-22</time>
+  </a>
+</section>
+
+  <section class="post" itemscope itemprop="blogPost">
+  
+    <a href="/2015/06/20/Scala/【Scala】样本类和模式匹配/" title="【Scala】模式匹配和样本类" itemprop="url">
+  
+    <h1 itemprop="name">【Scala】模式匹配和样本类</h1>
+    
+     
+           <p itemprop="description" >模式匹配要理解模式匹配(pattern-matching)，先把这两个单词拆开，先理解什么是模式(pattern)，这里所的模式是数据结构上的，这个模式用于描述一个结构的组成。
+我们很容易联想到“正则表达”里的模式，不错，这个pattern和正则里的pattern相似，不过适用范</p>
+        
+    
+    <time datetime="2015-06-20T09:34:35.000Z" itemprop="datePublished">2015-06-20</time>
+  </a>
+</section>
+
+  <section class="post" itemscope itemprop="blogPost">
+  
+    <a href="/2015/06/11/Machine Learning/【机器学习基础】自适应提升/" title="【机器学习基础】自适应提升" itemprop="url">
+  
+    <h1 itemprop="name">【机器学习基础】自适应提升</h1>
+    
+     
+           <p itemprop="description" >Weighted Base Algorithm(1)基本算法引入权重加权这类算法给每个数据一个权重，这个权重可以看做是该数据点有几份。
+在之前介绍的SVM算法中，对于一个错误扣除C的分数，而对错误加权之后，每个数据点将扣除C·un这个多的分数，这个参数经过二次规划的计算之后，就会</p>
+        
+    
+    <time datetime="2015-06-11T07:38:00.000Z" itemprop="datePublished">2015-06-11</time>
+  </a>
+</section>
+
+  <section class="post" itemscope itemprop="blogPost">
+  
+    <a href="/2015/06/11/Scala/【Scala】特质与特质的线性化/" title="【Scala】特质与特质的线性化" itemprop="url">
+  
+    <h1 itemprop="name">【Scala】特质与特质的线性化</h1>
+    
+     
+           <p itemprop="description" >特质Scala里相当于Java接口的是Trait(特征)。实际上它比接口还功能强大。与接口不同的是，它还可以定义属性和方法的实现。Scala中特征被用于服务于单一目的功能模块的模块化中。通过混合这种特征（模块）群来实现各种应用程序的功能要求，Scala也是按照这个构想来设计的。
+</p>
+        
+    
+    <time datetime="2015-06-11T02:13:50.000Z" itemprop="datePublished">2015-06-11</time>
+  </a>
+</section>
+
+  <section class="post" itemscope itemprop="blogPost">
+  
+    <a href="/2015/06/10/Machine Learning/【机器学习基础】混合和装袋/" title="【机器学习基础】混合和装袋" itemprop="url">
+  
+    <h1 itemprop="name">【机器学习基础】混合和装袋</h1>
+    
+     
+           <p itemprop="description" >融合模型(Aggregation Model)如果我们已经得到了一些特征或者假设，它们和我们做机器学习的目标有若干的一致性的话，我们可以将这些假设综合起来，让预测效果变得更好，这样的模型被称为融合模型。融合模型是通过混合(mix)和组合(combine)一些假设的方式，得到更好的</p>
+        
+    
+    <time datetime="2015-06-10T07:55:49.000Z" itemprop="datePublished">2015-06-10</time>
+  </a>
+</section>
+
+  <section class="post" itemscope itemprop="blogPost">
+  
+    <a href="/2015/06/09/Scala/【Scala】Scala的类层级/" title="【Scala】Scala的类层级" itemprop="url">
+  
+    <h1 itemprop="name">【Scala】Scala的类层级</h1>
+    
+     
+           <p itemprop="description" >Scala的类层级Scala里，每个类都继承自通用的名为Any的超类。因为所有的类都是Any的子类，所以定义在Any中的方法就是“共同的”方法：它们可以被任何对象调用。Scala还在层级的底端定义了一些类，如Null和Nothing，扮演通用的子类。即，Any是所有其他类的超类，</p>
+        
+    
+    <time datetime="2015-06-09T02:39:16.000Z" itemprop="datePublished">2015-06-09</time>
+  </a>
+</section>
+
+  <section class="post" itemscope itemprop="blogPost">
+  
+    <a href="/2015/06/08/Machine Learning/开源图计算框架GraphLab介绍/" title="开源图计算框架GraphLab介绍" itemprop="url">
+  
+    <h1 itemprop="name">开源图计算框架GraphLab介绍</h1>
+    
+     
+           <p itemprop="description" >GraphLab介绍GraphLab 是由CMU（卡内基梅隆大学）的Select 实验室在2010 年提出的一个基于图像处理模型的开源图计算框架，框架使用C++语言开发实现。该框架是面向机器学习（ML）的流处理并行计算框架，可以运行在多处理机的单机系统、集群或是亚马逊的EC2 等</p>
+        
+    
+    <time datetime="2015-06-08T08:00:49.000Z" itemprop="datePublished">2015-06-08</time>
+  </a>
+</section>
+
+
+  <nav id="page-nav" class="clearfix">
+    <a class="extend prev" rel="prev" href="/page/4/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><a class="extend next" rel="next" href="/page/6/">Next &raquo;</a>
+  </nav>
+
+</div>
+
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+<div class="maps">
+    <p class="asidetitle">访问统计</p>
+    <br>
+    <script type="text/javascript" src="//ra.revolvermaps.com/0/0/6.js?i=0leibswamim&amp;m=0&amp;s=210&amp;c=ff0000&amp;cr1=ffffff&amp;f=arial&amp;l=0" async="async"></script>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">Categories</p>
+		<ul>
+		
+			<li><a href="/categories/Algorithm-Problem/" title="Algorithm Problem">Algorithm Problem<sup>1</sup></a></li>
+		
+			<li><a href="/categories/C/" title="C++">C++<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Classic-Algorithm/" title="Classic Algorithm">Classic Algorithm<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Cluster-Analysis/" title="Cluster Analysis">Cluster Analysis<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Design-Pattern/" title="Design Pattern">Design Pattern<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Developer-Kits/" title="Developer Kits">Developer Kits<sup>5</sup></a></li>
+		
+			<li><a href="/categories/Energy-Big-Data/" title="Energy Big Data">Energy Big Data<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Feature-Engineering/" title="Feature Engineering">Feature Engineering<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Functional/" title="Functional">Functional<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Functional-Programming/" title="Functional Programming">Functional Programming<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Git/" title="Git">Git<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Jobs/" title="Jobs">Jobs<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>4</sup></a></li>
+		
+			<li><a href="/categories/ML-Experiments/" title="ML Experiments">ML Experiments<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Machine-Learning/" title="Machine Learning">Machine Learning<sup>50</sup></a></li>
+		
+			<li><a href="/categories/Math/" title="Math">Math<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Programming/" title="Programming">Programming<sup>11</sup></a></li>
+		
+			<li><a href="/categories/Python/" title="Python">Python<sup>10</sup></a></li>
+		
+			<li><a href="/categories/Scala/" title="Scala">Scala<sup>27</sup></a></li>
+		
+			<li><a href="/categories/Scala-ML/" title="Scala-ML">Scala-ML<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Similarity-Search/" title="Similarity Search">Similarity Search<sup>4</sup></a></li>
+		
+			<li><a href="/categories/Small-Problems/" title="Small Problems">Small Problems<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Spark/" title="Spark">Spark<sup>23</sup></a></li>
+		
+			<li><a href="/categories/Thoughts/" title="Thoughts">Thoughts<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">Tag Cloud</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/Actor/" style="font-size: 10px;">Actor</a> <a href="/tags/Akka/" style="font-size: 14.55px;">Akka</a> <a href="/tags/Algorithm/" style="font-size: 10px;">Algorithm</a> <a href="/tags/Approximate-Nearest-Neighbor-Search/" style="font-size: 10px;">Approximate Nearest Neighbor Search</a> <a href="/tags/Bayesian-Analysis/" style="font-size: 10.91px;">Bayesian Analysis</a> <a href="/tags/Big-Data/" style="font-size: 10px;">Big Data</a> <a href="/tags/C/" style="font-size: 12.73px;">C++</a> <a href="/tags/Classification/" style="font-size: 11.82px;">Classification</a> <a href="/tags/Cluster-Analysis/" style="font-size: 10px;">Cluster Analysis</a> <a href="/tags/Computer-Vision/" style="font-size: 14.55px;">Computer Vision</a> <a href="/tags/Eclipse/" style="font-size: 10px;">Eclipse</a> <a href="/tags/Energy-Forecasting/" style="font-size: 10px;">Energy Forecasting</a> <a href="/tags/Feature-Engineering/" style="font-size: 10.91px;">Feature Engineering</a> <a href="/tags/Functional-Programming/" style="font-size: 16.36px;">Functional Programming</a> <a href="/tags/Gaussian-Process/" style="font-size: 10px;">Gaussian Process</a> <a href="/tags/Git/" style="font-size: 10.91px;">Git</a> <a href="/tags/GraphLab/" style="font-size: 10px;">GraphLab</a> <a href="/tags/IPython/" style="font-size: 10px;">IPython</a> <a href="/tags/Internet-of-Energy/" style="font-size: 10px;">Internet of Energy</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/Kaggle/" style="font-size: 10px;">Kaggle</a> <a href="/tags/Kernel-Method/" style="font-size: 10px;">Kernel Method</a> <a href="/tags/LSH/" style="font-size: 12.73px;">LSH</a> <a href="/tags/LaTex/" style="font-size: 10px;">LaTex</a> <a href="/tags/Linux/" style="font-size: 11.82px;">Linux</a> <a href="/tags/Machine-Learning/" style="font-size: 20px;">Machine Learning</a> <a href="/tags/Math/" style="font-size: 11.82px;">Math</a> <a href="/tags/Mathematics/" style="font-size: 13.64px;">Mathematics</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MeanShift/" style="font-size: 10px;">MeanShift</a> <a href="/tags/Mint/" style="font-size: 10px;">Mint</a> <a href="/tags/OpenCV/" style="font-size: 15.45px;">OpenCV</a> <a href="/tags/Probabilistic-Programming/" style="font-size: 10px;">Probabilistic Programming</a> <a href="/tags/Probability-Distributions/" style="font-size: 10px;">Probability Distributions</a> <a href="/tags/Programming/" style="font-size: 14.55px;">Programming</a> <a href="/tags/Python/" style="font-size: 17.27px;">Python</a> <a href="/tags/Regression/" style="font-size: 11.82px;">Regression</a> <a href="/tags/Resume/" style="font-size: 10px;">Resume</a> <a href="/tags/SVM/" style="font-size: 12.73px;">SVM</a> <a href="/tags/Scala/" style="font-size: 19.09px;">Scala</a> <a href="/tags/Similarity-Search/" style="font-size: 10.91px;">Similarity Search</a> <a href="/tags/Source-code/" style="font-size: 10px;">Source code</a> <a href="/tags/Spark/" style="font-size: 18.18px;">Spark</a> <a href="/tags/Summary/" style="font-size: 10px;">Summary</a> <a href="/tags/Thoughts/" style="font-size: 10.91px;">Thoughts</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/Vim/" style="font-size: 11.82px;">Vim</a> <a href="/tags/Written-Test/" style="font-size: 10px;">Written Test</a> <a href="/tags/Zeppelin/" style="font-size: 10px;">Zeppelin</a> <a href="/tags/boost/" style="font-size: 10px;">boost</a> <a href="/tags/cpp/" style="font-size: 13.64px;">cpp</a> <a href="/tags/opencv/" style="font-size: 10.91px;">opencv</a> <a href="/tags/p-Stable-LSH/" style="font-size: 10px;">p-Stable LSH</a> <a href="/tags/scikit-learn/" style="font-size: 10px;">scikit-learn</a> <a href="/tags/sklearn/" style="font-size: 10.91px;">sklearn</a> <a href="/tags/互联网时代/" style="font-size: 10px;">互联网时代</a> <a href="/tags/位置敏感哈希/" style="font-size: 10.91px;">位置敏感哈希</a> <a href="/tags/分治/" style="font-size: 10px;">分治</a> <a href="/tags/单元测试/" style="font-size: 10px;">单元测试</a> <a href="/tags/反思/" style="font-size: 10px;">反思</a> <a href="/tags/效率/" style="font-size: 10px;">效率</a> <a href="/tags/核方法/" style="font-size: 10px;">核方法</a> <a href="/tags/算法框架/" style="font-size: 10px;">算法框架</a> <a href="/tags/设计模式/" style="font-size: 11.82px;">设计模式</a>
+    </div>
+  </div>
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle"><a href="/archives">Archives</a></p>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">February 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">November 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">29</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a><span class="archive-list-count">16</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">10</span></li></ul>
+  </div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
+</div>
+
+</aside>
+
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Jason Ding in HUST <br/>
+			I would share moments of life here! </p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/1698420390" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/jasonding1354" target="_blank" title="github"></a>
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2016 
+		
+		<a href="http://blog.jasonding.top" target="_blank" title="Jason Ding">Jason Ding</a>
+		
+		</p>
+		<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+  
+  _st('install','uYyEuxJdzzAGXTax33mt','2.0.0');
+</script>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+
+
+
+
+
+  </body>
+ </html>

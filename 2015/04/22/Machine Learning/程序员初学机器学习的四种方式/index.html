@@ -1,0 +1,535 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>程序员初学机器学习的四种方式 | Jason&#39;s Techblog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Jason Ding">
+    
+    <meta name="description" content="英文出处学习机器学习有很多方法，大多数人选择从理论开始。
+如果你是个程序员，那么你已经掌握了把问题拆分成相应组成部分及设计小项目原型的能力，这些能力能帮助你学习新的技术、类库和方法。这些对任何一个职业程序员来说都是重要的能力，现在它们也能用在初学机器学习上。
+要想有效地学习机器学习你必须学习相关理论">
+    
+    
+    
+    
+    <link rel="alternate" href="/atom.xml" title="Jason&#39;s Techblog" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/author.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/author.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F3cc71cd5738b99a1db174951e194ba55' type='text/javascript'%3E%3C/script%3E"));
+
+
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F1dcf1fa58b0eca1ac5bd089ee6a6e78c' type='text/javascript'%3E%3C/script%3E"));
+
+
+</script>
+
+
+    <!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Jason&#39;s Techblog" title="Jason&#39;s Techblog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Jason&#39;s Techblog">Jason&#39;s Techblog</a></h1>
+				<h2 class="blog-motto">Technician =&gt; Scientist =&gt; Philosopher =&gt; Artists</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="http://jasonding.top">Main</a></li>
+					
+					<li>
+					
+						<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" class="st-default-search-input" maxlength="20" placeholder="Search" />
+						</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody">
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/04/22/Machine Learning/程序员初学机器学习的四种方式/" title="程序员初学机器学习的四种方式" itemprop="url">程序员初学机器学习的四种方式</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://blog.jasonding.top" title="Jason Ding">Jason Ding</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2015-04-22T01:01:49.000Z" itemprop="datePublished">2015-04-22</time>
+    Updated:<time datetime="2016-03-16T06:24:42.000Z" itemprop="dateModified">2016-03-16</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#学习一个机器学习工具"><span class="toc-number">1.</span> <span class="toc-text">学习一个机器学习工具</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#学习一个机器学习数据集"><span class="toc-number">2.</span> <span class="toc-text">学习一个机器学习数据集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#学习一个机器学习算法"><span class="toc-number">3.</span> <span class="toc-text">学习一个机器学习算法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实现一个机器学习算法"><span class="toc-number">4.</span> <span class="toc-text">实现一个机器学习算法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小型项目方法论"><span class="toc-number">5.</span> <span class="toc-text">小型项目方法论</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#额外有关项目的小贴士"><span class="toc-number">6.</span> <span class="toc-text">额外有关项目的小贴士</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">7.</span> <span class="toc-text">总结</span></a></li></ol>
+		</div>
+		
+		<p><a href="http://machinelearningmastery.com/self-study-machine-learning-projects/" target="_blank" rel="external">英文出处</a><br>学习机器学习有很多方法，大多数人选择从理论开始。</p>
+<p>如果你是个程序员，那么你已经掌握了把问题拆分成相应组成部分及设计小项目原型的能力，这些能力能帮助你学习新的技术、类库和方法。这些对任何一个职业程序员来说都是重要的能力，现在它们也能用在初学机器学习上。</p>
+<p>要想有效地学习机器学习你必须学习相关理论，但是你可以利用你的兴趣及对知识的渴望，来激励你从实际例子学起，然后再步入对算法的数学理解。</p>
+<p>通过本文你可以学习到程序员初学机器学习的四种方式。这是给技术人员设计的实用方法，并以实验为依据，你需要做调研并且完成实验才能建立自己的感性知识。</p>
+<p>这四种方法分别是：</p>
+<blockquote>
+<ol>
+<li>学习一个机器学习工具</li>
+<li>学习一个机器学习数据集</li>
+<li>学习一个机器学习算法</li>
+<li>实现一个机器学习算法</li>
+</ol>
+</blockquote>
+<p>你应该通读一下这些方法的策略，然后选择你觉得最适合自己的一个，并且有选择性地执行。</p>
+<h2 id="学习一个机器学习工具"><a href="#学习一个机器学习工具" class="headerlink" title="学习一个机器学习工具"></a>学习一个机器学习工具</h2><p>选一个你喜欢的工具或者类库，然后学着用好它。</p>
+<p>我推荐你从一个自带数据预处理工具，机器学习算法并且能呈现结果的工作平台开始学习。学习这样一个工作平台能让你更熟悉机器学习从头到尾的整个过程，这比学习一个特定的数据处理技术或者一个机器学习算法更有价值。</p>
+<p>或者，也许你感兴趣的是一个特定技术或者一类技术。你可以利用这个机会更深入地学习一个提供这些方法的类库或工具，掌握了提供这些技术的类库能帮助你掌握相应的技术。</p>
+<p>一些你可以采取的策略有：</p>
+<blockquote>
+<p>比较一些可选的工具。<br>总结你选定的那个工具的能力。<br>阅读并总结这个工具的文档。<br>完成学习这个工具的文字或视频教程，并且总结每个教程中你重点学到了什么。<br>制作关于这个工具的功能或者特性的教程。选一些你不太了解的功能，然后写下得到结果的过程，或者把如何使用这个功能的过程录个五分钟的截屏视频。</p>
+</blockquote>
+<p>一些值得考虑的工作平台有：R, Weka, scikit-learn, waffles, 和 orange.</p>
+<h2 id="学习一个机器学习数据集"><a href="#学习一个机器学习数据集" class="headerlink" title="学习一个机器学习数据集"></a>学习一个机器学习数据集</h2><p>选一个数据集，然后深入地理解它，发掘究竟哪类算法最适合处理它。</p>
+<p>我推荐你选择一个中等大小的，内存能放下的，可能被很多人研究过的数据集。现在有很多非常好的包含数据的类库，你可以浏览它们并且从中选择。你的目的是尝试理解这个数据集背后的问题，它的结构，和哪些种类的解决方法最适合这个问题。</p>
+<p>用一个机器学习或者统计的工作平台来研究这个数据集。这样你能专心解答关于这个数据集你要研究的问题，而不是分心去学习某个特定的技术或者如何写代码来实现它。</p>
+<p>一些可以帮助你学习实验性的机器学习数据集的策略有：</p>
+<blockquote>
+<ul>
+<li>清晰地描述这个数据集所呈现的问题。</li>
+<li>用描述性的统计数据来总结数据。</li>
+<li>描述你从数据中观察到的结构，并且提出对数据间关系的假设。</li>
+<li>简单地在这个数据集上测试一些常用的机器学习算法，然后发掘哪些类别的算法比其他的表现好</li>
+<li>调整表现好的算法的参数，然后发掘什么算法及算法参数设置在这个问题上表现得好</li>
+</ul>
+</blockquote>
+<p>你可以从这些包含高质量数据集的库中选择： <a href="http://archive.ics.uci.edu/ml/datasets.html" target="_blank" rel="external">UCI ML Repository</a>,<a href="http://www.kaggle.com/" target="_blank" rel="external">Kaggle</a> 和 <a href="http://www.data.gov/" target="_blank" rel="external">data.gov</a>.</p>
+<h2 id="学习一个机器学习算法"><a href="#学习一个机器学习算法" class="headerlink" title="学习一个机器学习算法"></a>学习一个机器学习算法</h2><p>选择一个算法，深入理解它，发掘什么样的参数设置在不同数据集上都稳定。</p>
+<p>我推荐你从一个中等复杂度的算法开始学起。选一个已经被人充分理解了的，有许多可选的开源实现，并且需要你探索的参数数目较少的算法。你的目的是建立有关这个算法在不同问题和不同参数设定下表现如何的直觉。</p>
+<p>使用一个机器学习平台或者类库。这样能让你把这个算法当成一个“系统”，专心研究它的表现，而不是分心研究数学公式描述或者相关论文。</p>
+<p>一些学习你选定的机器学习算法时可采取的策略有：</p>
+<blockquote>
+<ul>
+<li>总结系统的参数，及它们对算法可能有什么影响</li>
+<li>选一系列适合这个算法，可能导致不同表现的数据库</li>
+<li>选择一些你认为能导致不同结果的算法的参数设置，然后列出你认为系统可能的表现</li>
+<li>考虑在迭代过程或不同时间段内能被监察到的算法表现</li>
+<li>用一个或多个数据集，算法设置和结果衡量方式来设计解决特定问题的小实验，并且汇报结果</li>
+</ul>
+</blockquote>
+<p>你可以学简单点，也可以学复杂点。想多学一点的话，你可以探索所谓的启发式规则或经验法则来使用算法，并且以实验为依据来展示它们好不好用，及如果好用的话在什么条件下他们与成功的结果有关联。<br>一些你可以考虑学习的算法有：最小平方线性回归，逻辑回归，K最近邻分类算法，感知器算法。</p>
+<h2 id="实现一个机器学习算法"><a href="#实现一个机器学习算法" class="headerlink" title="实现一个机器学习算法"></a>实现一个机器学习算法</h2><p>选一个算法，然后选一个编程语言来实现它，或者把一个已有的实现移植到你选定的编程语言上。</p>
+<p>你应选择一个中等复杂度的算法来实现。我推荐你仔细研究你想要实现的算法，或选择一个你喜欢的已有实现然后把它移植到你选定的编程语言。</p>
+<p>从头开始实现一个算法，是学习那些关于把算法描述转换成一个可行的系统的过程中必须要做的无数的小决定的好方法。在不同算法上重复这个过程，很快你就能对读懂论文和书里面算法的数学描述有感觉了。</p>
+<p>五个能帮助你从头开始实现机器学习算法的策略有：</p>
+<blockquote>
+<ul>
+<li>从代码移植开始。把开源的算法实现从一种语言移植到另外一种语言能教会你算法是如何实现的，并且你能拥有并掌握它。这是开始学习的最快的途径，非常值得推荐。</li>
+<li>从一个算法描述开始，然后采集一些其他的描述来帮助你排除歧义并且理解主要的那个参考材料。</li>
+<li>多读该算法的不同实现。学习不同程序员是如何理解算法描述并且如何把它转换成代码的。</li>
+<li>不要陷入过炫的方法太深。许多机器学习算法的内核用的都是高级优化算法。不要尝试重新实现这些方法，除非这就是你做这个项目的本意。你应该用一个提供优化算法的类库，或者用一个更容易实现的或者类库里就有的简单点的优化算法（如梯度下降算法）。</li>
+</ul>
+</blockquote>
+<h2 id="小型项目方法论"><a href="#小型项目方法论" class="headerlink" title="小型项目方法论"></a>小型项目方法论</h2><p>以上四个策略属于我称为“小型项目”的方法论。你用这个方法可以很快建立在技术领域（比如机器学习）方面的实用技能。大意就是你设计并且亲手完成解决特定问题的小项目。</p>
+<p>小型项目在几个方面应该足够小，才能保证你能完成它们并且从中学习，然后好步入到下一个项目中去。下面是一些你应该考虑加在项目上的一些限制：</p>
+<blockquote>
+<ul>
+<li>时间短：一个项目从头到最后能有可展现的结果不应超过5-15小时。这样利用一周中不上班的晚上和周末时间你就能完成一个小项目。</li>
+<li>范围小：一个项目应该有意义，但同时应该是你感兴趣的问题的范围最小的版本。举个例子，与其解决广义的“写一个能告诉我微博是否会被转发的程序”，还不如去研究这个问题在一个特定的账号在一个特定的时间段内的表现。</li>
+<li>所需资源少：一个项目应该能用你的可联网的台式或者笔记本电脑完成。你不应该需要奇葩的软件，网络架构，或者第三方数据或者服务。你应搜集需要的数据，读入内存，用开源工具来解决你那个小问题。</li>
+</ul>
+</blockquote>
+<h2 id="额外有关项目的小贴士"><a href="#额外有关项目的小贴士" class="headerlink" title="额外有关项目的小贴士"></a>额外有关项目的小贴士</h2><p>这些策略的原则是让你利用你的程序员技能开始行动。下面是三条帮助你调整思维模式，有助你开始行动的小贴士：</p>
+<blockquote>
+<ul>
+<li><strong>写下你学到的东西。我推荐你每个步骤都产生一个有形的劳动成果。</strong>它可以是本子里的笔记，微博，博客文章或者是开源项目。每个劳动成果都可以作为一个里程碑或锚。</li>
+<li><strong>除非项目的目的是写代码，否则不要写。</strong>这条不是那么显而易见，但却是最能帮助你加快理解机器学习的速度的建议。</li>
+<li><strong>目的是学到东西，而不是产生独一无二的资源。</strong>不要管是否有人读你关于一个算法的研究、教程或是笔记。这些都是你的观点，是你的劳动成果，他们证明你现在掌握到了知识。</li>
+</ul>
+</blockquote>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>下面是这些策略的一句话清晰总结，可以帮助你选择适合自己的那个。</p>
+<blockquote>
+<ol>
+<li>学习一个机器学习工具：选择一个你喜欢的工具或类库，学习如何很好的使用它。。</li>
+<li>学习一个机器学习数据集：选择一个数据集，深入地离家它，发掘哪类算法处理它最有效。</li>
+<li>学习一个机器学习算法：选择一个算法，深入理解它，发掘什么样的参数设置在不同数据集上都稳定。</li>
+<li>实现一个机器学习算法：选择一个算法，用你选定的语言实现它或者是把已有的实现移植到你选定的语言上。</li>
+</ol>
+</blockquote>
+<p><strong>转载请注明作者Jason Ding及其出处</strong><br><a href="http://jasonding1354.gitcafe.io/" target="_blank" rel="external">GitCafe博客主页(http://jasonding1354.gitcafe.io/)</a><br><a href="http://jasonding1354.github.io/" target="_blank" rel="external">Github博客主页(http://jasonding1354.github.io/)</a><br><a href="http://blog.csdn.net/jasonding1354" target="_blank" rel="external">CSDN博客(http://blog.csdn.net/jasonding1354)</a><br><a href="http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles" target="_blank" rel="external">简书主页(http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles)</a><br><strong>百度搜索jasonding1354进入我的博客主页</strong></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Machine-Learning/">Machine Learning</a>
+  </div>
+
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Machine-Learning/">Machine Learning</a>
+</div>
+
+
+
+<div class="article-share" id="share">
+
+  
+<div class="jiathis_style">
+    <span class="jiathis_txt">分享到：</span>
+    <a class="jiathis_button_tsina">新浪微博</a>
+    <a class="jiathis_button_weixin">微信</a>
+    <a class="jiathis_button_twitter">Twitter</a>
+    <a class="jiathis_button_evernote">EverNote</a>
+    <a href="http://www.jiathis.com/share?uid=1501277" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript" >
+    var jiathis_config={
+    data_track_clickback:true,
+    sm:"copy,renren,cqq",
+    pic:"",
+    summary:"",
+    
+  </script> 
+<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=
+1394018007141544" charset="utf-8"></script>      
+
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2015/04/22/Machine Learning/【机器学习基础】核逻辑回归/" title="【机器学习基础】核逻辑回归">
+  <strong>之后的一篇</strong><br/>
+  <span>
+  【机器学习基础】核逻辑回归</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2015/04/17/Machine Learning Experiments/【机器学习实验】scikit-learn的主要模块和基本使用/"  title="【机器学习实验】scikit-learn的主要模块和基本使用">
+ <strong>之前的一篇</strong><br/> 
+ <span>【机器学习实验】scikit-learn的主要模块和基本使用
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section class="comment">
+	<div class="ds-thread"></div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#学习一个机器学习工具"><span class="toc-number">1.</span> <span class="toc-text">学习一个机器学习工具</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#学习一个机器学习数据集"><span class="toc-number">2.</span> <span class="toc-text">学习一个机器学习数据集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#学习一个机器学习算法"><span class="toc-number">3.</span> <span class="toc-text">学习一个机器学习算法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实现一个机器学习算法"><span class="toc-number">4.</span> <span class="toc-text">实现一个机器学习算法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小型项目方法论"><span class="toc-number">5.</span> <span class="toc-text">小型项目方法论</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#额外有关项目的小贴士"><span class="toc-number">6.</span> <span class="toc-text">额外有关项目的小贴士</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">7.</span> <span class="toc-text">总结</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+<div class="maps">
+    <p class="asidetitle">访问统计</p>
+    <br>
+    <script type="text/javascript" src="//ra.revolvermaps.com/0/0/6.js?i=0leibswamim&amp;m=0&amp;s=210&amp;c=ff0000&amp;cr1=ffffff&amp;f=arial&amp;l=0" async="async"></script>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">Categories</p>
+		<ul>
+		
+			<li><a href="/categories/Algorithm-Problem/" title="Algorithm Problem">Algorithm Problem<sup>1</sup></a></li>
+		
+			<li><a href="/categories/C/" title="C++">C++<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Classic-Algorithm/" title="Classic Algorithm">Classic Algorithm<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Cluster-Analysis/" title="Cluster Analysis">Cluster Analysis<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Design-Pattern/" title="Design Pattern">Design Pattern<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Developer-Kits/" title="Developer Kits">Developer Kits<sup>5</sup></a></li>
+		
+			<li><a href="/categories/Energy-Big-Data/" title="Energy Big Data">Energy Big Data<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Feature-Engineering/" title="Feature Engineering">Feature Engineering<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Functional/" title="Functional">Functional<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Functional-Programming/" title="Functional Programming">Functional Programming<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Git/" title="Git">Git<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Jobs/" title="Jobs">Jobs<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>4</sup></a></li>
+		
+			<li><a href="/categories/ML-Experiments/" title="ML Experiments">ML Experiments<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Machine-Learning/" title="Machine Learning">Machine Learning<sup>50</sup></a></li>
+		
+			<li><a href="/categories/Math/" title="Math">Math<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Programming/" title="Programming">Programming<sup>11</sup></a></li>
+		
+			<li><a href="/categories/Python/" title="Python">Python<sup>10</sup></a></li>
+		
+			<li><a href="/categories/Scala/" title="Scala">Scala<sup>27</sup></a></li>
+		
+			<li><a href="/categories/Scala-ML/" title="Scala-ML">Scala-ML<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Similarity-Search/" title="Similarity Search">Similarity Search<sup>4</sup></a></li>
+		
+			<li><a href="/categories/Small-Problems/" title="Small Problems">Small Problems<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Spark/" title="Spark">Spark<sup>23</sup></a></li>
+		
+			<li><a href="/categories/Thoughts/" title="Thoughts">Thoughts<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">Tag Cloud</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/Actor/" style="font-size: 10px;">Actor</a> <a href="/tags/Akka/" style="font-size: 14.55px;">Akka</a> <a href="/tags/Algorithm/" style="font-size: 10px;">Algorithm</a> <a href="/tags/Approximate-Nearest-Neighbor-Search/" style="font-size: 10px;">Approximate Nearest Neighbor Search</a> <a href="/tags/Bayesian-Analysis/" style="font-size: 10.91px;">Bayesian Analysis</a> <a href="/tags/Big-Data/" style="font-size: 10px;">Big Data</a> <a href="/tags/C/" style="font-size: 12.73px;">C++</a> <a href="/tags/Classification/" style="font-size: 11.82px;">Classification</a> <a href="/tags/Cluster-Analysis/" style="font-size: 10px;">Cluster Analysis</a> <a href="/tags/Computer-Vision/" style="font-size: 14.55px;">Computer Vision</a> <a href="/tags/Eclipse/" style="font-size: 10px;">Eclipse</a> <a href="/tags/Energy-Forecasting/" style="font-size: 10px;">Energy Forecasting</a> <a href="/tags/Feature-Engineering/" style="font-size: 10.91px;">Feature Engineering</a> <a href="/tags/Functional-Programming/" style="font-size: 16.36px;">Functional Programming</a> <a href="/tags/Gaussian-Process/" style="font-size: 10px;">Gaussian Process</a> <a href="/tags/Git/" style="font-size: 10.91px;">Git</a> <a href="/tags/GraphLab/" style="font-size: 10px;">GraphLab</a> <a href="/tags/IPython/" style="font-size: 10px;">IPython</a> <a href="/tags/Internet-of-Energy/" style="font-size: 10px;">Internet of Energy</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/Kaggle/" style="font-size: 10px;">Kaggle</a> <a href="/tags/Kernel-Method/" style="font-size: 10px;">Kernel Method</a> <a href="/tags/LSH/" style="font-size: 12.73px;">LSH</a> <a href="/tags/LaTex/" style="font-size: 10px;">LaTex</a> <a href="/tags/Linux/" style="font-size: 11.82px;">Linux</a> <a href="/tags/Machine-Learning/" style="font-size: 20px;">Machine Learning</a> <a href="/tags/Math/" style="font-size: 11.82px;">Math</a> <a href="/tags/Mathematics/" style="font-size: 13.64px;">Mathematics</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MeanShift/" style="font-size: 10px;">MeanShift</a> <a href="/tags/Mint/" style="font-size: 10px;">Mint</a> <a href="/tags/OpenCV/" style="font-size: 15.45px;">OpenCV</a> <a href="/tags/Probabilistic-Programming/" style="font-size: 10px;">Probabilistic Programming</a> <a href="/tags/Probability-Distributions/" style="font-size: 10px;">Probability Distributions</a> <a href="/tags/Programming/" style="font-size: 14.55px;">Programming</a> <a href="/tags/Python/" style="font-size: 17.27px;">Python</a> <a href="/tags/Regression/" style="font-size: 11.82px;">Regression</a> <a href="/tags/Resume/" style="font-size: 10px;">Resume</a> <a href="/tags/SVM/" style="font-size: 12.73px;">SVM</a> <a href="/tags/Scala/" style="font-size: 19.09px;">Scala</a> <a href="/tags/Similarity-Search/" style="font-size: 10.91px;">Similarity Search</a> <a href="/tags/Source-code/" style="font-size: 10px;">Source code</a> <a href="/tags/Spark/" style="font-size: 18.18px;">Spark</a> <a href="/tags/Summary/" style="font-size: 10px;">Summary</a> <a href="/tags/Thoughts/" style="font-size: 10.91px;">Thoughts</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/Vim/" style="font-size: 11.82px;">Vim</a> <a href="/tags/Written-Test/" style="font-size: 10px;">Written Test</a> <a href="/tags/Zeppelin/" style="font-size: 10px;">Zeppelin</a> <a href="/tags/boost/" style="font-size: 10px;">boost</a> <a href="/tags/cpp/" style="font-size: 13.64px;">cpp</a> <a href="/tags/opencv/" style="font-size: 10.91px;">opencv</a> <a href="/tags/p-Stable-LSH/" style="font-size: 10px;">p-Stable LSH</a> <a href="/tags/scikit-learn/" style="font-size: 10px;">scikit-learn</a> <a href="/tags/sklearn/" style="font-size: 10.91px;">sklearn</a> <a href="/tags/互联网时代/" style="font-size: 10px;">互联网时代</a> <a href="/tags/位置敏感哈希/" style="font-size: 10.91px;">位置敏感哈希</a> <a href="/tags/分治/" style="font-size: 10px;">分治</a> <a href="/tags/单元测试/" style="font-size: 10px;">单元测试</a> <a href="/tags/反思/" style="font-size: 10px;">反思</a> <a href="/tags/效率/" style="font-size: 10px;">效率</a> <a href="/tags/核方法/" style="font-size: 10px;">核方法</a> <a href="/tags/算法框架/" style="font-size: 10px;">算法框架</a> <a href="/tags/设计模式/" style="font-size: 11.82px;">设计模式</a>
+    </div>
+  </div>
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle"><a href="/archives">Archives</a></p>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">February 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">November 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">29</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a><span class="archive-list-count">16</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">10</span></li></ul>
+  </div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
+</div>
+
+</aside>
+
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Jason Ding in HUST <br/>
+			I would share moments of life here! </p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/1698420390" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/jasonding1354" target="_blank" title="github"></a>
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2016 
+		
+		<a href="http://blog.jasonding.top" target="_blank" title="Jason Ding">Jason Ding</a>
+		
+		</p>
+		<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+  
+  _st('install','uYyEuxJdzzAGXTax33mt','2.0.0');
+</script>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"jasonding"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,461 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>【机器学习中的数学】基函数与函数空间 | Jason&#39;s Techblog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Jason Ding">
+    
+    <meta name="description" content="引言在学习线性回归模型的时候就会遇到基函数，可能我们会遇到多项式基函数、高斯基函数、sigmoid基函数，当然在高等数学和信号系统中还经常会碰到傅里叶基。有时候，不禁要问，这些基函数为什么这么设计？这些基函数的作用是什么？后来发现基函数是核方法和字典训练的基础，于是乎，我逐渐有了一些例如特征转换和映">
+    
+    
+    
+    
+    <link rel="alternate" href="/atom.xml" title="Jason&#39;s Techblog" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/author.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/author.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F3cc71cd5738b99a1db174951e194ba55' type='text/javascript'%3E%3C/script%3E"));
+
+
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F1dcf1fa58b0eca1ac5bd089ee6a6e78c' type='text/javascript'%3E%3C/script%3E"));
+
+
+</script>
+
+
+    <!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Jason&#39;s Techblog" title="Jason&#39;s Techblog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Jason&#39;s Techblog">Jason&#39;s Techblog</a></h1>
+				<h2 class="blog-motto">Technician =&gt; Scientist =&gt; Philosopher =&gt; Artists</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="http://jasonding.top">Main</a></li>
+					
+					<li>
+					
+						<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" class="st-default-search-input" maxlength="20" placeholder="Search" />
+						</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody">
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/11/13/Machine Learning/【机器学习中的数学】基函数与函数空间/" title="【机器学习中的数学】基函数与函数空间" itemprop="url">【机器学习中的数学】基函数与函数空间</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://blog.jasonding.top" title="Jason Ding">Jason Ding</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2015-11-13T02:32:05.000Z" itemprop="datePublished">2015-11-13</time>
+    Updated:<time datetime="2016-03-16T06:24:42.000Z" itemprop="dateModified">2016-03-16</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#引言"><span class="toc-number">1.</span> <span class="toc-text">引言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基函数"><span class="toc-number">2.</span> <span class="toc-text">基函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#说说径向基函数"><span class="toc-number">3.</span> <span class="toc-text">说说径向基函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#径向基函数与插值"><span class="toc-number">4.</span> <span class="toc-text">径向基函数与插值</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#径向基核函数"><span class="toc-number">5.</span> <span class="toc-text">径向基核函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#函数空间浅显解释"><span class="toc-number">6.</span> <span class="toc-text">函数空间浅显解释</span></a></li></ol>
+		</div>
+		
+		<h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>在学习线性回归模型的时候就会遇到基函数，可能我们会遇到多项式基函数、高斯基函数、sigmoid基函数，当然在高等数学和信号系统中还经常会碰到傅里叶基。有时候，不禁要问，这些基函数为什么这么设计？这些基函数的作用是什么？<br>后来发现基函数是核方法和字典训练的基础，于是乎，我逐渐有了一些例如特征转换和映射、字典元素的概念。不过还是对基函数与函数空间的关系、基函数的深层认识模棱两可。我希望能通过这篇文章，来探究这些东西。</p>
+<h2 id="基函数"><a href="#基函数" class="headerlink" title="基函数"></a>基函数</h2><p>在数学中，基函数是函数空间一组特殊的基的元素。对于函数空间中的连续函数都可以表示成一系列基函数的线性组合，就像是在向量空间中每个向量都可以表示成基向量的线性组合一样。<br>在数值分析和近似理论中，基函数也称为混合函数（blending function），因为其在插值（interpolation）的应用<br>。<br>举例：<br><strong>多项式基</strong>：{1，t, t^2}是实系数二次多项式集合的基，每一个形如a+bt+ct^2的二次多项式都可以写成由基函数1、t、t^2组成的线性组合。另外，{(t-1)(t-2)/2, -t(t-2), t(t-1)/2}是二次多项式的另一组基，称为拉格朗日基（Lagrange basis）。<br><strong>傅里叶基</strong>：余弦函数构成了平方可积函数的（正交）Schauder基。</p>
+<h2 id="说说径向基函数"><a href="#说说径向基函数" class="headerlink" title="说说径向基函数"></a>说说径向基函数</h2><p>径向基函数有个类似高斯函数的形状，我们可以看到下面的图像，不同的系数，有不同的函数图像：<br><img src="http://7nj1qk.com1.z0.glb.clouddn.com/@/ML/math/basis_funcion/basis_func1.jpg" alt=""><br>下面的三组图像是三个径向基函数在不同的权重的线性组合下的曲线形态：<br><img src="http://7nj1qk.com1.z0.glb.clouddn.com/@/ML/math/basis_funcion/basis_func2.jpg" alt=""><br><img src="http://7nj1qk.com1.z0.glb.clouddn.com/@/ML/math/basis_funcion/basis_func3.jpg" alt=""><br><img src="http://7nj1qk.com1.z0.glb.clouddn.com/@/ML/math/basis_funcion/basis_func4.jpg" alt=""></p>
+<p>我们知道，线性回归模型可以看做是目标函数加入了高斯噪声模型，其概率模型形式为：</p>
+<p><a href="http://www.codecogs.com/eqnedit.php?latex=p(t|X,\delta^2)=\frac{1}{(2\pi)^{N/2}|K|^{1/2}}exp(-\frac{1}{2}t^TK^{-1}t)" target="_blank"><img src="http://latex.codecogs.com/gif.latex?p(t|X,\delta^2)=\frac{1}{(2\pi)^{N/2}|K|^{1/2}}exp(-\frac{1}{2}t^TK^{-1}t)" title="p(t|X,\delta^2)=\frac{1}{(2\pi)^{N/2}|K|^{1/2}}exp(-\frac{1}{2}t^TK^{-1}t)"></a><br>对于多维高斯模型的协方差矩阵，可以看做是数据构成的矩阵再加入一个噪声的方阵，当使用基函数的时候，协方差矩阵就变成了核矩阵再加上噪声的方阵。</p>
+<p><a href="http://www.codecogs.com/eqnedit.php?latex=K=\alpha&space;XX^T&plus;\delta^2I&space;\Rightarrow&space;K=\alpha&space;\Phi&space;\Phi^T&space;&plus;&space;\delta^2I" target="_blank"><img src="http://latex.codecogs.com/gif.latex?K=\alpha&space;XX^T&plus;\delta^2I&space;\Rightarrow&space;K=\alpha&space;\Phi&space;\Phi^T&space;&plus;&space;\delta^2I" title="K=\alpha XX^T+\delta^2I \Rightarrow K=\alpha \Phi \Phi^T + \delta^2I"></a><br>下面是用多项式基函数和径向基函数分别构成的特征变换矩阵：</p>
+<p><a href="http://www.codecogs.com/eqnedit.php?latex=\Phi&space;=&space;\begin{bmatrix}&space;1&space;&&space;x_1&space;&&space;x_1^2&space;\\&space;1&space;&&space;x_2&space;&&space;x_2^2&space;\\&space;:&space;&&space;:&space;&&space;:&space;\\&space;1&space;&&space;x_n&space;&&space;x_n^2&space;\end{bmatrix}" target="_blank"><img src="http://latex.codecogs.com/gif.latex?\Phi&space;=&space;\begin{bmatrix}&space;1&space;&&space;x_1&space;&&space;x_1^2&space;\\&space;1&space;&&space;x_2&space;&&space;x_2^2&space;\\&space;:&space;&&space;:&space;&&space;:&space;\\&space;1&space;&&space;x_n&space;&&space;x_n^2&space;\end{bmatrix}" title="\Phi = \begin{bmatrix} 1 & x_1 & x_1^2 \\ 1 & x_2 & x_2^2 \\ : & : & : \\ 1 & x_n & x_n^2 \end{bmatrix}"></a></p>
+<p><a href="http://www.codecogs.com/eqnedit.php?latex=\Phi&space;=&space;\begin{bmatrix}&space;exp(-2(x_1-1)^2)&space;&&space;...&space;\\&space;exp(-2(x_2-1)^2)&space;&&space;...&space;\\&space;:&space;&&space;:&space;\\&space;exp(-2(x_n-1)^2)&space;&&space;...&space;\end{bmatrix}" target="_blank"><img src="http://latex.codecogs.com/gif.latex?\Phi&space;=&space;\begin{bmatrix}&space;exp(-2(x_1-1)^2)&space;&&space;...&space;\\&space;exp(-2(x_2-1)^2)&space;&&space;...&space;\\&space;:&space;&&space;:&space;\\&space;exp(-2(x_n-1)^2)&space;&&space;...&space;\end{bmatrix}" title="\Phi = \begin{bmatrix} exp(-2(x_1-1)^2) & ... \\ exp(-2(x_2-1)^2) & ... \\ : & : \\ exp(-2(x_n-1)^2) & ... \end{bmatrix}"></a></p>
+<p><strong>由于径向基函数是一种局部基函数(localized basis function)，那么距离基函数中心比较远的区域，数据项对方差的贡献将趋于零，只剩下噪声的贡献。因此，对于基函数所在的区域之外的区域进行外插的时候，模型对于它做出的预测会变得相当确定，这不是我们想要的结果，可以用高斯过程这种贝叶斯回归方法来避免，这也就引入了径向基核函数这种无限维的特征转换。</strong><br>下面的特征变换是由三个不同参数的径向基函数组成的，这里看到协方差矩阵的图像中对角线区域，蓝色部分是由噪声贡献的，而红色区域是由基函数贡献的。<br><img src="http://7nj1qk.com1.z0.glb.clouddn.com/@/ML/math/basis_function/rbf1.jpeg" alt=""><br>利用这种协方差矩阵，构成的多维高斯分布的抽样结果用图形给出：<br><img src="http://7nj1qk.com1.z0.glb.clouddn.com/@/ML/math/basis_function/rbf2.jpeg" alt=""></p>
+<h2 id="径向基函数与插值"><a href="#径向基函数与插值" class="headerlink" title="径向基函数与插值"></a>径向基函数与插值</h2><p>径向基函数可以看作是一个高维空间中的曲面拟合（逼近）问题，学习是为了在多维空间中寻找一个能够最佳匹配训练数据的曲面，然后来一批新的数据，用刚才训练的那个曲面来处理（比如分类、回归）。<strong>径向基函数的本质思想是反向传播学习算法应用递归技术，这种技术在统计学中被称为随机逼近</strong>。径向基函数就是在神经网络的隐单元里提供了提供了一个函数集，该函数集在输入模式（向量）扩展至隐空间时，为其构建了一个任意的“基”。这个函数集中的函数就被称为径向基函数。</p>
+<p>径向基函数是一种精确插值器，其方法方法不同于全局和局部多项式插值器，它们都不是精确插值器（不要求表面穿过测量点）。径向基函数还可预测大于最大测量值和小于最小测量值的值。<br><strong>径向基函数用于根据大量数据点生成平滑表面。这些函数可为平缓变化的表面生成很好的结果。</strong>但在表面值在短距离内出现剧烈变化和/或怀疑样本值很可能有测量误差或不确定性时，这些方法不适用。</p>
+<h2 id="径向基核函数"><a href="#径向基核函数" class="headerlink" title="径向基核函数"></a>径向基核函数</h2><p>我们先看一下为什么说径向基核函数（高斯核函数）是无限维的特征转换吧。<br>将径向基核函数做泰勒展开形式如下：</p>
+<p><a href="http://www.codecogs.com/eqnedit.php?latex=k(x,x')=exp(-(x-x')^2)=exp(-x^2)exp(-x'^2)exp(2xx')&space;=exp(-x^2)exp(-x'^2)[\sum_{i=0}^{\infty&space;}\frac{(2xx')^i}{i!}]&space;=\sum_{i=0}^{\infty&space;}[exp(-x^2)exp(-x'^2)\sqrt{\frac{2^i}{i!}}\sqrt{\frac{2^i}{i!}}x^ix'^i]&space;=\Phi(x)^T\Phi(x')" target="_blank"><img src="http://latex.codecogs.com/gif.latex?k(x,x')=exp(-(x-x')^2)=exp(-x^2)exp(-x'^2)exp(2xx')&space;=exp(-x^2)exp(-x'^2)[\sum_{i=0}^{\infty&space;}\frac{(2xx')^i}{i!}]&space;=\sum_{i=0}^{\infty&space;}[exp(-x^2)exp(-x'^2)\sqrt{\frac{2^i}{i!}}\sqrt{\frac{2^i}{i!}}x^ix'^i]&space;=\Phi(x)^T\Phi(x')" title="k(x,x')=exp(-(x-x')^2)=exp(-x^2)exp(-x'^2)exp(2xx') =exp(-x^2)exp(-x'^2)[\sum_{i=0}^{\infty }\frac{(2xx')^i}{i!}] =\sum_{i=0}^{\infty }[exp(-x^2)exp(-x'^2)\sqrt{\frac{2^i}{i!}}\sqrt{\frac{2^i}{i!}}x^ix'^i] =\Phi(x)^T\Phi(x')"></a><br>其对应的无限维的特征转换为：</p>
+<p><a href="http://www.codecogs.com/eqnedit.php?latex=\Phi(x)=exp(-x^2)(1,\sqrt{\frac{2}{1!}}x,\sqrt{\frac{2^2}{2!}}x^2,...)" target="_blank"><img src="http://latex.codecogs.com/gif.latex?\Phi(x)=exp(-x^2)(1,\sqrt{\frac{2}{1!}}x,\sqrt{\frac{2^2}{2!}}x^2,...)" title="\Phi(x)=exp(-x^2)(1,\sqrt{\frac{2}{1!}}x,\sqrt{\frac{2^2}{2!}}x^2,...)"></a></p>
+<p>我们看到了径向基核函数，是xi和xj数据之间欧氏距离的函数。<br>下面是核矩阵和抽样的图像：<br><img src="http://7nj1qk.com1.z0.glb.clouddn.com/@/ML/math/basis_function/rbf3.jpeg" alt=""><br><img src="http://7nj1qk.com1.z0.glb.clouddn.com/@/ML/math/basis_function/rbf4.jpg" alt=""><br>从上图看到，径向基核函数以每个数据点为中心进行建模，在有数据的区域贡献随机变量的方差，而不再像用单一的径向基函数只在函数中心保有对方差的贡献。上图同样说明，相邻的数据有强相关性，而相离的数据没有什么相关性，即红色区域和蓝色区域说明的情况。<br>这是高斯过程模型的基础，相比贝叶斯线性模型而言，高斯过程不再对模型参数进行建模（通过对参数分布进行采样，再进行不同基函数模型的组合），而是直接对数据进行相应操作。</p>
+<h2 id="函数空间浅显解释"><a href="#函数空间浅显解释" class="headerlink" title="函数空间浅显解释"></a>函数空间浅显解释</h2><p>空间是数学抽象出来描述具有某些特殊性质和结构的集合。学过线性代数的人都知道线性空间，向量是线性空间的基本元素。空间中还有一个很重要的概念是基。为什么要有基？是为了更好的描述空间。比如说三维空间，这个空间里面的元素的个数是不可数的（也就是和自然数集找不到一一对应的关系），所以一一列出来是不可能的。数学家想出了一个很好的办法，用任意三个不共面向量的线性组合来表示这个空间中的任意一个元素。<br>有了上面的概念，我们可以理解函数空间就是满足一定性质和结构的函数集合，组成这个空间的元素都是满足一定条件的函数。所以，这个函数空间里面的所有元素都是函数，而且这个空间其实是无穷维的，基有无穷多个。<br>因为我是通信专业的，现在用傅里叶变换来理解一下函数空间。傅里叶变换就是给出了一组基，要求求出利用每个基线性组合成这一信号（函数）的组合系数，或者说是在这组基下的坐标。傅里叶变换的美妙之处就在于这组基取得实在是太好了。为什么呢？首先他们是正交的，更主要的是它还和自然界的情况有着微妙的联系。自然界中的水波、音波、电磁波等等，如果用数学抽象，显然是三角函数。在振荡电路、模拟通信等等领域中，使用三角函数形式的波形的好处也是非常多的。可以看到，傅里叶变换在一维信号处理领域获得了很大的成功。需要指出的是，傅里叶变换在二维信号处理领域，比如说在图像处理领域的缺点就很多了。直观上，图像的周期现象似乎不是那么明显。而且从一维情况转换到二维情况，复杂度成倍增加。</p>
+<p><strong>转载请注明作者Jason Ding及其出处</strong><br><a href="http://jasonding1354.github.io/" target="_blank" rel="external">Github博客主页(http://jasonding1354.github.io/)</a><br><a href="http://jasonding1354.gitcafe.io/" target="_blank" rel="external">GitCafe博客主页(http://jasonding1354.gitcafe.io/)</a><br><a href="http://blog.csdn.net/jasonding1354" target="_blank" rel="external">CSDN博客(http://blog.csdn.net/jasonding1354)</a><br><a href="http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles" target="_blank" rel="external">简书主页(http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles)</a><br><strong>Google搜索jasonding1354进入我的博客主页</strong></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Machine-Learning/">Machine Learning</a><a href="/tags/Mathematics/">Mathematics</a>
+  </div>
+
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Machine-Learning/">Machine Learning</a>
+</div>
+
+
+
+<div class="article-share" id="share">
+
+  
+<div class="jiathis_style">
+    <span class="jiathis_txt">分享到：</span>
+    <a class="jiathis_button_tsina">新浪微博</a>
+    <a class="jiathis_button_weixin">微信</a>
+    <a class="jiathis_button_twitter">Twitter</a>
+    <a class="jiathis_button_evernote">EverNote</a>
+    <a href="http://www.jiathis.com/share?uid=1501277" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript" >
+    var jiathis_config={
+    data_track_clickback:true,
+    sm:"copy,renren,cqq",
+    pic:"",
+    summary:"",
+    
+  </script> 
+<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=
+1394018007141544" charset="utf-8"></script>      
+
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2015/11/13/Machine Learning/【机器学习技术】高斯过程初探/" title="【机器学习技术】高斯过程初探">
+  <strong>之后的一篇</strong><br/>
+  <span>
+  【机器学习技术】高斯过程初探</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2015/11/12/Cluster Analysis/【聚类分析】聚类算法初阶引入/"  title="【聚类分析】聚类算法初阶引入">
+ <strong>之前的一篇</strong><br/> 
+ <span>【聚类分析】聚类算法初阶引入
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section class="comment">
+	<div class="ds-thread"></div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#引言"><span class="toc-number">1.</span> <span class="toc-text">引言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基函数"><span class="toc-number">2.</span> <span class="toc-text">基函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#说说径向基函数"><span class="toc-number">3.</span> <span class="toc-text">说说径向基函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#径向基函数与插值"><span class="toc-number">4.</span> <span class="toc-text">径向基函数与插值</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#径向基核函数"><span class="toc-number">5.</span> <span class="toc-text">径向基核函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#函数空间浅显解释"><span class="toc-number">6.</span> <span class="toc-text">函数空间浅显解释</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+<div class="maps">
+    <p class="asidetitle">访问统计</p>
+    <br>
+    <script type="text/javascript" src="//ra.revolvermaps.com/0/0/6.js?i=0leibswamim&amp;m=0&amp;s=210&amp;c=ff0000&amp;cr1=ffffff&amp;f=arial&amp;l=0" async="async"></script>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">Categories</p>
+		<ul>
+		
+			<li><a href="/categories/Algorithm-Problem/" title="Algorithm Problem">Algorithm Problem<sup>1</sup></a></li>
+		
+			<li><a href="/categories/C/" title="C++">C++<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Classic-Algorithm/" title="Classic Algorithm">Classic Algorithm<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Cluster-Analysis/" title="Cluster Analysis">Cluster Analysis<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Design-Pattern/" title="Design Pattern">Design Pattern<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Developer-Kits/" title="Developer Kits">Developer Kits<sup>5</sup></a></li>
+		
+			<li><a href="/categories/Energy-Big-Data/" title="Energy Big Data">Energy Big Data<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Feature-Engineering/" title="Feature Engineering">Feature Engineering<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Functional/" title="Functional">Functional<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Functional-Programming/" title="Functional Programming">Functional Programming<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Git/" title="Git">Git<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Jobs/" title="Jobs">Jobs<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>4</sup></a></li>
+		
+			<li><a href="/categories/ML-Experiments/" title="ML Experiments">ML Experiments<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Machine-Learning/" title="Machine Learning">Machine Learning<sup>50</sup></a></li>
+		
+			<li><a href="/categories/Math/" title="Math">Math<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Programming/" title="Programming">Programming<sup>11</sup></a></li>
+		
+			<li><a href="/categories/Python/" title="Python">Python<sup>10</sup></a></li>
+		
+			<li><a href="/categories/Scala/" title="Scala">Scala<sup>27</sup></a></li>
+		
+			<li><a href="/categories/Scala-ML/" title="Scala-ML">Scala-ML<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Similarity-Search/" title="Similarity Search">Similarity Search<sup>4</sup></a></li>
+		
+			<li><a href="/categories/Small-Problems/" title="Small Problems">Small Problems<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Spark/" title="Spark">Spark<sup>23</sup></a></li>
+		
+			<li><a href="/categories/Thoughts/" title="Thoughts">Thoughts<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">Tag Cloud</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/Actor/" style="font-size: 10px;">Actor</a> <a href="/tags/Akka/" style="font-size: 14.55px;">Akka</a> <a href="/tags/Algorithm/" style="font-size: 10px;">Algorithm</a> <a href="/tags/Approximate-Nearest-Neighbor-Search/" style="font-size: 10px;">Approximate Nearest Neighbor Search</a> <a href="/tags/Bayesian-Analysis/" style="font-size: 10.91px;">Bayesian Analysis</a> <a href="/tags/Big-Data/" style="font-size: 10px;">Big Data</a> <a href="/tags/C/" style="font-size: 12.73px;">C++</a> <a href="/tags/Classification/" style="font-size: 11.82px;">Classification</a> <a href="/tags/Cluster-Analysis/" style="font-size: 10px;">Cluster Analysis</a> <a href="/tags/Computer-Vision/" style="font-size: 14.55px;">Computer Vision</a> <a href="/tags/Eclipse/" style="font-size: 10px;">Eclipse</a> <a href="/tags/Energy-Forecasting/" style="font-size: 10px;">Energy Forecasting</a> <a href="/tags/Feature-Engineering/" style="font-size: 10.91px;">Feature Engineering</a> <a href="/tags/Functional-Programming/" style="font-size: 16.36px;">Functional Programming</a> <a href="/tags/Gaussian-Process/" style="font-size: 10px;">Gaussian Process</a> <a href="/tags/Git/" style="font-size: 10.91px;">Git</a> <a href="/tags/GraphLab/" style="font-size: 10px;">GraphLab</a> <a href="/tags/IPython/" style="font-size: 10px;">IPython</a> <a href="/tags/Internet-of-Energy/" style="font-size: 10px;">Internet of Energy</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/Kaggle/" style="font-size: 10px;">Kaggle</a> <a href="/tags/Kernel-Method/" style="font-size: 10px;">Kernel Method</a> <a href="/tags/LSH/" style="font-size: 12.73px;">LSH</a> <a href="/tags/LaTex/" style="font-size: 10px;">LaTex</a> <a href="/tags/Linux/" style="font-size: 11.82px;">Linux</a> <a href="/tags/Machine-Learning/" style="font-size: 20px;">Machine Learning</a> <a href="/tags/Math/" style="font-size: 11.82px;">Math</a> <a href="/tags/Mathematics/" style="font-size: 13.64px;">Mathematics</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MeanShift/" style="font-size: 10px;">MeanShift</a> <a href="/tags/Mint/" style="font-size: 10px;">Mint</a> <a href="/tags/OpenCV/" style="font-size: 15.45px;">OpenCV</a> <a href="/tags/Probabilistic-Programming/" style="font-size: 10px;">Probabilistic Programming</a> <a href="/tags/Probability-Distributions/" style="font-size: 10px;">Probability Distributions</a> <a href="/tags/Programming/" style="font-size: 14.55px;">Programming</a> <a href="/tags/Python/" style="font-size: 17.27px;">Python</a> <a href="/tags/Regression/" style="font-size: 11.82px;">Regression</a> <a href="/tags/Resume/" style="font-size: 10px;">Resume</a> <a href="/tags/SVM/" style="font-size: 12.73px;">SVM</a> <a href="/tags/Scala/" style="font-size: 19.09px;">Scala</a> <a href="/tags/Similarity-Search/" style="font-size: 10.91px;">Similarity Search</a> <a href="/tags/Source-code/" style="font-size: 10px;">Source code</a> <a href="/tags/Spark/" style="font-size: 18.18px;">Spark</a> <a href="/tags/Summary/" style="font-size: 10px;">Summary</a> <a href="/tags/Thoughts/" style="font-size: 10.91px;">Thoughts</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/Vim/" style="font-size: 11.82px;">Vim</a> <a href="/tags/Written-Test/" style="font-size: 10px;">Written Test</a> <a href="/tags/Zeppelin/" style="font-size: 10px;">Zeppelin</a> <a href="/tags/boost/" style="font-size: 10px;">boost</a> <a href="/tags/cpp/" style="font-size: 13.64px;">cpp</a> <a href="/tags/opencv/" style="font-size: 10.91px;">opencv</a> <a href="/tags/p-Stable-LSH/" style="font-size: 10px;">p-Stable LSH</a> <a href="/tags/scikit-learn/" style="font-size: 10px;">scikit-learn</a> <a href="/tags/sklearn/" style="font-size: 10.91px;">sklearn</a> <a href="/tags/互联网时代/" style="font-size: 10px;">互联网时代</a> <a href="/tags/位置敏感哈希/" style="font-size: 10.91px;">位置敏感哈希</a> <a href="/tags/分治/" style="font-size: 10px;">分治</a> <a href="/tags/单元测试/" style="font-size: 10px;">单元测试</a> <a href="/tags/反思/" style="font-size: 10px;">反思</a> <a href="/tags/效率/" style="font-size: 10px;">效率</a> <a href="/tags/核方法/" style="font-size: 10px;">核方法</a> <a href="/tags/算法框架/" style="font-size: 10px;">算法框架</a> <a href="/tags/设计模式/" style="font-size: 11.82px;">设计模式</a>
+    </div>
+  </div>
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle"><a href="/archives">Archives</a></p>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">February 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">November 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">29</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a><span class="archive-list-count">16</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">10</span></li></ul>
+  </div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
+</div>
+
+</aside>
+
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Jason Ding in HUST <br/>
+			I would share moments of life here! </p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/1698420390" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/jasonding1354" target="_blank" title="github"></a>
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2016 
+		
+		<a href="http://blog.jasonding.top" target="_blank" title="Jason Ding">Jason Ding</a>
+		
+		</p>
+		<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+  
+  _st('install','uYyEuxJdzzAGXTax33mt','2.0.0');
+</script>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"jasonding"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+  </body>
+</html>

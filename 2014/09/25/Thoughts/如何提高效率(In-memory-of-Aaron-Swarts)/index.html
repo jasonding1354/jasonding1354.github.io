@@ -1,0 +1,557 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>如何提高效率(In memory of Aaron Swarts) | Jason&#39;s Techblog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Jason Ding">
+    
+    <meta name="description" content="悼念Aaron Swartz毫无疑问，Aaron Swartz 是个天才。创造 RSS 1.0 规则，开发 Web.py，参与 W3C 组织，创立 Infogami（后与 Reddit 合并），创立 Open Library，参与设计 Markdown 排版语言。程序员，作家，互联网活动家。在 26">
+    
+    
+    
+    
+    <link rel="alternate" href="/atom.xml" title="Jason&#39;s Techblog" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/author.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/author.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F3cc71cd5738b99a1db174951e194ba55' type='text/javascript'%3E%3C/script%3E"));
+
+
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F1dcf1fa58b0eca1ac5bd089ee6a6e78c' type='text/javascript'%3E%3C/script%3E"));
+
+
+</script>
+
+
+    <!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Jason&#39;s Techblog" title="Jason&#39;s Techblog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Jason&#39;s Techblog">Jason&#39;s Techblog</a></h1>
+				<h2 class="blog-motto">Technician =&gt; Scientist =&gt; Philosopher =&gt; Artists</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="http://jasonding.top">Main</a></li>
+					
+					<li>
+					
+						<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" class="st-default-search-input" maxlength="20" placeholder="Search" />
+						</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody">
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2014/09/25/Thoughts/如何提高效率(In-memory-of-Aaron-Swarts)/" title="如何提高效率(In memory of Aaron Swarts)" itemprop="url">如何提高效率(In memory of Aaron Swarts)</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://blog.jasonding.top" title="Jason Ding">Jason Ding</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2014-09-25T02:00:41.000Z" itemprop="datePublished">2014-09-25</time>
+    Updated:<time datetime="2016-03-16T06:24:42.000Z" itemprop="dateModified">2016-03-16</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#悼念Aaron-Swartz"><span class="toc-number">1.</span> <span class="toc-text">悼念Aaron Swartz</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#如何提高效率（HOWTO-Be-more-productive）"><span class="toc-number"></span> <span class="toc-text">如何提高效率（HOWTO: Be more productive）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#更有效地利用你的时间"><span class="toc-number">1.</span> <span class="toc-text">更有效地利用你的时间</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#选择合适的问题"><span class="toc-number">1.1.</span> <span class="toc-text">选择合适的问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#收集很多问题"><span class="toc-number">1.2.</span> <span class="toc-text">收集很多问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#列一个清单"><span class="toc-number">1.3.</span> <span class="toc-text">列一个清单</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#把任务清单和你的生活结合起来"><span class="toc-number">1.4.</span> <span class="toc-text">把任务清单和你的生活结合起来</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#提高你时间的质量"><span class="toc-number">2.</span> <span class="toc-text">提高你时间的质量</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#减轻身体上的约束"><span class="toc-number">2.1.</span> <span class="toc-text">减轻身体上的约束</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#携带纸和笔："><span class="toc-number">2.1.1.</span> <span class="toc-text">携带纸和笔：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#避免被打扰："><span class="toc-number">2.1.2.</span> <span class="toc-text">避免被打扰：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#减轻心理上的约束"><span class="toc-number">2.2.</span> <span class="toc-text">减轻心理上的约束</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#吃，睡，运动："><span class="toc-number">2.2.1.</span> <span class="toc-text">吃，睡，运动：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#与快乐的人相处："><span class="toc-number">2.2.2.</span> <span class="toc-text">与快乐的人相处：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#与朋友分担你的压力："><span class="toc-number">2.2.3.</span> <span class="toc-text">与朋友分担你的压力：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#拖沓"><span class="toc-number">3.</span> <span class="toc-text">拖沓</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#艰巨的任务"><span class="toc-number">4.</span> <span class="toc-text">艰巨的任务</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#把任务细分"><span class="toc-number">4.1.</span> <span class="toc-text">把任务细分</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#简化任务"><span class="toc-number">4.2.</span> <span class="toc-text">简化任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#认真考虑它"><span class="toc-number">4.3.</span> <span class="toc-text">认真考虑它</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#被指派的任务"><span class="toc-number">4.4.</span> <span class="toc-text">被指派的任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#虚构一个任务"><span class="toc-number">4.5.</span> <span class="toc-text">虚构一个任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#不要自己给自己布置任务"><span class="toc-number">4.6.</span> <span class="toc-text">不要自己给自己布置任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#把事情变得有趣"><span class="toc-number">4.7.</span> <span class="toc-text">把事情变得有趣</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#原文"><span class="toc-number">6.</span> <span class="toc-text">原文</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#HOWTO-Be-more-productive"><span class="toc-number"></span> <span class="toc-text">HOWTO: Be more productive</span></a>
+		</div>
+		
+		<h2 id="悼念Aaron-Swartz"><a href="#悼念Aaron-Swartz" class="headerlink" title="悼念Aaron Swartz"></a>悼念Aaron Swartz</h2><p>毫无疑问，Aaron Swartz 是个天才。<br>创造 RSS 1.0 规则，开发 Web.py，参与 W3C 组织，创立 Infogami（后与 Reddit 合并），创立 Open Library，参与设计 Markdown 排版语言。程序员，作家，互联网活动家。<br>在 26 岁，他的成就足以使我们许多人掩面羞愧。<br>毫无疑问，Aaron Swartz 是个好人。</p>
+<p>他的好朋友 Lawrence Lessig 说，“在他的一生中，Aaron 从未做过任何‘为赚钱’的事情……Aaron 只为公益而工作，一贯如此（至少他是这样想的）。他聪明，有趣。一个天才儿童。一个灵魂、一个良心、一个问题的源头，他曾经让我百万次问自己：Aaron 会这样想？”<br>曾和他一起开发了 MarkDown 的 John Gruber 说，“Aaron 有着非常出众的才智 ——再说一次，非常聪明的头脑——但同时也有一颗巨大的宽容心。他是一个了不起的人”。<br>互联网先驱 Tim Berners-Lee 说，“Aaron 死了。世界上的流浪者，我们失去了一位智者。为权利而奋斗的黑客们，我们中的一个人倒下了。所有的父母们，我们失去了一个孩子。让我们哭泣吧。”<br>他为什么要决意离开？在人生的最后阶段，由于涉嫌非法侵入 JSTOR 论文数据库，他需要面临政府的刑事指控。而在 JSTOR 已经撤销诉讼的情况下，政府仍然要重刑以待。<br>Lessig 将 Aaron 的死归罪于美国政府，“我们的政府决定让他坐 50 年的牢。不管怎样，我们需要超越主导这个时代的‘我正确因此我有权毁灭你’的道德。这开始于一个单词：羞愧。一个单词，无尽的泪水”。<br><img src="http://jason-images.qiniudn.com/AaronSwartz_FredBenenson.jpg" alt="Aaron Swartz"></p>
+<p>Aaron Swartz写过一篇很有名的文章，叫做《HOWTO: Be more productive》（如何提高效率）。<br>以下是其译文。</p>
+<h1 id="如何提高效率（HOWTO-Be-more-productive）"><a href="#如何提高效率（HOWTO-Be-more-productive）" class="headerlink" title="如何提高效率（HOWTO: Be more productive）"></a>如何提高效率（HOWTO: Be more productive）</h1><p>肯定有人跟你说过这样的话，“你有看电视的那么长时间，都可以用来写一本书了”。不可否认写书肯定比看电视更好的利用了时间，但是这个结论的成立需要一个假设：“时间是可互换的”，也就是说看电视的时间可以轻松的用来写书。但是很遗憾，事实并非如此。</p>
+<p>不同的时间有不同的质量等级。如果我在走向地铁站的路上发现自己的笔记本忘带了，我就很难集中注意力写文章。同样，当你不停的被打断的时候，你也很难集中注意力。这里还有一些心理和情感上的因素，有的时候我心情很好，愿意主动去做一些事，但还有一些时候我感到很抑郁和疲惫，就只能看看电视了。</p>
+<p>如果你想变得更加有效率，你必须意识到这个事实，并且很好的处理它。首先，你必须很好的利用不同种类的时间。其次，你必须让你的时间更有效率。</p>
+<h2 id="更有效地利用你的时间"><a href="#更有效地利用你的时间" class="headerlink" title="更有效地利用你的时间"></a>更有效地利用你的时间</h2><h3 id="选择合适的问题"><a href="#选择合适的问题" class="headerlink" title="选择合适的问题"></a>选择合适的问题</h3><p>生命是如此的短暂，为什么浪费时间做一些没意义的事呢？做一些让你感到舒适的事很容易，但是你应该问问自己为什么要做这些事呢？有没有一些更重要的事等着你去做？为什么你不去做那些事呢？这些问题很难回答，但是每解决一个都会让你更有效率。</p>
+<p>这不是说你所有的时间都应该用来做那些最重要的事。我的时间就肯定不是这样（否则，我现在就不会在写这篇文章了）。但是，这是我衡量自己的生活是否充实的重要标准。</p>
+<h3 id="收集很多问题"><a href="#收集很多问题" class="headerlink" title="收集很多问题"></a>收集很多问题</h3><p>另一个很多人都知道的秘密是：如果你认准一个问题，投入全部精力去解决它，这样你的效率是最高的。我发现这却是很难实现的。以现在为例，我正在锻炼身体，喝橙汁，整理桌面，和我弟弟聊天，同时在写现在这篇文章。今天一整天，我写了现在这篇文章，读了一本书，吃了点东西，回复了几封邮件，和一些朋友聊了聊天，买了点东西，改了改其他几篇文章，备份了硬盘，还整理了一下图书列表。</p>
+<p>有很多不同的项目让我能够在不同质量的时间下做不同的工作。更重要的是，在你卡壳或是厌烦的时候有其他的一些事可以做。</p>
+<p>这同时会让你变得更加有创造力。创造力就是你把自己从其他地方学到的东西能够用到你的工作中。如果你同时做许多不同方向的工作，那你就会得到更多的想法和创意。</p>
+<h3 id="列一个清单"><a href="#列一个清单" class="headerlink" title="列一个清单"></a>列一个清单</h3><p>找一些不同的事同时做并不困难，大部分人都有很多很多的待办事项。但是如果你想把它们全记在脑袋里的话，它们就会慢慢消失。要记住所有这些事所给你带来的心智上的压力会把你压垮。解决办法仍然是很简单：把它们写下来。</p>
+<p>一旦你把要做的事列成了一个清单，你就可以更好的分类组织它们了。比如说，我的清单包括：编程，思考，差事，读书，娱乐休息。</p>
+<p>大部分项目都包括很多不同的任务。以写这篇文章为例，除了真正的写作过程，还包括了阅读其他关于拖沓的文章，考虑文章的各个部分，整理语句，向别人请教问题等等。每一项任务都属于清单的不同部分，所以你可以在合适的时间才去做某一部分。</p>
+<h3 id="把任务清单和你的生活结合起来"><a href="#把任务清单和你的生活结合起来" class="headerlink" title="把任务清单和你的生活结合起来"></a>把任务清单和你的生活结合起来</h3><p>一旦你有了这样一个任务清单，你需要做的事就是时常记得它，而记住它的最好方法是把它放在你能看到的地方。比如说，我总在我桌子上放一摞书，最上面的那一本就是我最近在读的。当我想要读书的时候，我就直接从上面拿一本书来读。</p>
+<p>对于看电视/电影我也这么做。当我对某一个电影感兴趣的时候，我会把它放在电脑中一个特殊的文件夹内。每当我想休息一下，看看电影的时候，我就会打开那个文件夹。</p>
+<p>我也想过一些更深入的方式，比如说我把一些想看的文章标记为“待读”，当我想要上网的时候就看看那些从前积累下来的未读文章。</p>
+<h2 id="提高你时间的质量"><a href="#提高你时间的质量" class="headerlink" title="提高你时间的质量"></a>提高你时间的质量</h2><p>像上面那样最大限度地利用时间还远远不够，更重要的是提高你自己的时间的质量。那你究竟该怎样做呢？</p>
+<h3 id="减轻身体上的约束"><a href="#减轻身体上的约束" class="headerlink" title="减轻身体上的约束"></a>减轻身体上的约束</h3><h4 id="携带纸和笔："><a href="#携带纸和笔：" class="headerlink" title="携带纸和笔："></a>携带纸和笔：</h4><p>我认识的很多人的口袋里都有记事簿之类的东西。纸和笔在很多时候都是非常有用的，你可以随时随刻的记录自己的想法，我甚至通过这种方法在地铁上写过整篇文章。</p>
+<h4 id="避免被打扰："><a href="#避免被打扰：" class="headerlink" title="避免被打扰："></a>避免被打扰：</h4><p>对于那些需要集中注意力的任务，你应该尽量避免被打扰。一个很简单的方法是去一个没人能打扰你的地方，另一个方法是告诉周围的人未来一段时间不要打扰你。关于这点不要过犹不及。当你在浪费时间的时候你反倒应该被打扰一下，帮助别人解决问题肯定比坐在那里看新闻更好的利用了时间。</p>
+<h3 id="减轻心理上的约束"><a href="#减轻心理上的约束" class="headerlink" title="减轻心理上的约束"></a>减轻心理上的约束</h3><h4 id="吃，睡，运动："><a href="#吃，睡，运动：" class="headerlink" title="吃，睡，运动："></a>吃，睡，运动：</h4><p>当你感到很饿，很累，很焦躁的时候，你的时间的质量会很低。解决这个问题很简单，就是：去吃，去睡，去运动。对自己说“虽然我很累了，但我不能休息，因为我必须要工作”会让你感到自己很努力，但事实上休息之后你的效率会更高。既然你迟早都要睡觉，还不如先休息好，来提高剩余时间内的效率。</p>
+<h4 id="与快乐的人相处："><a href="#与快乐的人相处：" class="headerlink" title="与快乐的人相处："></a>与快乐的人相处：</h4><p>跟快乐的人相处会也会让你变得快乐，也会让你心态更放松。也许很多人愿意躲在屋子里，不与其他人接触，埋头干活，他们觉得这样的话时间才没有被“浪费”，但事实上这会让他们变得情绪低落，工作效率也会大大下降。 </p>
+<h4 id="与朋友分担你的压力："><a href="#与朋友分担你的压力：" class="headerlink" title="与朋友分担你的压力："></a>与朋友分担你的压力：</h4><p>即使你的朋友并不是能够感染他人，给你带来快乐的那种人，和其他的人一起解决复杂的问题也会让问题变得简单。一方面，精神上的压力大家可以互相分担，另一方面，和其他人在一起可以让你专注于工作而不是时常分心。</p>
+<h2 id="拖沓"><a href="#拖沓" class="headerlink" title="拖沓"></a>拖沓</h2><p>上面所说的那些并不是问题的重点，关于效率大家最大的问题还是“拖沓”。虽然很多人不承认，但是几乎所有人都或多或少的会拖沓。那又该如何避免呢？</p>
+<p>拖沓是什么？从旁观者来看，你在做好玩的事（如玩游戏，看新闻）而不是做真正的工作。但问题的关键是：你究竟为什么会这样？你的脑子里究竟是怎么想的？</p>
+<p>我花了很多时间来研究这件事，我能给出的最好解释是在大脑会给每一项任务赋予一个“脑力场”。你玩过两块磁铁相互作用吗？如果你让它们同极相对，它们就会相互排斥，你会感到他们之间的磁场力。你越是想要把它们和在一起，越会感到它们之间的排斥力。</p>
+<p>心智和精神上也是类似的。它是看不见摸不着的，但你却可以感受到它的存在。并且你越是想要接近它，它会离你越远。</p>
+<p>你不可能通过蛮力来克服两个场之间的排斥力，相反，你应该做的是调转方向。</p>
+<p>那又是什么产生了“精神力场”呢？似乎有两个主要原因：任务是否艰巨，任务是否是被指派的。</p>
+<h2 id="艰巨的任务"><a href="#艰巨的任务" class="headerlink" title="艰巨的任务"></a>艰巨的任务</h2><h3 id="把任务细分"><a href="#把任务细分" class="headerlink" title="把任务细分"></a>把任务细分</h3><p>一个任务很艰巨的原因之一是这个任务很宏大。比如说你想要做一个菜谱构造程序，没有人能一下子完成它，这是一个目标而不是一项任务。一项任务是使你能够朝向目标更进一步的具体概念。一个好的任务是你能够立即拿来实施的，比如“画一个展示菜谱的草图”。</p>
+<p>当你完成了上一个任务后，下一步就会变得更加清晰。你将会考虑一个菜谱有什么构成，你需要什么样的搜索机制，如何构建菜谱的数据库，等等。这样你就构建了一个引擎，每一个任务都会通向下一个任务。</p>
+<p>对于每一个比较大的项目，我都会考虑我需要完成一连串什么样的任务，并且将这些任务加入到我的待办事项列表中去。同样，当我做完一些任务之后我会把接下来需要完成的任务再加入任务列表中去。</p>
+<h3 id="简化任务"><a href="#简化任务" class="headerlink" title="简化任务"></a>简化任务</h3><p>另一个让任务变得艰巨的原因就是它太复杂了。“写一本书”这个任务会放你感到无从下手，那么就先从写一篇文章开始吧。如果一篇文章也觉得太多了，那么就先写一个段落的概要吧。最重要的是真正做了一些工作，真正的有进展。</p>
+<p>一旦你明确了你的任务之后，你就可以更清楚的判断它，更容易的理解它。提高完善一些已有的东西比从头创建东西更容易。如果你的一个段落写好了，那么一点一点积累，它会变成一篇文章，最终变成一本书。</p>
+<h3 id="认真考虑它"><a href="#认真考虑它" class="headerlink" title="认真考虑它"></a>认真考虑它</h3><p>通常来说解决一个困难问题需要一些灵感。如果你对那个领域并不熟悉，你应该从研究这个领域开始，借鉴一下其他人的经验，慢慢的研究理解这个领域，并且做一些小的尝试看看你能否搞定这个领域。</p>
+<h3 id="被指派的任务"><a href="#被指派的任务" class="headerlink" title="被指派的任务"></a>被指派的任务</h3><p>被指派的任务是那些你被要求完成的任务。很多心理学实验都表明：当你“刺激”其他人做什么事的时候，他们反倒不容易做好那个事。奖励，惩罚等外部刺激会扼杀“内在动机”——你对于某个问题发自内心的兴趣。人类的大脑对于被要求做的事有先天的抗拒力。</p>
+<p>这种现象不仅局限于其他人要求你做的事，当你向自己分配任务时仍然会出现这种现象。如果你对自己说“我应该好好做X工作了，这是我现在最重要的事”，之后你就会感到X突然变成了世界上最困难的事情了。然而一旦当Y变成了“最重要的事”，原来的那个X又变得简单了。</p>
+<h3 id="虚构一个任务"><a href="#虚构一个任务" class="headerlink" title="虚构一个任务"></a>虚构一个任务</h3><p>如果你要完成X，那就告诉自己做Y。然而不幸的是，这样欺骗自己却很难，因为你清楚你究竟要做什么。</p>
+<h3 id="不要自己给自己布置任务"><a href="#不要自己给自己布置任务" class="headerlink" title="不要自己给自己布置任务"></a>不要自己给自己布置任务</h3><p>给自己布置任务看起来很诱人，比如对自己说“我要写完这篇文章才去吃饭”，更糟糕的是让别人假装布置给你一些任务。但是这两种方式都会让你变得更没有效率，事实上你还是在给自己布置任务，你的大脑只会去逃避它。</p>
+<h3 id="把事情变得有趣"><a href="#把事情变得有趣" class="headerlink" title="把事情变得有趣"></a>把事情变得有趣</h3><p>困难的工作听起来不会令人感到愉悦，但事实上这可能就是最能让我感到高兴的事。一个困难的问题不但能让你集中全部注意力，而且当你完成它的时候你会感到非常棒，非常有成就感。</p>
+<p>所以帮助自己完成一件事的秘密不是说服自己必须完成它，而是说服自己这件事确实非常有意思。如果一件事没有意思的话，你需要做的就是让它变得有意思。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>效率的真正秘密在于“聆听自己”，在你饿的时候吃饭，在你疲惫的时候睡觉，当你厌烦的时候休息一下，做那些有趣好玩的项目。</p>
+<p>这看起来很容易，但是社会上的一些观念正在把我们向相反的方向引导。要想变得更加有效率，我们需要做的就是转过头来“聆听自己”。</p>
+<h2 id="原文"><a href="#原文" class="headerlink" title="原文"></a>原文</h2><h1 id="HOWTO-Be-more-productive"><a href="#HOWTO-Be-more-productive" class="headerlink" title="HOWTO: Be more productive"></a>HOWTO: Be more productive</h1><p>“With all the time you spend watching TV,” he tells me, “you could have written a novel by now.” It’s hard to disagree with the sentiment — writing a novel is undoubtedly a better use of time than watching TV — but what about the hidden assumption? Such comments imply that time is “fungible” — that time spent watching TV can just as easily be spent writing a novel. And sadly, that’s just not the case.</p>
+<p>Time has various levels of quality. If I’m walking to the subway station and I’ve forgotten my notebook, then it’s pretty hard for me to write more than a couple paragraphs. And it’s tough to focus when you keep getting interrupted. There’s also a mental component: sometimes I feel happy and motivated and ready to work on something, but other times I feel so sad and tired I can only watch TV.</p>
+<p>If you want to be more productive then, you have to recognize this fact and deal with it. First, you have to make the best of each kind of time. And second, you have to try to make your time higher-quality.</p>
+<p>Spend time efficiently</p>
+<p>Choose good problems<br>Life is short (or so I’m told) so why waste it doing something dumb? It’s easy to start working on something because it’s convenient, but you should always be questioning yourself about it. Is there something more important you can work on? Why don’t you do that instead? Such questions are hard to face up to (eventually, if you follow this rule, you’ll have to ask yourself why you’re not working on the most important problem in the world) but each little step makes you more productive.</p>
+<p>This isn’t to say that all your time should be spent on the most important problem in the world. Mine certainly isn’t (after all, I’m writing this essay). But it’s definitely the standard against which I measure my life.</p>
+<p>Have a bunch of them<br>Another common myth is that you’ll get more done if you pick one problem and focus on it exclusively. I find this is hardly ever true. Just this moment for example, I’m trying to fix my posture, exercise some muscles, drink some fluids, clean off my desk, IM with my brother, and write this essay. Over the course the day, I’ve worked on this essay, read a book, had some food, answered some email, chatted with friends, done some shopping, worked on a couple other essays, backed up my hard drive, and organized my book list. In the past week I’ve worked on several different software projects, read several different books, studied a couple different programming languages, moved some of my stuff, and so on.</p>
+<p>Having a lot of different projects gives you work for different qualities of time. Plus, you’ll have other things to work on if you get stuck or bored (and that can give your mind time to unstick yourself).</p>
+<p>It also makes you more creative. Creativity comes from applying things you learn in other fields to the field you work in. If you have a bunch of different projects going in different fields, then you have many more ideas you can apply.</p>
+<p>Make a list<br>Coming up with a bunch of different things to work on shouldn’t be hard — most people have tons of stuff they want to get done. But if you try to keep it all in your head it quickly gets overwhelming. The psychic pressure of having to remember all of it can make you crazy. The solution is again simple: write it down.</p>
+<p>Once you have a list of all the things you want to do, you can organize it by kind. For example, my list is programming, writing, thinking, errands, reading, listening, and watching (in that order).</p>
+<p>Most major projects involve a bunch of these different tasks. Writing this, for example, involves reading about other procrastination systems, thinking up new sections of the article, cleaning up sentences, emailing people with questions, and so on, all in addition to the actual work of writing the text. Each task can go under the appropriate section, so that you can do it when you have the right kind of time.</p>
+<p>Integrate the list with your life<br>Once you have this list, the problem becomes remembering to look at it. And the best way to remember to look at it is to make looking at it what you would do anyway. For example, I keep a stack of books on my desk, with the ones I’m currently reading on top. When I need a book to read, I just grab the top one off the stack.</p>
+<p>I do the same thing with TV/movies. Whenever I hear about a movie I should watch, I put it in a special folder on my computer. Now whenever I feel like watching TV, I just open up that folder.</p>
+<p>I’ve also thought about some more intrusive ways of doing this. For example, a web page that pops up with a list of articles in my “to read” folder whenever I try to check some weblogs. Or maybe even a window that pops up with work suggestions occasionally for me to see when I’m goofing off.</p>
+<p>Make your time higher quality</p>
+<p>Making the best use of the time you have can only get you so far. The much more important problem is making more higher quality time for yourself. Most people’s time is eaten up by things like school and work. Obviously if you attend one of these, you should stop. But what else can you do?</p>
+<p>Ease physical constraints<br>Carry pen and paper<br>Pretty much everyone interesting I know has some sort of pocket notebook they carry at all times. Pen and paper is immediately useful in all kinds of circumstances — if you need to write something down for somebody, take notes on something, scratch down an idea, and so on. I’ve even written whole articles in the subway.1</p>
+<p>(I used to do this, but now I just carry my computerphone everywhere. It doesn’t let me give people information physically, but it makes up for it by giving me something to read all the time (email) and pushing my notes straight into my email inbox, where I’m forced to deal with them right away.)</p>
+<p>Avoid being interrupted<br>For tasks that require serious focus, you should avoid getting interrupted. One simple way is to go somewhere interrupters can’t find you. Another is to set up an agreement with the people around you: “don’t bother me when the door is closed” or “IM me if I have headphones on” (and then you can ignore the IMs until you’re free).</p>
+<p>You don’t want to overdo it. Sometimes if you’re really wasting time you should be distracted. It’s a much better use of time to help someone else with their problem than it is to sit and read the news. That’s why setting up specific agreements is a good idea: you can be interrupted when you’re not really focusing.</p>
+<p>Ease mental constraints<br>Eat, sleep, exercise<br>Time when you’re hungry or tired or twitchy is low-quality time. Improving it is simple: eat, sleep, and exercise. Yet I somehow manage to screw up even this. I don’t like going to get food, so I’ll often work right through being hungry and end up so tired out that I can’t bring myself to go get food.2</p>
+<p>It’s tempting to say to yourself, “I know I’m tired but I can’t take a nap — I have work to do”. In fact, you’ll be much more productive if you do take that nap, since you’ll improve the quality of the day’s remaining time and you were going to have to sleep sometime anyway.</p>
+<p>I don’t really exercise much so I’m probably not the best person to give advice on that bit, but I do try to work it in where I can. While I’m lying down reading, I do situps. And when I need to go somewhere on foot, I run.</p>
+<p>Talk to cheerful people<br>Easing mental constraints is much harder. One thing that helps is having friends who are cheerful. For example, I always find myself much more inclined to work after talking to Paul Graham or Dan Connolly — they just radiate energy. It’s tempting to think that you need to get away from people and shut yourself off in your room to do any real work, but this can be so demoralizing that it’s actually less efficient.</p>
+<p>Share the load<br>Even if your friends aren’t cheerful, just working on a hard problem with someone else makes it much easier. For one thing, the mental weight gets spread across both people. For another, having someone else there forces you to work instead of getting distracted.</p>
+<p>Procrastination and the mental force field<br>But all of this is sort of dodging the issue. The real productivity problem people have is procrastination. It’s something of a dirty little secret, but everyone procrastinates — severely. It’s not just you. But that doesn’t mean you shouldn’t try to stop it.</p>
+<p>What is procrastination? To the outside observer, it looks like you’re just doing something “fun” (like playing a game or reading the news) instead of doing your actual work. (This usually causes the outside observer to think you’re lazy and bad.) But the real question is: what’s going on inside your head?</p>
+<p>I’ve spent a bunch of time trying to explore this and the best way I can describe it is that your brain puts up a sort of mental force field around a task. Ever play with two magnets? If you orient the magnets properly and try to push them towards each other, they’ll repel fiercely. As you move them around, you can sort of feel out the edges of the magnetic field. And as you try to bring the magnets together, the field will push you back or off in another direction.</p>
+<p>The mental block seems to work in the same way. It’s not particularly solid or visible, but you can sort of feel it around the edges. And the more you try to go towards it the more it pushes you away. And so, not surprisingly, you end up going in another direction.3</p>
+<p>And just as you can’t get two repelling magnets to sit together just by pushing real hard — they’ll fling back as soon as you stop pushing — I’ve never been able to overcome this mental force field through sheer willpower. Instead, you have to be sneaky about it — you have to rotate a magnet.</p>
+<p>So what causes the mental force field? There appear to be two major factors: whether the task is hard and whether it’s assigned.</p>
+<p>Hard problems<br>Break it down<br>The first kind of hard problem is the problem that’s too big. Say you want to build a recipe organizing program. Nobody can really just sit down and build a recipe organizer. That’s a goal, not a task. A task is a specific concrete step you can take towards your goal. A good first task might be something like “draw a mockup of the screen that displays a recipe”. Now that’s something you can do.4</p>
+<p>And when you do that, the next steps become clearer. You have to decide what a recipe consists of, what kind of search features are needed, how to structure the recipe database, and so on. You build up a momentum, each task leading to the next. And as your brain gets crunching on the subject, it becomes easier to solve that subject’s problems.</p>
+<p>For each of my big projects, I think of all the tasks I can do next for them and add them to my categorized todo list (see above). And when I stop working on something, I add its next possible tasks to the todo list.</p>
+<p>Simplify it<br>Another kind of hard problem is the one that’s too complicated or audacious. Writing a book seems daunting, so start by doing an essay. If an essay is too much, start by writing a paragraph summary. The important thing is to have something done right away.</p>
+<p>Once you have something, you can judge it more accurately and understand the problem better. It’s also much easier to improve something that already exists than to work at a blank page. If your paragraph goes well, then maybe it can grow into an essay and then into a book, little by little, a perfectly reasonable piece of writing all the way through..</p>
+<p>Think about it<br>Often the key to solving a hard problem will be getting some piece of inspiration. If you don’t know much about the field, you should obviously start by researching it — see how other people did things, get a sense of the terrain. Sit and try and understand the field fully. Do some smaller problems to see if you have a handle on it.</p>
+<p>Assigned problems<br>Assigned problems are problems you’re told to work on. Numerous psychology experiments have found that when you try to “incentivize” people to do something, they’re less likely to do it and do a worse job. External incentives, like rewards and punishments, kills what psychologists call your “intrinsic motivation” — your natural interest in the problem. (This is one of the most thoroughly replicated findings of social psychology — over 70 studies have found that rewards undermine interest in the task.)5 People’s heads seem to have a deep avoidance of being told what to do.6</p>
+<p>The weird thing is that this phenomenon isn’t just limited to other people — it even happens when you try to tell yourself what to do! If you say to yourself, “I should really work on X, that’s the most important thing to do right now” then all of the sudden X becomes the toughest thing in the world to make yourself work on. But as soon as Y becomes the most important thing, the exact same X becomes much easier.</p>
+<p>Create a false assignment<br>This presents a rather obvious solution: if you want to work on X, tell yourself to do Y. Unfortunately, it’s sort of difficult to trick yourself intentionally, because you know you’re doing it.7 So you’ve got to be sneaky about it.</p>
+<p>One way is to get someone else to assign something to you. The most famous instance of this is grad students who are required to write a dissertation, a monumentally difficult task that they need to do to graduate. And so, to avoid doing this, grad students end up doing all sorts of other hard stuff.</p>
+<p>The task has to both seem important (you have to do this to graduate!) and big (hundreds of pages of your best work!) but not actually be so important that putting it off is going to be a disaster.</p>
+<p>Don’t assign problems to yourself<br>It’s very tempting to say “alright, I need to put all this aside, hunker down and finish this essay”. Even worse is to try to bribe yourself into doing something, like saying “alright, if I just finish this essay then I’ll go and eat some candy”. But the absolute worst of all is to get someone else to try to force you to do something.</p>
+<p>All of these are very tempting — I’ve done them all myself — but they’re completely counterproductive. In all three cases, you’ve basically assigned yourself a task. Now your brain is going to do everything it can to escape it.</p>
+<p>Make things fun<br>Hard work isn’t supposed to be pleasant, we’re told. But in fact it’s probably the most enjoyable thing I do. Not only does a tough problem completely absorb you while you’re trying to solve it, but afterwards you feel wonderful having accomplished something so serious.</p>
+<p>So the secret to getting yourself to do something is not to convince yourself you have to do it, but to convince yourself that it’s fun. And if it isn’t, then you need to make it fun.</p>
+<p>I first got serious about this when I had to write essays for college. Writing essays isn’t a particularly hard task, but it sure is assigned. Who would voluntarily write a couple pages connecting the observations of two random books? So I started making the essays into my own little jokes. For one, I decided to write each paragraph in its own little style, trying my best to imitate various forms of speech. (This had the added benefit of padding things out.)8</p>
+<p>Another way to make things more fun is to solve the meta-problem. Instead of building a web application, try building a web application framework with this as the example app. Not only will the task be more enjoyable, but the result will probably be more useful.</p>
+<p>Conclusion</p>
+<p>There are a lot of myths about productivity — that time is fungible, that focusing is good, that bribing yourself is effective, that hard work is unpleasant, that procrastinating is unnatural — but they all have a common theme: a conception of real work as something that goes against your natural inclinations.</p>
+<p>And for most people, in most jobs, this may be the case. There’s no reason you should be inclined to write boring essays or file pointless memos. And if society is going to force you to do so anyway, then you need to learn to shut out the voices in your head telling you to stop.</p>
+<p>But if you’re trying to do something worthwhile and creative, then shutting down your brain is entirely the wrong way to go. The real secret to productivity is the reverse: to listen to your body. To eat when you’re hungry, to sleep when you’re tired, to take a break when you’re bored, to work on projects that seem fun and interesting.</p>
+<p>It seems all too simple. It doesn’t involve any fancy acronyms or self-determination or personal testimonials from successful businessmen. It almost seems like common sense. But society’s conception of work has pushed us in the opposite direction. If we want to be more productive, all we need to do is turn around.</p>
+<p>Further reading</p>
+<p>If you want to learn more about the pscyhology of motivation, there is nothing better than Alfie Kohn. He’s written many articles on the subject and an entire book, Punished by Rewards, which I highly recommend.</p>
+<p>I hope to address how to quit school in a future essay, but you should really just go out and pick up The Teenage Liberation Handbook. If you’re a computer person, one way to quit your job is by applying for funding from Y Combinator. Meanwhile, Mickey Z’s book The Murdering of My Years features artists and activists describing how they manage to make ends meet while still doing what they want.</p>
+<p>Notes</p>
+<p>Believe it or not, I actually have written in subways. It’s easy to come up with excuses as to why you’re not actually working — you don’t have enough time before your next appointment, people are making noise downstairs, etc. — but I find that when the inspiration strikes me, I can actually write stuff down on a subway car, where it’s absurdly loud and I only have a couple minutes before I have to get out and start walking. ↩</p>
+<p>The same problem exists for sleep. There’s nothing worse than being too tired to go to bed — you just feel like a zombie. ↩</p>
+<p>Now it turns out I experience this same phenomenon in another area: shyness. I often don’t want to call a stranger up on the phone or go talk to someone at a party and I have the exact same mental field pushing me off in some other direction. I suspect this might be because shyness is also a trait that results from a problematic childhood. (See “Assigned problems”.) Of course, this is all very speculative. ↩</p>
+<p>While the terminology I use here (“next concrete step”) is derived from David Allen’s Getting Things Done, a lot of the principles here are (perhaps even unconsciously) applied in Extreme Programming (XP). Extreme Programming is presented as this system for keeping programs organized, but I find that a lot of it is actually good advice for avoid procrastination.</p>
+<p>For example, pair programming automatically spreads the mental weight of the task across two people as well as giving people something useful to do during lower-quality time. Breaking a project down into concrete steps is another key part of XP, as is getting something that works done right away and improving on it (“Simplify it” infra). And these are just the things that aren’t programming-specific. ↩</p>
+<p>For a fantastic overview of the literature, see Alfie Kohn, Punished By Rewards. This specific claim is drawn from his article Challenging Behaviorist Dogma: Myths About Money and Motivation. ↩</p>
+<p>I originally simply assumed this was somehow biological, but Paul Graham pointed out it’s more likely learned. When you’re little, your parents try their best to manipulate you. They say do your homework and your mind tries to wriggle free and think about something else. Soon enough the wriggling becomes habit. Either way, it’s going to be a tough problem to fix. I’ve given up trying to change this; now I try to work around it. ↩</p>
+<p>Richard Feynman tells a story about how he was trying to explore his own dreams, much the way I’ve tried to explore my own procrastination. Each night, he’d try to observe what happened to himself as he fell asleep:</p>
+<p>I’m dreaming one night as usual, making observations, … and then I realize I’ve been sleeping with the back of my head against a brass rod. I put my hand behind my head and I feel that the back of my head is soft. I think, “Aha! That’s why I’ve been able to make all these observations in my dreams: the brass rod has disturbed my visual cortex. All I have to do is sleep with a brass rod under my head and I can make these observations any time I want. So I think I’ll stop making observations on this one and go into deeper sleep.”</p>
+<p>When I woke up later, there was no brass rod, nor was the back of my head soft. Somehow … my brain had invented false reasons as to why I shouldn’t [observe my dreams] any more. (Surely You’re Joking, Mr. Feynman!, 50)</p>
+<p>Your brain is a lot more powerful than you are. ↩</p>
+<p>So, for example, instead of writing “By contrast, Riis doesn’t quote many people.”, I wrote: “Riis, however, whether because of a personal deficit in the skill-based capacity required for collecting aurally-transmitted person-centered contemporaneous ethnographies into published paper-based informative accounts or simply a lack of preference for the reportage of community-located informational correspondents, demonstrates a total failure in producing a comparable result.”</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/效率/">效率</a>
+  </div>
+
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Thoughts/">Thoughts</a>
+</div>
+
+
+
+<div class="article-share" id="share">
+
+  
+<div class="jiathis_style">
+    <span class="jiathis_txt">分享到：</span>
+    <a class="jiathis_button_tsina">新浪微博</a>
+    <a class="jiathis_button_weixin">微信</a>
+    <a class="jiathis_button_twitter">Twitter</a>
+    <a class="jiathis_button_evernote">EverNote</a>
+    <a href="http://www.jiathis.com/share?uid=1501277" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript" >
+    var jiathis_config={
+    data_track_clickback:true,
+    sm:"copy,renren,cqq",
+    pic:"",
+    summary:"",
+    
+  </script> 
+<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=
+1394018007141544" charset="utf-8"></script>      
+
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2014/09/26/Programming/【编程拾遗】习得——积累编程过程中的经验/" title="【编程拾遗】习得——积累编程过程中的经验">
+  <strong>之后的一篇</strong><br/>
+  <span>
+  【编程拾遗】习得——积累编程过程中的经验</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2014/09/23/Design Pattern/【设计模式】使用设计模式来解决设计问题/"  title="【设计模式】使用设计模式来解决设计问题">
+ <strong>之前的一篇</strong><br/> 
+ <span>【设计模式】使用设计模式来解决设计问题
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section class="comment">
+	<div class="ds-thread"></div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#悼念Aaron-Swartz"><span class="toc-number">1.</span> <span class="toc-text">悼念Aaron Swartz</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#如何提高效率（HOWTO-Be-more-productive）"><span class="toc-number"></span> <span class="toc-text">如何提高效率（HOWTO: Be more productive）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#更有效地利用你的时间"><span class="toc-number">1.</span> <span class="toc-text">更有效地利用你的时间</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#选择合适的问题"><span class="toc-number">1.1.</span> <span class="toc-text">选择合适的问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#收集很多问题"><span class="toc-number">1.2.</span> <span class="toc-text">收集很多问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#列一个清单"><span class="toc-number">1.3.</span> <span class="toc-text">列一个清单</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#把任务清单和你的生活结合起来"><span class="toc-number">1.4.</span> <span class="toc-text">把任务清单和你的生活结合起来</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#提高你时间的质量"><span class="toc-number">2.</span> <span class="toc-text">提高你时间的质量</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#减轻身体上的约束"><span class="toc-number">2.1.</span> <span class="toc-text">减轻身体上的约束</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#携带纸和笔："><span class="toc-number">2.1.1.</span> <span class="toc-text">携带纸和笔：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#避免被打扰："><span class="toc-number">2.1.2.</span> <span class="toc-text">避免被打扰：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#减轻心理上的约束"><span class="toc-number">2.2.</span> <span class="toc-text">减轻心理上的约束</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#吃，睡，运动："><span class="toc-number">2.2.1.</span> <span class="toc-text">吃，睡，运动：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#与快乐的人相处："><span class="toc-number">2.2.2.</span> <span class="toc-text">与快乐的人相处：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#与朋友分担你的压力："><span class="toc-number">2.2.3.</span> <span class="toc-text">与朋友分担你的压力：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#拖沓"><span class="toc-number">3.</span> <span class="toc-text">拖沓</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#艰巨的任务"><span class="toc-number">4.</span> <span class="toc-text">艰巨的任务</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#把任务细分"><span class="toc-number">4.1.</span> <span class="toc-text">把任务细分</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#简化任务"><span class="toc-number">4.2.</span> <span class="toc-text">简化任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#认真考虑它"><span class="toc-number">4.3.</span> <span class="toc-text">认真考虑它</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#被指派的任务"><span class="toc-number">4.4.</span> <span class="toc-text">被指派的任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#虚构一个任务"><span class="toc-number">4.5.</span> <span class="toc-text">虚构一个任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#不要自己给自己布置任务"><span class="toc-number">4.6.</span> <span class="toc-text">不要自己给自己布置任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#把事情变得有趣"><span class="toc-number">4.7.</span> <span class="toc-text">把事情变得有趣</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#原文"><span class="toc-number">6.</span> <span class="toc-text">原文</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#HOWTO-Be-more-productive"><span class="toc-number"></span> <span class="toc-text">HOWTO: Be more productive</span></a>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+<div class="maps">
+    <p class="asidetitle">访问统计</p>
+    <br>
+    <script type="text/javascript" src="//ra.revolvermaps.com/0/0/6.js?i=0leibswamim&amp;m=0&amp;s=210&amp;c=ff0000&amp;cr1=ffffff&amp;f=arial&amp;l=0" async="async"></script>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">Categories</p>
+		<ul>
+		
+			<li><a href="/categories/Algorithm-Problem/" title="Algorithm Problem">Algorithm Problem<sup>1</sup></a></li>
+		
+			<li><a href="/categories/C/" title="C++">C++<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Classic-Algorithm/" title="Classic Algorithm">Classic Algorithm<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Cluster-Analysis/" title="Cluster Analysis">Cluster Analysis<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Design-Pattern/" title="Design Pattern">Design Pattern<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Developer-Kits/" title="Developer Kits">Developer Kits<sup>5</sup></a></li>
+		
+			<li><a href="/categories/Energy-Big-Data/" title="Energy Big Data">Energy Big Data<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Feature-Engineering/" title="Feature Engineering">Feature Engineering<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Functional/" title="Functional">Functional<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Functional-Programming/" title="Functional Programming">Functional Programming<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Git/" title="Git">Git<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Jobs/" title="Jobs">Jobs<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>4</sup></a></li>
+		
+			<li><a href="/categories/ML-Experiments/" title="ML Experiments">ML Experiments<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Machine-Learning/" title="Machine Learning">Machine Learning<sup>50</sup></a></li>
+		
+			<li><a href="/categories/Math/" title="Math">Math<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Programming/" title="Programming">Programming<sup>11</sup></a></li>
+		
+			<li><a href="/categories/Python/" title="Python">Python<sup>10</sup></a></li>
+		
+			<li><a href="/categories/Scala/" title="Scala">Scala<sup>27</sup></a></li>
+		
+			<li><a href="/categories/Scala-ML/" title="Scala-ML">Scala-ML<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Similarity-Search/" title="Similarity Search">Similarity Search<sup>4</sup></a></li>
+		
+			<li><a href="/categories/Small-Problems/" title="Small Problems">Small Problems<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Spark/" title="Spark">Spark<sup>23</sup></a></li>
+		
+			<li><a href="/categories/Thoughts/" title="Thoughts">Thoughts<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">Tag Cloud</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/Actor/" style="font-size: 10px;">Actor</a> <a href="/tags/Akka/" style="font-size: 14.55px;">Akka</a> <a href="/tags/Algorithm/" style="font-size: 10px;">Algorithm</a> <a href="/tags/Approximate-Nearest-Neighbor-Search/" style="font-size: 10px;">Approximate Nearest Neighbor Search</a> <a href="/tags/Bayesian-Analysis/" style="font-size: 10.91px;">Bayesian Analysis</a> <a href="/tags/Big-Data/" style="font-size: 10px;">Big Data</a> <a href="/tags/C/" style="font-size: 12.73px;">C++</a> <a href="/tags/Classification/" style="font-size: 11.82px;">Classification</a> <a href="/tags/Cluster-Analysis/" style="font-size: 10px;">Cluster Analysis</a> <a href="/tags/Computer-Vision/" style="font-size: 14.55px;">Computer Vision</a> <a href="/tags/Eclipse/" style="font-size: 10px;">Eclipse</a> <a href="/tags/Energy-Forecasting/" style="font-size: 10px;">Energy Forecasting</a> <a href="/tags/Feature-Engineering/" style="font-size: 10.91px;">Feature Engineering</a> <a href="/tags/Functional-Programming/" style="font-size: 16.36px;">Functional Programming</a> <a href="/tags/Gaussian-Process/" style="font-size: 10px;">Gaussian Process</a> <a href="/tags/Git/" style="font-size: 10.91px;">Git</a> <a href="/tags/GraphLab/" style="font-size: 10px;">GraphLab</a> <a href="/tags/IPython/" style="font-size: 10px;">IPython</a> <a href="/tags/Internet-of-Energy/" style="font-size: 10px;">Internet of Energy</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/Kaggle/" style="font-size: 10px;">Kaggle</a> <a href="/tags/Kernel-Method/" style="font-size: 10px;">Kernel Method</a> <a href="/tags/LSH/" style="font-size: 12.73px;">LSH</a> <a href="/tags/LaTex/" style="font-size: 10px;">LaTex</a> <a href="/tags/Linux/" style="font-size: 11.82px;">Linux</a> <a href="/tags/Machine-Learning/" style="font-size: 20px;">Machine Learning</a> <a href="/tags/Math/" style="font-size: 11.82px;">Math</a> <a href="/tags/Mathematics/" style="font-size: 13.64px;">Mathematics</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MeanShift/" style="font-size: 10px;">MeanShift</a> <a href="/tags/Mint/" style="font-size: 10px;">Mint</a> <a href="/tags/OpenCV/" style="font-size: 15.45px;">OpenCV</a> <a href="/tags/Probabilistic-Programming/" style="font-size: 10px;">Probabilistic Programming</a> <a href="/tags/Probability-Distributions/" style="font-size: 10px;">Probability Distributions</a> <a href="/tags/Programming/" style="font-size: 14.55px;">Programming</a> <a href="/tags/Python/" style="font-size: 17.27px;">Python</a> <a href="/tags/Regression/" style="font-size: 11.82px;">Regression</a> <a href="/tags/Resume/" style="font-size: 10px;">Resume</a> <a href="/tags/SVM/" style="font-size: 12.73px;">SVM</a> <a href="/tags/Scala/" style="font-size: 19.09px;">Scala</a> <a href="/tags/Similarity-Search/" style="font-size: 10.91px;">Similarity Search</a> <a href="/tags/Source-code/" style="font-size: 10px;">Source code</a> <a href="/tags/Spark/" style="font-size: 18.18px;">Spark</a> <a href="/tags/Summary/" style="font-size: 10px;">Summary</a> <a href="/tags/Thoughts/" style="font-size: 10.91px;">Thoughts</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/Vim/" style="font-size: 11.82px;">Vim</a> <a href="/tags/Written-Test/" style="font-size: 10px;">Written Test</a> <a href="/tags/Zeppelin/" style="font-size: 10px;">Zeppelin</a> <a href="/tags/boost/" style="font-size: 10px;">boost</a> <a href="/tags/cpp/" style="font-size: 13.64px;">cpp</a> <a href="/tags/opencv/" style="font-size: 10.91px;">opencv</a> <a href="/tags/p-Stable-LSH/" style="font-size: 10px;">p-Stable LSH</a> <a href="/tags/scikit-learn/" style="font-size: 10px;">scikit-learn</a> <a href="/tags/sklearn/" style="font-size: 10.91px;">sklearn</a> <a href="/tags/互联网时代/" style="font-size: 10px;">互联网时代</a> <a href="/tags/位置敏感哈希/" style="font-size: 10.91px;">位置敏感哈希</a> <a href="/tags/分治/" style="font-size: 10px;">分治</a> <a href="/tags/单元测试/" style="font-size: 10px;">单元测试</a> <a href="/tags/反思/" style="font-size: 10px;">反思</a> <a href="/tags/效率/" style="font-size: 10px;">效率</a> <a href="/tags/核方法/" style="font-size: 10px;">核方法</a> <a href="/tags/算法框架/" style="font-size: 10px;">算法框架</a> <a href="/tags/设计模式/" style="font-size: 11.82px;">设计模式</a>
+    </div>
+  </div>
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle"><a href="/archives">Archives</a></p>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">February 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">November 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">29</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a><span class="archive-list-count">16</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">10</span></li></ul>
+  </div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
+</div>
+
+</aside>
+
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Jason Ding in HUST <br/>
+			I would share moments of life here! </p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/1698420390" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/jasonding1354" target="_blank" title="github"></a>
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2016 
+		
+		<a href="http://blog.jasonding.top" target="_blank" title="Jason Ding">Jason Ding</a>
+		
+		</p>
+		<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+  
+  _st('install','uYyEuxJdzzAGXTax33mt','2.0.0');
+</script>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"jasonding"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+  </body>
+</html>

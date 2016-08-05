@@ -1,0 +1,508 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>【Vim】使用map自定义快捷键 | Jason&#39;s Techblog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Jason Ding">
+    
+    <meta name="description" content="map简介map是一个映射命令,将常用的很长的命令映射到一个新的功能键上。map是Vim强大的一个重要原因，可以自定义各种快捷键，用起来自然得心应手。
+映射的种类有五种映射存在：
+
+
+用于普通模式: 输入命令时。 
+用于可视模式: 可视区域高亮并输入命令时。 
+用于操作符等待模式: 操作符等待中 (">
+    
+    
+    
+    
+    <link rel="alternate" href="/atom.xml" title="Jason&#39;s Techblog" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/author.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/author.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F3cc71cd5738b99a1db174951e194ba55' type='text/javascript'%3E%3C/script%3E"));
+
+
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F1dcf1fa58b0eca1ac5bd089ee6a6e78c' type='text/javascript'%3E%3C/script%3E"));
+
+
+</script>
+
+
+    <!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Jason&#39;s Techblog" title="Jason&#39;s Techblog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Jason&#39;s Techblog">Jason&#39;s Techblog</a></h1>
+				<h2 class="blog-motto">Technician =&gt; Scientist =&gt; Philosopher =&gt; Artists</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="http://jasonding.top">Main</a></li>
+					
+					<li>
+					
+						<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" class="st-default-search-input" maxlength="20" placeholder="Search" />
+						</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody">
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/04/29/Developer Kits/【Vim】使用map自定义快捷键/" title="【Vim】使用map自定义快捷键" itemprop="url">【Vim】使用map自定义快捷键</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://blog.jasonding.top" title="Jason Ding">Jason Ding</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2015-04-29T07:07:08.000Z" itemprop="datePublished">2015-04-29</time>
+    Updated:<time datetime="2016-03-16T06:24:42.000Z" itemprop="dateModified">2016-03-16</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#map简介"><span class="toc-number">1.</span> <span class="toc-text">map简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#映射的种类"><span class="toc-number">2.</span> <span class="toc-text">映射的种类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#几种模式的介绍"><span class="toc-number">2.1.</span> <span class="toc-text">几种模式的介绍</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#命令的组合"><span class="toc-number">3.</span> <span class="toc-text">命令的组合</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#普通模式的映射命令"><span class="toc-number">4.</span> <span class="toc-text">普通模式的映射命令</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#map"><span class="toc-number">4.1.</span> <span class="toc-text">map</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#noremap"><span class="toc-number">4.2.</span> <span class="toc-text">noremap</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#unmap"><span class="toc-number">4.3.</span> <span class="toc-text">unmap</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mapclear"><span class="toc-number">4.4.</span> <span class="toc-text">mapclear</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#只用于普通模式的"><span class="toc-number">4.5.</span> <span class="toc-text">只用于普通模式的</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#另外"><span class="toc-number">4.6.</span> <span class="toc-text">另外</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#键表"><span class="toc-number">5.</span> <span class="toc-text">键表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#特殊参数"><span class="toc-number">6.</span> <span class="toc-text">特殊参数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#lt-buffer-gt"><span class="toc-number">6.1.</span> <span class="toc-text"><buffer></span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#lt-silent-gt"><span class="toc-number">6.2.</span> <span class="toc-text"><silent></span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#lt-special-gt"><span class="toc-number">6.3.</span> <span class="toc-text"><special></span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#lt-expr-gt"><span class="toc-number">6.4.</span> <span class="toc-text"><expr></span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#lt-unique-gt"><span class="toc-number">6.5.</span> <span class="toc-text"><unique></span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#lt-Leader-gt-和mapleader变量"><span class="toc-number">6.6.</span> <span class="toc-text"><Leader>和mapleader变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#lt-LocalLeader-gt-和maplocalleader变量"><span class="toc-number">6.7.</span> <span class="toc-text"><LocalLeader>和maplocalleader变量</span></a></li></ol></li></ol>
+		</div>
+		
+		<h2 id="map简介"><a href="#map简介" class="headerlink" title="map简介"></a>map简介</h2><p>map是一个映射命令,将常用的很长的命令映射到一个新的功能键上。map是Vim强大的一个重要原因，可以自定义各种快捷键，用起来自然得心应手。</p>
+<h2 id="映射的种类"><a href="#映射的种类" class="headerlink" title="映射的种类"></a>映射的种类</h2><p>有五种映射存在：</p>
+<blockquote>
+<ul>
+<li>用于普通模式: 输入命令时。 </li>
+<li>用于可视模式: 可视区域高亮并输入命令时。 </li>
+<li>用于操作符等待模式: 操作符等待中 (“d”，”y”，”c” 等等之后)。 </li>
+<li>用于插入模式: 也用于替换模式。 </li>
+<li>用于命令行模式: 输入 “:” 或 “/“ 命令时。 </li>
+</ul>
+</blockquote>
+<p><img src="http://jason-images.qiniudn.com/@/vim/vim_map.jpg" alt=""></p>
+<h3 id="几种模式的介绍"><a href="#几种模式的介绍" class="headerlink" title="几种模式的介绍"></a>几种模式的介绍</h3><ol>
+<li><p>Normal Mode<br>也就是最一般的普通模式，默认进入vim之后，处于这种模式。</p>
+</li>
+<li><p>Visual Mode<br>一般译作可视模式，在这种模式下选定一些字符、行、多列。<br>在普通模式下，可以按v进入。</p>
+</li>
+<li><p>Insert Mode<br>插入模式，其实就是指处在编辑输入的状态。普通模式下，可以按i进入。</p>
+</li>
+<li><p>Select Mode<br>选择模式。用鼠标拖选区域的时候，就进入了选择模式。和可视模式不同的是，在这个模式下，选择完了高亮区域后，敲任何按键就直接输入并替换选择的文本了。和windows下的编辑器选定编辑的效果一致。普通模式下，可以按gh进入。</p>
+</li>
+<li><p>Command-Line/Ex Mode<br>命令行模式和Ex模式。两者略有不同，普通模式下按冒号(:)进入Command-Line模式，可以输入各种命令，<br>使用vim的各种强大功能。普通模式下按Q进入Ex模式，其实就是多行的Command-Line模式。</p>
+</li>
+</ol>
+<h2 id="命令的组合"><a href="#命令的组合" class="headerlink" title="命令的组合"></a>命令的组合</h2><p>同Vim下的其他命令一样，命令的名字往往由好几段组成。前缀作为命令本身的修饰符，微调命令的效果。<br>对于map而言，可能有这么几种前缀：</p>
+<blockquote>
+<ul>
+<li>nore<br>表示非递归。<br>递归的映射。其实很好理解，也就是如果键a被映射成了b，c又被映射成了a，如果映射是递归的，那么c就被映射成了b。</li>
+<li>n<br>表示在普通模式下生效</li>
+<li>v<br>表示在可视模式下生效</li>
+<li>i<br>表示在插入模式下生效</li>
+<li>c<br>表示在命令行模式下生效</li>
+</ul>
+</blockquote>
+<h2 id="普通模式的映射命令"><a href="#普通模式的映射命令" class="headerlink" title="普通模式的映射命令"></a>普通模式的映射命令</h2><h3 id="map"><a href="#map" class="headerlink" title="map"></a>map</h3><p><strong>命令格式：</strong><br><code>:map {lhs} {rhs}</code><br>其含义是，在:map作用的模式中把键系列 {lhs} 映射为 {rhs}，{rhs}可进行映射扫描，也就是可递归映射。 </p>
+<p><strong>举例：</strong><br><code>:map td :tabnew .&lt;cr&gt;</code><br>含义：在其作用模式（普通、可视、操作符）下，输入td等价于输入 <code>:tabnew . &lt;cr&gt;</code>。而普通模式下输入<code>:tabnew . &lt;cr&gt;</code>就是打开当前目录<br>如果再定义绑定 :map ts td，就是指在其作用模式下输入ts等价于td，也就是打开当前目录。不过如果没有特殊需要，一般不建议递归映射。 </p>
+<h3 id="noremap"><a href="#noremap" class="headerlink" title="noremap"></a>noremap</h3><p>:noremap和:map命令相对，作用模式和命令格式都相同，只不过不允许再对{rhs}进行映射扫描，也就是{lhs}定义后的映射就是{rhs}的键序列，不会再对{rhs}键序列重新解释扫描。它一般用于重定义一个命令，当然如果:map不需要递归映射的话，建议使用:noremap<br>比如：<br><code>:noremap ts td</code><br>它的意思是在其作用模式下，输入ts就是输入td，但是和:map不同的是，此时td再不会做进一步扫描解释。虽然之前已经定义了td，但是不会对td再做扫描。</p>
+<h3 id="unmap"><a href="#unmap" class="headerlink" title="unmap"></a>unmap</h3><p>:unmap是对应取消:map绑定的｛lhs｝，作用模式相同，命令格式 :unmap {lhs}。<br>例如：<br><code>:unmap td</code><br>就是取消在其作用模式中td的绑定，比如之前td被绑定为<code>:tabnew .&lt;cr&gt;</code>，此时此绑定消失。</p>
+<h3 id="mapclear"><a href="#mapclear" class="headerlink" title="mapclear"></a>mapclear</h3><p>:mapclear时对应取消所有:map绑定的，慎用！ </p>
+<h3 id="只用于普通模式的"><a href="#只用于普通模式的" class="headerlink" title="只用于普通模式的"></a>只用于普通模式的</h3><p><strong>:nmap</strong><br>:nmap是:map的普通模式板，也就是说其绑定的键只作用于普通模式。<br>例如：<br><code>:nmap td :tabnew .&lt;cr&gt;</code> 和 <code>:map td :tabnew .&lt;cr&gt;</code> 在普通模式下等效<br><strong>:nnoremap</strong><br>:nnorempa和:nmap的关系和:noremap和:map的关系一样，只是:nmap的非递归版<br><strong>:nunmap</strong><br>:nunmap和:nmap的关系和:unmap和:map的关系一样，取消:nmap的绑定。<br><strong>:nmapclear</strong><br>:nmapclear是对应取消所有:map绑定的，慎用！</p>
+<h3 id="另外"><a href="#另外" class="headerlink" title="另外"></a>另外</h3><p>{rhs} 之前可能显示一个特殊字符: </p>
+<ul>
+<li>表示它不可重映射<br>&amp; 表示仅脚本的局部映射可以被重映射<br>@ 表示缓冲区的局部映射 </li>
+</ul>
+<p>到这一步你可以轻松的长吸一口气，因为相关的命令已经都了解了，记不住没关系，可以随时:help map一下。</p>
+<h2 id="键表"><a href="#键表" class="headerlink" title="键表"></a>键表</h2><blockquote>
+<p><code>&lt;k0&gt;</code> - <code>&lt;k9&gt;</code> 小键盘 0 到 9<br><code>&lt;S-...&gt;</code> Shift＋键<br><code>&lt;C-...&gt;</code> Control＋键<br><code>&lt;M-...&gt;</code> Alt＋键 或 meta＋键<br><code>&lt;A-...&gt;</code> 同 <code>&lt;M-...&gt;</code><br><code>&lt;Esc&gt;</code>  Escape 键<br><code>&lt;Up&gt;</code> 光标上移键<br><code>&lt;Space&gt;</code>  插入空格<br><code>&lt;Tab&gt;</code>  插入Tab<br><code>&lt;CR&gt;</code> 等于<code>&lt;Enter&gt;</code></p>
+</blockquote>
+<h2 id="特殊参数"><a href="#特殊参数" class="headerlink" title="特殊参数"></a>特殊参数</h2><p>有些特殊参数必须映射命令的后边，在其他任何参数的前面。</p>
+<h3 id="lt-buffer-gt"><a href="#lt-buffer-gt" class="headerlink" title="&lt;buffer&gt;"></a><code>&lt;buffer&gt;</code></h3><p><code>&lt;buffer&gt;</code>如果这些映射命令的第一个参数是<code>&lt;buffer&gt;</code>，映射将只局限于当前缓冲区（也就是你此时正编辑的文件）内。比如：<br><code>:map &lt;buffer&gt; ,w /a&lt;CR&gt;</code><br>它的意思时在当前缓冲区里定义键绑定，“,w”将在当前缓冲区里查找字符a。同样你可以在其他缓冲区里定义：<br><code>:map &lt;buffer&gt; ,w /b&lt;CR&gt;</code><br>比如我经常打开多个标签(:tabedit)，想要在各自标签里定义”,w”键绑定，那么你只要在每个标签页里分别定义就可，其作用域也只在各自的标签里。同样要清除这些缓冲区的键绑定也要加上<code>&lt;buffer&gt;</code>参数，比如：<br><code>:unmap &lt;buffer&gt; ,w</code><br><code>:mapclear &lt;buffer&gt;</code></p>
+<h3 id="lt-silent-gt"><a href="#lt-silent-gt" class="headerlink" title="&lt;silent&gt;"></a><code>&lt;silent&gt;</code></h3><p><code>&lt;silent&gt;</code>是指执行键绑定时不在命令行上回显，比如：<br><code>:map &lt;silent&gt; ,w /abcd&lt;CR&gt;</code><br>你在输入,w查找abcd时，命令行上不会显示/abcd，如果没有<code>&lt;silent&gt;</code>参数就会显示出来。</p>
+<h3 id="lt-special-gt"><a href="#lt-special-gt" class="headerlink" title="&lt;special&gt;"></a><code>&lt;special&gt;</code></h3><p><code>&lt;special&gt;</code>一般用于定义特殊键怕有副作用的场合。比如：<br><code>:map &lt;special&gt; &lt;F12&gt; /Header&lt;CR&gt;</code></p>
+<h3 id="lt-expr-gt"><a href="#lt-expr-gt" class="headerlink" title="&lt;expr&gt;"></a><code>&lt;expr&gt;</code></h3><p><code>&lt;expr&gt;</code>. 如果定义新映射的第一个参数是<code>&lt;expr&gt;</code>，那么参数会作为表达式来进行计算，结果使用实际使用的<rhs>，例如：<br><code>:inoremap &lt;expr&gt; . InsertDot()</code><br>这可以用来检查光标之前的文本并在一定条件下启动全能 (omni) 补全。<br>一个例子：<br><figure class="highlight vim"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> counter = <span class="number">0</span> </div><div class="line"><span class="keyword">inoremap</span> <span class="symbol">&lt;expr&gt;</span> <span class="symbol">&lt;C-L&gt;</span> ListItem() </div><div class="line"><span class="keyword">inoremap</span> <span class="symbol">&lt;expr&gt;</span> <span class="symbol">&lt;C-R&gt;</span> ListReset() </div><div class="line"></div><div class="line">func ListItem() </div><div class="line"><span class="keyword">let</span> <span class="variable">g:counter</span> += <span class="number">1</span> </div><div class="line"><span class="keyword">return</span> <span class="variable">g:counter</span> . <span class="string">'. '</span> </div><div class="line">endfunc </div><div class="line"></div><div class="line">func ListReset() </div><div class="line"><span class="keyword">let</span> <span class="variable">g:counter</span> = <span class="number">0</span> </div><div class="line"><span class="keyword">return</span> <span class="string">''</span> </div><div class="line">endfunc</div></pre></td></tr></table></figure></rhs></p>
+<p>在插入模式下，CTRL-L插入顺序的列表编号，并返回；CTRL-R复位列表编号到0，并返回空。 </p>
+<h3 id="lt-unique-gt"><a href="#lt-unique-gt" class="headerlink" title="&lt;unique&gt;"></a><code>&lt;unique&gt;</code></h3><p><code>&lt;unique&gt;</code>一般用于定义新的键映射或者缩写命令的同时检查是否该键已经被映射，如果该映射或者缩写已经存在，则该命令会失败 </p>
+<h3 id="lt-Leader-gt-和mapleader变量"><a href="#lt-Leader-gt-和mapleader变量" class="headerlink" title="&lt;Leader&gt;和mapleader变量"></a><code>&lt;Leader&gt;</code>和mapleader变量</h3><p>mapleader变量对所有map映射命令起效，它的作用是将参数<code>&lt;leader&gt;</code>替换成mapleader变量的值，比如：<br><code>:map &lt;Leader&gt;A oanother line&lt;Esc&gt;</code><br>如果mapleader变量没有设置，则用默认的反斜杠代替，因此这个映射等效于：<br><code>:map \A oanother line&lt;Esc&gt;</code><br>意思时输入\A键时，在下一行输入another line并返回到普通模式。<br>如果设置了mapleader变量，比如：<br><code>let mapleader = &quot;,&quot;</code><br>那么就等效于：<br><code>:map ,A oanother line&lt;Esc&gt;</code></p>
+<h3 id="lt-LocalLeader-gt-和maplocalleader变量"><a href="#lt-LocalLeader-gt-和maplocalleader变量" class="headerlink" title="&lt;LocalLeader&gt;和maplocalleader变量"></a><code>&lt;LocalLeader&gt;</code>和maplocalleader变量</h3><p><code>&lt;LocalLeader&gt;和&lt;Leader&gt;</code>类似，只不过它只作用于缓冲区。<br>因此在设置mapleader和maplocalleader时最好区分开，不要出现冲突。 </p>
+<p><strong>转载请注明作者Jason Ding及其出处</strong><br><a href="http://jasonding1354.gitcafe.io/" target="_blank" rel="external">GitCafe博客主页(http://jasonding1354.gitcafe.io/)</a><br><a href="http://jasonding1354.github.io/" target="_blank" rel="external">Github博客主页(http://jasonding1354.github.io/)</a><br><a href="http://blog.csdn.net/jasonding1354" target="_blank" rel="external">CSDN博客(http://blog.csdn.net/jasonding1354)</a><br><a href="http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles" target="_blank" rel="external">简书主页(http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles)</a><br><strong>百度搜索jasonding1354进入我的博客主页</strong></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Vim/">Vim</a>
+  </div>
+
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Developer-Kits/">Developer Kits</a>
+</div>
+
+
+
+<div class="article-share" id="share">
+
+  
+<div class="jiathis_style">
+    <span class="jiathis_txt">分享到：</span>
+    <a class="jiathis_button_tsina">新浪微博</a>
+    <a class="jiathis_button_weixin">微信</a>
+    <a class="jiathis_button_twitter">Twitter</a>
+    <a class="jiathis_button_evernote">EverNote</a>
+    <a href="http://www.jiathis.com/share?uid=1501277" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript" >
+    var jiathis_config={
+    data_track_clickback:true,
+    sm:"copy,renren,cqq",
+    pic:"",
+    summary:"",
+    
+  </script> 
+<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=
+1394018007141544" charset="utf-8"></script>      
+
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2015/05/01/Machine Learning/【机器学习基础】支持向量回归/" title="【机器学习基础】支持向量回归">
+  <strong>之后的一篇</strong><br/>
+  <span>
+  【机器学习基础】支持向量回归</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2015/04/29/Developer Kits/【Vim】使用Vundle管理配置Vim基本插件/"  title="【Vim】使用Vundle管理配置Vim基本插件">
+ <strong>之前的一篇</strong><br/> 
+ <span>【Vim】使用Vundle管理配置Vim基本插件
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section class="comment">
+	<div class="ds-thread"></div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#map简介"><span class="toc-number">1.</span> <span class="toc-text">map简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#映射的种类"><span class="toc-number">2.</span> <span class="toc-text">映射的种类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#几种模式的介绍"><span class="toc-number">2.1.</span> <span class="toc-text">几种模式的介绍</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#命令的组合"><span class="toc-number">3.</span> <span class="toc-text">命令的组合</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#普通模式的映射命令"><span class="toc-number">4.</span> <span class="toc-text">普通模式的映射命令</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#map"><span class="toc-number">4.1.</span> <span class="toc-text">map</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#noremap"><span class="toc-number">4.2.</span> <span class="toc-text">noremap</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#unmap"><span class="toc-number">4.3.</span> <span class="toc-text">unmap</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mapclear"><span class="toc-number">4.4.</span> <span class="toc-text">mapclear</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#只用于普通模式的"><span class="toc-number">4.5.</span> <span class="toc-text">只用于普通模式的</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#另外"><span class="toc-number">4.6.</span> <span class="toc-text">另外</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#键表"><span class="toc-number">5.</span> <span class="toc-text">键表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#特殊参数"><span class="toc-number">6.</span> <span class="toc-text">特殊参数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#lt-buffer-gt"><span class="toc-number">6.1.</span> <span class="toc-text"><buffer></span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#lt-silent-gt"><span class="toc-number">6.2.</span> <span class="toc-text"><silent></span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#lt-special-gt"><span class="toc-number">6.3.</span> <span class="toc-text"><special></span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#lt-expr-gt"><span class="toc-number">6.4.</span> <span class="toc-text"><expr></span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#lt-unique-gt"><span class="toc-number">6.5.</span> <span class="toc-text"><unique></span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#lt-Leader-gt-和mapleader变量"><span class="toc-number">6.6.</span> <span class="toc-text"><Leader>和mapleader变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#lt-LocalLeader-gt-和maplocalleader变量"><span class="toc-number">6.7.</span> <span class="toc-text"><LocalLeader>和maplocalleader变量</span></a></li></ol></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+<div class="maps">
+    <p class="asidetitle">访问统计</p>
+    <br>
+    <script type="text/javascript" src="//ra.revolvermaps.com/0/0/6.js?i=0leibswamim&amp;m=0&amp;s=210&amp;c=ff0000&amp;cr1=ffffff&amp;f=arial&amp;l=0" async="async"></script>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">Categories</p>
+		<ul>
+		
+			<li><a href="/categories/Algorithm-Problem/" title="Algorithm Problem">Algorithm Problem<sup>1</sup></a></li>
+		
+			<li><a href="/categories/C/" title="C++">C++<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Classic-Algorithm/" title="Classic Algorithm">Classic Algorithm<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Cluster-Analysis/" title="Cluster Analysis">Cluster Analysis<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Design-Pattern/" title="Design Pattern">Design Pattern<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Developer-Kits/" title="Developer Kits">Developer Kits<sup>5</sup></a></li>
+		
+			<li><a href="/categories/Energy-Big-Data/" title="Energy Big Data">Energy Big Data<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Feature-Engineering/" title="Feature Engineering">Feature Engineering<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Functional/" title="Functional">Functional<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Functional-Programming/" title="Functional Programming">Functional Programming<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Git/" title="Git">Git<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Jobs/" title="Jobs">Jobs<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>4</sup></a></li>
+		
+			<li><a href="/categories/ML-Experiments/" title="ML Experiments">ML Experiments<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Machine-Learning/" title="Machine Learning">Machine Learning<sup>50</sup></a></li>
+		
+			<li><a href="/categories/Math/" title="Math">Math<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Programming/" title="Programming">Programming<sup>11</sup></a></li>
+		
+			<li><a href="/categories/Python/" title="Python">Python<sup>10</sup></a></li>
+		
+			<li><a href="/categories/Scala/" title="Scala">Scala<sup>27</sup></a></li>
+		
+			<li><a href="/categories/Scala-ML/" title="Scala-ML">Scala-ML<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Similarity-Search/" title="Similarity Search">Similarity Search<sup>4</sup></a></li>
+		
+			<li><a href="/categories/Small-Problems/" title="Small Problems">Small Problems<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Spark/" title="Spark">Spark<sup>23</sup></a></li>
+		
+			<li><a href="/categories/Thoughts/" title="Thoughts">Thoughts<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">Tag Cloud</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/Actor/" style="font-size: 10px;">Actor</a> <a href="/tags/Akka/" style="font-size: 14.55px;">Akka</a> <a href="/tags/Algorithm/" style="font-size: 10px;">Algorithm</a> <a href="/tags/Approximate-Nearest-Neighbor-Search/" style="font-size: 10px;">Approximate Nearest Neighbor Search</a> <a href="/tags/Bayesian-Analysis/" style="font-size: 10.91px;">Bayesian Analysis</a> <a href="/tags/Big-Data/" style="font-size: 10px;">Big Data</a> <a href="/tags/C/" style="font-size: 12.73px;">C++</a> <a href="/tags/Classification/" style="font-size: 11.82px;">Classification</a> <a href="/tags/Cluster-Analysis/" style="font-size: 10px;">Cluster Analysis</a> <a href="/tags/Computer-Vision/" style="font-size: 14.55px;">Computer Vision</a> <a href="/tags/Eclipse/" style="font-size: 10px;">Eclipse</a> <a href="/tags/Energy-Forecasting/" style="font-size: 10px;">Energy Forecasting</a> <a href="/tags/Feature-Engineering/" style="font-size: 10.91px;">Feature Engineering</a> <a href="/tags/Functional-Programming/" style="font-size: 16.36px;">Functional Programming</a> <a href="/tags/Gaussian-Process/" style="font-size: 10px;">Gaussian Process</a> <a href="/tags/Git/" style="font-size: 10.91px;">Git</a> <a href="/tags/GraphLab/" style="font-size: 10px;">GraphLab</a> <a href="/tags/IPython/" style="font-size: 10px;">IPython</a> <a href="/tags/Internet-of-Energy/" style="font-size: 10px;">Internet of Energy</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/Kaggle/" style="font-size: 10px;">Kaggle</a> <a href="/tags/Kernel-Method/" style="font-size: 10px;">Kernel Method</a> <a href="/tags/LSH/" style="font-size: 12.73px;">LSH</a> <a href="/tags/LaTex/" style="font-size: 10px;">LaTex</a> <a href="/tags/Linux/" style="font-size: 11.82px;">Linux</a> <a href="/tags/Machine-Learning/" style="font-size: 20px;">Machine Learning</a> <a href="/tags/Math/" style="font-size: 11.82px;">Math</a> <a href="/tags/Mathematics/" style="font-size: 13.64px;">Mathematics</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MeanShift/" style="font-size: 10px;">MeanShift</a> <a href="/tags/Mint/" style="font-size: 10px;">Mint</a> <a href="/tags/OpenCV/" style="font-size: 15.45px;">OpenCV</a> <a href="/tags/Probabilistic-Programming/" style="font-size: 10px;">Probabilistic Programming</a> <a href="/tags/Probability-Distributions/" style="font-size: 10px;">Probability Distributions</a> <a href="/tags/Programming/" style="font-size: 14.55px;">Programming</a> <a href="/tags/Python/" style="font-size: 17.27px;">Python</a> <a href="/tags/Regression/" style="font-size: 11.82px;">Regression</a> <a href="/tags/Resume/" style="font-size: 10px;">Resume</a> <a href="/tags/SVM/" style="font-size: 12.73px;">SVM</a> <a href="/tags/Scala/" style="font-size: 19.09px;">Scala</a> <a href="/tags/Similarity-Search/" style="font-size: 10.91px;">Similarity Search</a> <a href="/tags/Source-code/" style="font-size: 10px;">Source code</a> <a href="/tags/Spark/" style="font-size: 18.18px;">Spark</a> <a href="/tags/Summary/" style="font-size: 10px;">Summary</a> <a href="/tags/Thoughts/" style="font-size: 10.91px;">Thoughts</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/Vim/" style="font-size: 11.82px;">Vim</a> <a href="/tags/Written-Test/" style="font-size: 10px;">Written Test</a> <a href="/tags/Zeppelin/" style="font-size: 10px;">Zeppelin</a> <a href="/tags/boost/" style="font-size: 10px;">boost</a> <a href="/tags/cpp/" style="font-size: 13.64px;">cpp</a> <a href="/tags/opencv/" style="font-size: 10.91px;">opencv</a> <a href="/tags/p-Stable-LSH/" style="font-size: 10px;">p-Stable LSH</a> <a href="/tags/scikit-learn/" style="font-size: 10px;">scikit-learn</a> <a href="/tags/sklearn/" style="font-size: 10.91px;">sklearn</a> <a href="/tags/互联网时代/" style="font-size: 10px;">互联网时代</a> <a href="/tags/位置敏感哈希/" style="font-size: 10.91px;">位置敏感哈希</a> <a href="/tags/分治/" style="font-size: 10px;">分治</a> <a href="/tags/单元测试/" style="font-size: 10px;">单元测试</a> <a href="/tags/反思/" style="font-size: 10px;">反思</a> <a href="/tags/效率/" style="font-size: 10px;">效率</a> <a href="/tags/核方法/" style="font-size: 10px;">核方法</a> <a href="/tags/算法框架/" style="font-size: 10px;">算法框架</a> <a href="/tags/设计模式/" style="font-size: 11.82px;">设计模式</a>
+    </div>
+  </div>
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle"><a href="/archives">Archives</a></p>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">February 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">November 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">29</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a><span class="archive-list-count">16</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">10</span></li></ul>
+  </div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
+</div>
+
+</aside>
+
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Jason Ding in HUST <br/>
+			I would share moments of life here! </p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/1698420390" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/jasonding1354" target="_blank" title="github"></a>
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2016 
+		
+		<a href="http://blog.jasonding.top" target="_blank" title="Jason Ding">Jason Ding</a>
+		
+		</p>
+		<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+  
+  _st('install','uYyEuxJdzzAGXTax33mt','2.0.0');
+</script>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"jasonding"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+  </body>
+</html>

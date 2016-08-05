@@ -1,0 +1,469 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>【计算机视觉】人脸实时跟踪1——利用CamShift来跟踪人脸 | Jason&#39;s Techblog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Jason Ding">
+    
+    <meta name="description" content="介绍这里的方法是根据颜色直方图的方式进行人脸或者特定物体的跟踪的，具体步骤是首先计算指定区域的色彩直方图，然后再根据该色彩直方图对整个图片区域进行反投影计算，得到的是该图片中复合指定区域色彩直方图分布的概率分布，最终通过多次迭代，得到一个输出的目标窗口。
+实例代码下面是OpenCV提供的演示代码
+1">
+    
+    
+    
+    
+    <link rel="alternate" href="/atom.xml" title="Jason&#39;s Techblog" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/author.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/author.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F3cc71cd5738b99a1db174951e194ba55' type='text/javascript'%3E%3C/script%3E"));
+
+
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F1dcf1fa58b0eca1ac5bd089ee6a6e78c' type='text/javascript'%3E%3C/script%3E"));
+
+
+</script>
+
+
+    <!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Jason&#39;s Techblog" title="Jason&#39;s Techblog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Jason&#39;s Techblog">Jason&#39;s Techblog</a></h1>
+				<h2 class="blog-motto">Technician =&gt; Scientist =&gt; Philosopher =&gt; Artists</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="http://jasonding.top">Main</a></li>
+					
+					<li>
+					
+						<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" class="st-default-search-input" maxlength="20" placeholder="Search" />
+						</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody">
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2014/11/06/Machine Learning/【计算机视觉】人脸实时跟踪1——利用CamShift来跟踪人脸/" title="【计算机视觉】人脸实时跟踪1——利用CamShift来跟踪人脸" itemprop="url">【计算机视觉】人脸实时跟踪1——利用CamShift来跟踪人脸</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://blog.jasonding.top" title="Jason Ding">Jason Ding</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2014-11-06T06:42:13.000Z" itemprop="datePublished">2014-11-06</time>
+    Updated:<time datetime="2016-03-16T06:24:42.000Z" itemprop="dateModified">2016-03-16</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#介绍"><span class="toc-number">1.</span> <span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实例代码"><span class="toc-number">2.</span> <span class="toc-text">实例代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#解释"><span class="toc-number">3.</span> <span class="toc-text">解释</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#跟踪特定物体过程"><span class="toc-number">4.</span> <span class="toc-text">跟踪特定物体过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#颜色直方图的计算"><span class="toc-number">4.1.</span> <span class="toc-text">颜色直方图的计算</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#计算反投影"><span class="toc-number">4.2.</span> <span class="toc-text">计算反投影</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CamShift算法进行更新迭代"><span class="toc-number">4.3.</span> <span class="toc-text">CamShift算法进行更新迭代</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#结束语"><span class="toc-number">4.4.</span> <span class="toc-text">结束语</span></a></li></ol></li></ol>
+		</div>
+		
+		<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>这里的方法是根据颜色直方图的方式进行人脸或者特定物体的跟踪的，具体步骤是首先计算指定区域的色彩直方图，然后再根据该色彩直方图对整个图片区域进行反投影计算，得到的是该图片中复合指定区域色彩直方图分布的概率分布，最终通过多次迭代，得到一个输出的目标窗口。</p>
+<h2 id="实例代码"><a href="#实例代码" class="headerlink" title="实例代码"></a>实例代码</h2><p>下面是OpenCV提供的演示代码</p>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div><div class="line">158</div><div class="line">159</div><div class="line">160</div><div class="line">161</div><div class="line">162</div><div class="line">163</div><div class="line">164</div><div class="line">165</div><div class="line">166</div><div class="line">167</div><div class="line">168</div><div class="line">169</div><div class="line">170</div><div class="line">171</div><div class="line">172</div><div class="line">173</div><div class="line">174</div><div class="line">175</div><div class="line">176</div><div class="line">177</div><div class="line">178</div><div class="line">179</div><div class="line">180</div><div class="line">181</div><div class="line">182</div><div class="line">183</div><div class="line">184</div><div class="line">185</div><div class="line">186</div><div class="line">187</div><div class="line">188</div><div class="line">189</div><div class="line">190</div><div class="line">191</div><div class="line">192</div><div class="line">193</div><div class="line">194</div><div class="line">195</div><div class="line">196</div><div class="line">197</div><div class="line">198</div><div class="line">199</div><div class="line">200</div><div class="line">201</div><div class="line">202</div><div class="line">203</div><div class="line">204</div><div class="line">205</div><div class="line">206</div><div class="line">207</div><div class="line">208</div><div class="line">209</div><div class="line">210</div><div class="line">211</div><div class="line">212</div><div class="line">213</div><div class="line">214</div><div class="line">215</div><div class="line">216</div><div class="line">217</div><div class="line">218</div><div class="line">219</div><div class="line">220</div><div class="line">221</div><div class="line">222</div><div class="line">223</div><div class="line">224</div><div class="line">225</div></pre></td><td class="code"><pre><div class="line"><span class="meta"># <span class="meta-keyword">include</span> <span class="meta-string">"StdAfx.h"</span></span></div><div class="line"></div><div class="line"><span class="meta"># <span class="meta-keyword">include</span> <span class="meta-string">"opencv2/video/tracking.hpp"</span></span></div><div class="line"><span class="meta"># <span class="meta-keyword">include</span> <span class="meta-string">"opencv2/imgproc/imgproc.hpp"</span></span></div><div class="line"><span class="meta"># <span class="meta-keyword">include</span> <span class="meta-string">"opencv2/highgui/highgui.hpp"</span></span></div><div class="line"></div><div class="line"></div><div class="line"><span class="meta"># <span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></div><div class="line"><span class="meta"># <span class="meta-keyword">include</span> <span class="meta-string">&lt;ctype.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> cv;</div><div class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</div><div class="line"></div><div class="line">Mat <span class="built_in">image</span>;</div><div class="line"></div><div class="line"><span class="keyword">bool</span> backprojMode = false; <span class="comment">//表示是否要进入反向投影模式，ture表示准备进入反向投影模式</span></div><div class="line"><span class="keyword">bool</span> selectObject = false;<span class="comment">//代表是否在选要跟踪的初始目标，true表示正在用鼠标选择</span></div><div class="line"><span class="keyword">int</span> trackObject = <span class="number">0</span>; <span class="comment">//代表跟踪目标数目</span></div><div class="line"><span class="keyword">bool</span> showHist = true;<span class="comment">//是否显示直方图</span></div><div class="line">Point origin;<span class="comment">//用于保存鼠标选择第一次单击时点的位置</span></div><div class="line">Rect selection;<span class="comment">//用于保存鼠标选择的矩形框</span></div><div class="line"><span class="keyword">int</span> vmin = <span class="number">10</span>, vmax = <span class="number">256</span>, smin = <span class="number">30</span>;</div><div class="line"></div><div class="line"><span class="keyword">void</span> onMouse( <span class="keyword">int</span> event, <span class="keyword">int</span> x, <span class="keyword">int</span> y, <span class="keyword">int</span>, <span class="keyword">void</span>* )</div><div class="line">&#123;</div><div class="line">    <span class="built_in">if</span>( selectObject )<span class="comment">//只有当鼠标左键按下去时才有效，然后通过if里面代码就可以确定所选择的矩形区域selection了</span></div><div class="line">    &#123;</div><div class="line">        selection.x = MIN(x, origin.x);<span class="comment">//矩形左上角顶点坐标</span></div><div class="line">        selection.y = MIN(y, origin.y);</div><div class="line">        selection.<span class="built_in">width</span> = std::<span class="built_in">abs</span>(x - origin.x);<span class="comment">//矩形宽</span></div><div class="line">        selection.<span class="built_in">height</span> = std::<span class="built_in">abs</span>(y - origin.y);<span class="comment">//矩形高</span></div><div class="line"></div><div class="line">        selection &amp;= Rect(<span class="number">0</span>, <span class="number">0</span>, <span class="built_in">image</span>.cols, <span class="built_in">image</span>.rows);<span class="comment">//用于确保所选的矩形区域在图片范围内</span></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="built_in">switch</span>( event )</div><div class="line">    &#123;</div><div class="line">    <span class="built_in">case</span> CV_EVENT_LBUTTONDOWN:</div><div class="line">        origin = Point(x,y);</div><div class="line">        selection = Rect(x,y,<span class="number">0</span>,<span class="number">0</span>);<span class="comment">//鼠标刚按下去时初始化了一个矩形区域</span></div><div class="line">        selectObject = true;</div><div class="line">        <span class="built_in">break</span>;</div><div class="line">    <span class="built_in">case</span> CV_EVENT_LBUTTONUP:</div><div class="line">        selectObject = false;</div><div class="line">        <span class="built_in">if</span>( selection.<span class="built_in">width</span> &gt; <span class="number">0</span> &amp;&amp; selection.<span class="built_in">height</span> &gt; <span class="number">0</span> )</div><div class="line">            trackObject = <span class="number">-1</span>;</div><div class="line">        <span class="built_in">break</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">void</span> help()</div><div class="line">&#123;</div><div class="line">    cout &lt;&lt; <span class="string">"\nThis is a demo that shows mean-shift based tracking\n"</span></div><div class="line">            <span class="string">"You select a color objects such as your face and it tracks it.\n"</span></div><div class="line">            <span class="string">"This reads from video camera (0 by default, or the camera number the user enters\n"</span></div><div class="line">            <span class="string">"Usage: \n"</span></div><div class="line">            <span class="string">"    ./camshiftdemo [camera number]\n"</span>;</div><div class="line"></div><div class="line">    cout &lt;&lt; <span class="string">"\n\nHot keys: \n"</span></div><div class="line">            <span class="string">"\tESC - quit the program\n"</span></div><div class="line">            <span class="string">"\tc - stop the tracking\n"</span></div><div class="line">            <span class="string">"\tb - switch to/from backprojection view\n"</span></div><div class="line">            <span class="string">"\th - show/hide object histogram\n"</span></div><div class="line">            <span class="string">"\tp - pause video\n"</span></div><div class="line">            <span class="string">"To initialize tracking, select the object with mouse\n"</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">const</span> <span class="keyword">char</span>* keys = </div><div class="line">&#123;</div><div class="line">    <span class="string">"&#123;1|  | 0 | camera number&#125;"</span></div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="keyword">int</span> main( <span class="keyword">int</span> argc, <span class="keyword">const</span> <span class="keyword">char</span>** argv )</div><div class="line">&#123;</div><div class="line">    help();</div><div class="line"></div><div class="line">    VideoCapture cap; <span class="comment">//定义一个摄像头捕捉的类对象</span></div><div class="line">    Rect trackWindow;</div><div class="line">    RotatedRect trackBox;<span class="comment">//定义一个旋转的矩阵类对象</span></div><div class="line">    <span class="keyword">int</span> hsize = <span class="number">16</span>;</div><div class="line">    <span class="keyword">float</span> hranges[] = &#123;<span class="number">0</span>,<span class="number">180</span>&#125;;<span class="comment">//hranges在后面的计算直方图函数中要用到</span></div><div class="line">    <span class="keyword">const</span> <span class="keyword">float</span>* phranges = hranges;</div><div class="line">    CommandLineParser parser(argc, argv, keys);<span class="comment">//命令解析器函数</span></div><div class="line">    <span class="keyword">int</span> camNum = parser.<span class="built_in">get</span>&lt;<span class="keyword">int</span>&gt;(<span class="string">"1"</span>);     </div><div class="line">    </div><div class="line">    cap.<span class="built_in">open</span>(camNum);<span class="comment">//直接调用成员函数打开摄像头</span></div><div class="line"></div><div class="line">    <span class="built_in">if</span>( !cap.isOpened() )</div><div class="line">    &#123;</div><div class="line">        help();</div><div class="line">        cout &lt;&lt; <span class="string">"***Could not initialize capturing...***\n"</span>;</div><div class="line">        cout &lt;&lt; <span class="string">"Current parameter's value: \n"</span>;</div><div class="line">        parser.printParams();</div><div class="line">        <span class="built_in">return</span> <span class="number">-1</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    namedWindow( <span class="string">"Histogram"</span>, <span class="number">0</span> );</div><div class="line">    namedWindow( <span class="string">"CamShift Demo"</span>, <span class="number">0</span> );</div><div class="line">    setMouseCallback( <span class="string">"CamShift Demo"</span>, onMouse, <span class="number">0</span> );<span class="comment">//消息响应机制</span></div><div class="line">    createTrackbar( <span class="string">"Vmin"</span>, <span class="string">"CamShift Demo"</span>, &amp;vmin, <span class="number">256</span>, <span class="number">0</span> );<span class="comment">//createTrackbar函数的功能是在对应的窗口创建滑动条，滑动条Vmin,vmin表示滑动条的值，最大为256</span></div><div class="line">    createTrackbar( <span class="string">"Vmax"</span>, <span class="string">"CamShift Demo"</span>, &amp;vmax, <span class="number">256</span>, <span class="number">0</span> );<span class="comment">//最后一个参数为0代表没有调用滑动拖动的响应函数</span></div><div class="line">    createTrackbar( <span class="string">"Smin"</span>, <span class="string">"CamShift Demo"</span>, &amp;smin, <span class="number">256</span>, <span class="number">0</span> );<span class="comment">//vmin,vmax,smin初始值分别为10,256,30</span></div><div class="line"></div><div class="line">    Mat frame, hsv, hue, mask, hist, histimg = Mat::zeros(<span class="number">200</span>, <span class="number">320</span>, CV_8UC3), backproj;</div><div class="line">    <span class="keyword">bool</span> paused = false;</div><div class="line">    </div><div class="line">    <span class="built_in">for</span>(;;)</div><div class="line">    &#123;</div><div class="line">        <span class="built_in">if</span>( !paused )<span class="comment">//没有暂停</span></div><div class="line">        &#123;</div><div class="line">            cap &gt;&gt; frame;<span class="comment">//从摄像头抓取一帧图像并输出到frame中</span></div><div class="line">            <span class="built_in">if</span>( frame.empty() )</div><div class="line">                <span class="built_in">break</span>;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        frame.copyTo(<span class="built_in">image</span>);</div><div class="line">        </div><div class="line">        <span class="built_in">if</span>( !paused )<span class="comment">//没有按暂停键</span></div><div class="line">        &#123;</div><div class="line">            cvtColor(<span class="built_in">image</span>, hsv, CV_BGR2HSV);<span class="comment">//将rgb摄像头帧转化成hsv空间的</span></div><div class="line"></div><div class="line">            <span class="built_in">if</span>( trackObject )<span class="comment">//trackObject初始化为0,或者按完键盘的'c'键后也为0，当鼠标单击松开后为-1</span></div><div class="line">            &#123;</div><div class="line">                <span class="keyword">int</span> _vmin = vmin, _vmax = vmax;</div><div class="line"></div><div class="line">                <span class="comment">//inRange函数的功能是检查输入数组每个元素大小是否在2个给定数值之间，可以有多通道,mask保存0通道的最小值，也就是h分量</span></div><div class="line"><span class="comment">//这里利用了hsv的3个通道，比较h,0~180,s,smin~256,v,min(vmin,vmax),max(vmin,vmax)。如果3个通道都在对应的范围内，则</span></div><div class="line"><span class="comment">//mask对应的那个点的值全为1(0xff)，否则为0(0x00).</span></div><div class="line">                inRange(hsv, Scalar(<span class="number">0</span>, smin, MIN(_vmin,_vmax)),</div><div class="line">                        Scalar(<span class="number">180</span>, <span class="number">256</span>, MAX(_vmin, _vmax)), mask);</div><div class="line">                <span class="keyword">int</span> ch[] = &#123;<span class="number">0</span>, <span class="number">0</span>&#125;;</div><div class="line">                hue.create(hsv.<span class="built_in">size</span>(), hsv.depth());<span class="comment">//hue初始化为与hsv大小深度一样的矩阵，色调的度量是用角度表示的，红绿蓝之间相差120度，反色相差180度</span></div><div class="line">                mixChannels(&amp;hsv, <span class="number">1</span>, &amp;hue, <span class="number">1</span>, ch, <span class="number">1</span>);<span class="comment">//将hsv第一个通道(也就是色调)的数复制到hue中，0索引数组</span></div><div class="line"></div><div class="line">                <span class="built_in">if</span>( trackObject &lt; <span class="number">0</span> )<span class="comment">//鼠标选择区域松开后，该函数内部又将其赋值1</span></div><div class="line">                &#123;</div><div class="line">                    <span class="comment">//此处的构造函数roi用的是Mat hue的矩阵头，且roi的数据指针指向hue，即共用相同的数据，select为其感兴趣的区域</span></div><div class="line">                    Mat roi(hue, selection), maskroi(mask, selection);<span class="comment">//mask保存的hsv的最小值</span></div><div class="line"></div><div class="line"><span class="comment">//calcHist()函数第一个参数为输入矩阵序列，第2个参数表示输入的矩阵数目，第3个参数表示将被计算直方图维数通道的列表，第4个参数表示可选的掩码函数</span></div><div class="line"><span class="comment">//第5个参数表示输出直方图，第6个参数表示直方图的维数，第7个参数为每一维直方图数组的大小，第8个参数为每一维直方图bin的边界</span></div><div class="line">                    calcHist(&amp;roi, <span class="number">1</span>, <span class="number">0</span>, maskroi, hist, <span class="number">1</span>, &amp;hsize, &amp;phranges);<span class="comment">//将roi的0通道计算直方图并通过mask放入hist中，hsize为每一维直方图的大小</span></div><div class="line">                    normalize(hist, hist, <span class="number">0</span>, <span class="number">255</span>, CV_MINMAX);<span class="comment">//将hist矩阵进行数组范围归一化，都归一化到0~255</span></div><div class="line">                    </div><div class="line">                    trackWindow = selection;</div><div class="line">                    trackObject = <span class="number">1</span>;<span class="comment">//只要鼠标选完区域松开后，且没有按键盘清0键'c'，则trackObject一直保持为1，因此该if函数只能执行一次，除非重新选择跟踪区域</span></div><div class="line"></div><div class="line">                    histimg = Scalar::all(<span class="number">0</span>);<span class="comment">//与按下'c'键是一样的，这里的all(0)表示的是标量全部清0</span></div><div class="line">                    <span class="keyword">int</span> binW = histimg.cols / hsize;  <span class="comment">//histing是一个200*300的矩阵，hsize应该是每一个bin的宽度，也就是histing矩阵能分出几个bin出来</span></div><div class="line">                    Mat buf(<span class="number">1</span>, hsize, CV_8UC3);<span class="comment">//定义一个缓冲单bin矩阵</span></div><div class="line">                    <span class="built_in">for</span>( <span class="keyword">int</span> i = <span class="number">0</span>; i &lt; hsize; i++ )<span class="comment">//saturate_case函数为从一个初始类型准确变换到另一个初始类型</span></div><div class="line">                        buf.at&lt;Vec3b&gt;(i) = Vec3b(saturate_cast&lt;uchar&gt;(i*<span class="number">180.</span>/hsize), <span class="number">255</span>, <span class="number">255</span>);<span class="comment">//Vec3b为3个char值的向量</span></div><div class="line">                    cvtColor(buf, buf, CV_HSV2BGR);<span class="comment">//将hsv又转换成bgr</span></div><div class="line">                        </div><div class="line">                    <span class="built_in">for</span>( <span class="keyword">int</span> i = <span class="number">0</span>; i &lt; hsize; i++ )</div><div class="line">                    &#123;</div><div class="line">                        <span class="keyword">int</span> val = saturate_cast&lt;<span class="keyword">int</span>&gt;(hist.at&lt;<span class="keyword">float</span>&gt;(i)*histimg.rows/<span class="number">255</span>);<span class="comment">//at函数为返回一个指定数组元素的参考值</span></div><div class="line">                        rectangle( histimg, Point(i*binW,histimg.rows),    <span class="comment">//在一幅输入图像上画一个简单抽的矩形，指定左上角和右下角，并定义颜色，大小，线型等</span></div><div class="line">                                   Point((i+<span class="number">1</span>)*binW,histimg.rows - val),</div><div class="line">                                   Scalar(buf.at&lt;Vec3b&gt;(i)), <span class="number">-1</span>, <span class="number">8</span> );</div><div class="line">                    &#125;</div><div class="line">                &#125;</div><div class="line"></div><div class="line">                calcBackProject(&amp;hue, <span class="number">1</span>, <span class="number">0</span>, hist, backproj, &amp;phranges);<span class="comment">//计算直方图的反向投影，计算hue图像0通道直方图hist的反向投影，并让入backproj中</span></div><div class="line">                backproj &amp;= mask;</div><div class="line"></div><div class="line">                <span class="comment">//opencv2.0以后的版本函数命名前没有cv两字了，并且如果函数名是由2个意思的单词片段组成的话，且前面那个片段不够成单词，则第一个字母要</span></div><div class="line"><span class="comment">//大写，比如Camshift，如果第一个字母是个单词，则小写，比如meanShift，但是第二个字母一定要大写</span></div><div class="line">                RotatedRect trackBox = CamShift(backproj, trackWindow,               <span class="comment">//trackWindow为鼠标选择的区域，TermCriteria为确定迭代终止的准则</span></div><div class="line">                                    TermCriteria( CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, <span class="number">10</span>, <span class="number">1</span> ));<span class="comment">//CV_TERMCRIT_EPS是通过forest_accuracy,CV_TERMCRIT_ITER</span></div><div class="line">                <span class="built_in">if</span>( trackWindow.area() &lt;= <span class="number">1</span> )                                                  <span class="comment">//是通过max_num_of_trees_in_the_forest  </span></div><div class="line">                &#123;</div><div class="line">                    <span class="keyword">int</span> cols = backproj.cols, rows = backproj.rows, r = (MIN(cols, rows) + <span class="number">5</span>)/<span class="number">6</span>;</div><div class="line">                    trackWindow = Rect(trackWindow.x - r, trackWindow.y - r,</div><div class="line">                                       trackWindow.x + r, trackWindow.y + r) &amp;</div><div class="line">                                  Rect(<span class="number">0</span>, <span class="number">0</span>, cols, rows);<span class="comment">//Rect函数为矩阵的偏移和大小，即第一二个参数为矩阵的左上角点坐标，第三四个参数为矩阵的宽和高</span></div><div class="line">                &#125;</div><div class="line"></div><div class="line">                <span class="built_in">if</span>( backprojMode )</div><div class="line">                    cvtColor( backproj, <span class="built_in">image</span>, CV_GRAY2BGR );<span class="comment">//因此投影模式下显示的也是rgb图？</span></div><div class="line">                ellipse( <span class="built_in">image</span>, trackBox, Scalar(<span class="number">0</span>,<span class="number">0</span>,<span class="number">255</span>), <span class="number">3</span>, CV_AA );<span class="comment">//跟踪的时候以椭圆为代表目标</span></div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="comment">//后面的代码是不管pause为真还是为假都要执行的</span></div><div class="line">        <span class="built_in">else</span> <span class="built_in">if</span>( trackObject &lt; <span class="number">0</span> )<span class="comment">//同时也是在按了暂停字母以后</span></div><div class="line">            paused = false;</div><div class="line"></div><div class="line">        <span class="built_in">if</span>( selectObject &amp;&amp; selection.<span class="built_in">width</span> &gt; <span class="number">0</span> &amp;&amp; selection.<span class="built_in">height</span> &gt; <span class="number">0</span> )</div><div class="line">        &#123;</div><div class="line">            Mat roi(<span class="built_in">image</span>, selection);</div><div class="line">            bitwise_not(roi, roi);<span class="comment">//bitwise_not为将每一个bit位取反</span></div><div class="line">        &#125;</div><div class="line"></div><div class="line">        imshow( <span class="string">"CamShift Demo"</span>, <span class="built_in">image</span> );</div><div class="line">        imshow( <span class="string">"Histogram"</span>, histimg );</div><div class="line"></div><div class="line">        <span class="keyword">char</span> c = (<span class="keyword">char</span>)waitKey(<span class="number">10</span>);</div><div class="line">        <span class="built_in">if</span>( c == <span class="number">27</span> )              <span class="comment">//退出键</span></div><div class="line">            <span class="built_in">break</span>;</div><div class="line">        <span class="built_in">switch</span>(c)</div><div class="line">        &#123;</div><div class="line">        <span class="built_in">case</span> <span class="string">'b'</span>:             <span class="comment">//反向投影模型交替</span></div><div class="line">            backprojMode = !backprojMode;</div><div class="line">            <span class="built_in">break</span>;</div><div class="line">        <span class="built_in">case</span> <span class="string">'c'</span>:            <span class="comment">//清零跟踪目标对象</span></div><div class="line">            trackObject = <span class="number">0</span>;</div><div class="line">            histimg = Scalar::all(<span class="number">0</span>);</div><div class="line">            <span class="built_in">break</span>;</div><div class="line">        <span class="built_in">case</span> <span class="string">'h'</span>:          <span class="comment">//显示直方图交替</span></div><div class="line">            showHist = !showHist;</div><div class="line">            <span class="built_in">if</span>( !showHist )</div><div class="line">                destroyWindow( <span class="string">"Histogram"</span> );</div><div class="line">            <span class="built_in">else</span></div><div class="line">                namedWindow( <span class="string">"Histogram"</span>, <span class="number">1</span> );</div><div class="line">            <span class="built_in">break</span>;</div><div class="line">        <span class="built_in">case</span> <span class="string">'p'</span>:       <span class="comment">//暂停跟踪交替</span></div><div class="line">            paused = !paused;</div><div class="line">            <span class="built_in">break</span>;</div><div class="line">        <span class="built_in">default</span>:</div><div class="line">            ;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="built_in">return</span> <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="解释"><a href="#解释" class="headerlink" title="解释"></a>解释</h2><p>上面提供的代码是OpenCV中关于Camshift算法的演示。<br>首先说一下这段代码的功能。<br><strong>这段代码是根据颜色直方图来进行特定物体的跟踪，其利用了OpenCV中自带的图形界面和事件响应机制，当用鼠标点击并移动来标定要跟踪的物体后，程序会计算指定框内的色彩直方图，并得到该区域色彩直方图在整个画面的反投影。利用Camshift算法，通过多次迭代，将得到与色彩直方图匹配的概率值较大的区域的延展，并返回跟踪的区域。</strong><br>下面我们来一步一步的解释这整个过程。</p>
+<h2 id="跟踪特定物体过程"><a href="#跟踪特定物体过程" class="headerlink" title="跟踪特定物体过程"></a>跟踪特定物体过程</h2><h3 id="颜色直方图的计算"><a href="#颜色直方图的计算" class="headerlink" title="颜色直方图的计算"></a>颜色直方图的计算</h3><p><img src="http://jason-images.qiniudn.com/@/ML/opencv/track/code1.jpg" alt=""></p>
+<blockquote>
+<ul>
+<li><p>inRange函数检测src输入是否在一个阈值之间（Checks if array elements lie between the elements of two other arrays）<br>void inRange(InputArray src, InputArray lowerb, InputArray upperb, OutputArray dst)<br>对于一个通道的每个元素，dst(I)=lowerb(I) &lt;= src(I) &lt;= upperb(I)</p>
+</li>
+<li><p>Scalar( Blue, Green, Red ) 用于表示RGB颜色值</p>
+</li>
+<li><p>mixChannels函数可以实现矩阵的指定通道复制到新矩阵的指定通道<br>void mixChannels(const Mat<em> src, int nsrc, Mat</em> dst, int ndst, const int* fromTo, size_t npairs)<br>nsrc – Number of matrices in src<br>ndst – Number of matrices in dst</p>
+</li>
+</ul>
+</blockquote>
+<h3 id="计算反投影"><a href="#计算反投影" class="headerlink" title="计算反投影"></a>计算反投影</h3><p><img src="http://jason-images.qiniudn.com/@/ML/opencv/track/code2.jpg" alt=""></p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">calcBackProject(&amp;hue, <span class="number">1</span>, <span class="number">0</span>, hist, <span class="keyword">backproj, </span>&amp;phranges)<span class="comment">;</span></div><div class="line"><span class="keyword">backproj </span>&amp;= mask<span class="comment">;</span></div></pre></td></tr></table></figure>
+<p>图中代码是根据所选区域得到该区域的色彩直方图hist，而计算反投影(Back Project)是计算整张图片依照所选区域的颜色直方图的分布情况得到的概率分布。<br><figure class="highlight lisp"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">cvtColor( <span class="name">backproj</span>, image, COLOR_GRAY2BGR )<span class="comment">;</span></div></pre></td></tr></table></figure></p>
+<p>将其转换RGB图片，白亮的区域为高概率区域。<br><img src="http://jason-images.qiniudn.com/@/ML/opencv/hist/backProject.jpg" alt="backProjection"></p>
+<h3 id="CamShift算法进行更新迭代"><a href="#CamShift算法进行更新迭代" class="headerlink" title="CamShift算法进行更新迭代"></a>CamShift算法进行更新迭代</h3><figure class="highlight lisp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">trackBox = CamShift(<span class="name">backproj</span>, trackWindow,</div><div class="line">                    TermCriteria( <span class="name">CV_TERMCRIT_EPS</span> | CV_TERMCRIT_ITER, <span class="number">10</span>, <span class="number">1</span> ))<span class="comment">;</span></div></pre></td></tr></table></figure>
+<p>这里是通过CamShift算法根据指定的判断条件（TermCriteria）进行更新迭代，得到目标区域trackBox和下一次的搜索区域trackWindow。</p>
+<h3 id="结束语"><a href="#结束语" class="headerlink" title="结束语"></a>结束语</h3><p>这里是对鼠标所标定的区域进行目标跟踪，接下来，我还将进行多物体的同时跟踪的实验。</p>
+<p><strong>转载请注明作者Jason Ding及其出处</strong><br><a href="http://jasonding1354.github.io/" target="_blank" rel="external">Github主页(http://jasonding1354.github.io/)</a><br><a href="http://blog.csdn.net/jasonding1354" target="_blank" rel="external">CSDN博客(http://blog.csdn.net/jasonding1354)</a><br><a href="http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles" target="_blank" rel="external">简书主页(http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles)</a></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Computer-Vision/">Computer Vision</a><a href="/tags/OpenCV/">OpenCV</a>
+  </div>
+
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Machine-Learning/">Machine Learning</a>
+</div>
+
+
+
+<div class="article-share" id="share">
+
+  
+<div class="jiathis_style">
+    <span class="jiathis_txt">分享到：</span>
+    <a class="jiathis_button_tsina">新浪微博</a>
+    <a class="jiathis_button_weixin">微信</a>
+    <a class="jiathis_button_twitter">Twitter</a>
+    <a class="jiathis_button_evernote">EverNote</a>
+    <a href="http://www.jiathis.com/share?uid=1501277" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript" >
+    var jiathis_config={
+    data_track_clickback:true,
+    sm:"copy,renren,cqq",
+    pic:"",
+    summary:"",
+    
+  </script> 
+<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=
+1394018007141544" charset="utf-8"></script>      
+
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2014/11/13/Programming/extern c用法解析/" title="extern &quot;c&quot;用法解析">
+  <strong>之后的一篇</strong><br/>
+  <span>
+  extern &quot;c&quot;用法解析</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2014/11/04/Machine Learning/【计算机视觉】LBP纹理特征/"  title="【计算机视觉】LBP纹理特征">
+ <strong>之前的一篇</strong><br/> 
+ <span>【计算机视觉】LBP纹理特征
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section class="comment">
+	<div class="ds-thread"></div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#介绍"><span class="toc-number">1.</span> <span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实例代码"><span class="toc-number">2.</span> <span class="toc-text">实例代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#解释"><span class="toc-number">3.</span> <span class="toc-text">解释</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#跟踪特定物体过程"><span class="toc-number">4.</span> <span class="toc-text">跟踪特定物体过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#颜色直方图的计算"><span class="toc-number">4.1.</span> <span class="toc-text">颜色直方图的计算</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#计算反投影"><span class="toc-number">4.2.</span> <span class="toc-text">计算反投影</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CamShift算法进行更新迭代"><span class="toc-number">4.3.</span> <span class="toc-text">CamShift算法进行更新迭代</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#结束语"><span class="toc-number">4.4.</span> <span class="toc-text">结束语</span></a></li></ol></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+<div class="maps">
+    <p class="asidetitle">访问统计</p>
+    <br>
+    <script type="text/javascript" src="//ra.revolvermaps.com/0/0/6.js?i=0leibswamim&amp;m=0&amp;s=210&amp;c=ff0000&amp;cr1=ffffff&amp;f=arial&amp;l=0" async="async"></script>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">Categories</p>
+		<ul>
+		
+			<li><a href="/categories/Algorithm-Problem/" title="Algorithm Problem">Algorithm Problem<sup>1</sup></a></li>
+		
+			<li><a href="/categories/C/" title="C++">C++<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Classic-Algorithm/" title="Classic Algorithm">Classic Algorithm<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Cluster-Analysis/" title="Cluster Analysis">Cluster Analysis<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Design-Pattern/" title="Design Pattern">Design Pattern<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Developer-Kits/" title="Developer Kits">Developer Kits<sup>5</sup></a></li>
+		
+			<li><a href="/categories/Energy-Big-Data/" title="Energy Big Data">Energy Big Data<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Feature-Engineering/" title="Feature Engineering">Feature Engineering<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Functional/" title="Functional">Functional<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Functional-Programming/" title="Functional Programming">Functional Programming<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Git/" title="Git">Git<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Jobs/" title="Jobs">Jobs<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>4</sup></a></li>
+		
+			<li><a href="/categories/ML-Experiments/" title="ML Experiments">ML Experiments<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Machine-Learning/" title="Machine Learning">Machine Learning<sup>50</sup></a></li>
+		
+			<li><a href="/categories/Math/" title="Math">Math<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Programming/" title="Programming">Programming<sup>11</sup></a></li>
+		
+			<li><a href="/categories/Python/" title="Python">Python<sup>10</sup></a></li>
+		
+			<li><a href="/categories/Scala/" title="Scala">Scala<sup>27</sup></a></li>
+		
+			<li><a href="/categories/Scala-ML/" title="Scala-ML">Scala-ML<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Similarity-Search/" title="Similarity Search">Similarity Search<sup>4</sup></a></li>
+		
+			<li><a href="/categories/Small-Problems/" title="Small Problems">Small Problems<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Spark/" title="Spark">Spark<sup>23</sup></a></li>
+		
+			<li><a href="/categories/Thoughts/" title="Thoughts">Thoughts<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">Tag Cloud</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/Actor/" style="font-size: 10px;">Actor</a> <a href="/tags/Akka/" style="font-size: 14.55px;">Akka</a> <a href="/tags/Algorithm/" style="font-size: 10px;">Algorithm</a> <a href="/tags/Approximate-Nearest-Neighbor-Search/" style="font-size: 10px;">Approximate Nearest Neighbor Search</a> <a href="/tags/Bayesian-Analysis/" style="font-size: 10.91px;">Bayesian Analysis</a> <a href="/tags/Big-Data/" style="font-size: 10px;">Big Data</a> <a href="/tags/C/" style="font-size: 12.73px;">C++</a> <a href="/tags/Classification/" style="font-size: 11.82px;">Classification</a> <a href="/tags/Cluster-Analysis/" style="font-size: 10px;">Cluster Analysis</a> <a href="/tags/Computer-Vision/" style="font-size: 14.55px;">Computer Vision</a> <a href="/tags/Eclipse/" style="font-size: 10px;">Eclipse</a> <a href="/tags/Energy-Forecasting/" style="font-size: 10px;">Energy Forecasting</a> <a href="/tags/Feature-Engineering/" style="font-size: 10.91px;">Feature Engineering</a> <a href="/tags/Functional-Programming/" style="font-size: 16.36px;">Functional Programming</a> <a href="/tags/Gaussian-Process/" style="font-size: 10px;">Gaussian Process</a> <a href="/tags/Git/" style="font-size: 10.91px;">Git</a> <a href="/tags/GraphLab/" style="font-size: 10px;">GraphLab</a> <a href="/tags/IPython/" style="font-size: 10px;">IPython</a> <a href="/tags/Internet-of-Energy/" style="font-size: 10px;">Internet of Energy</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/Kaggle/" style="font-size: 10px;">Kaggle</a> <a href="/tags/Kernel-Method/" style="font-size: 10px;">Kernel Method</a> <a href="/tags/LSH/" style="font-size: 12.73px;">LSH</a> <a href="/tags/LaTex/" style="font-size: 10px;">LaTex</a> <a href="/tags/Linux/" style="font-size: 11.82px;">Linux</a> <a href="/tags/Machine-Learning/" style="font-size: 20px;">Machine Learning</a> <a href="/tags/Math/" style="font-size: 11.82px;">Math</a> <a href="/tags/Mathematics/" style="font-size: 13.64px;">Mathematics</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MeanShift/" style="font-size: 10px;">MeanShift</a> <a href="/tags/Mint/" style="font-size: 10px;">Mint</a> <a href="/tags/OpenCV/" style="font-size: 15.45px;">OpenCV</a> <a href="/tags/Probabilistic-Programming/" style="font-size: 10px;">Probabilistic Programming</a> <a href="/tags/Probability-Distributions/" style="font-size: 10px;">Probability Distributions</a> <a href="/tags/Programming/" style="font-size: 14.55px;">Programming</a> <a href="/tags/Python/" style="font-size: 17.27px;">Python</a> <a href="/tags/Regression/" style="font-size: 11.82px;">Regression</a> <a href="/tags/Resume/" style="font-size: 10px;">Resume</a> <a href="/tags/SVM/" style="font-size: 12.73px;">SVM</a> <a href="/tags/Scala/" style="font-size: 19.09px;">Scala</a> <a href="/tags/Similarity-Search/" style="font-size: 10.91px;">Similarity Search</a> <a href="/tags/Source-code/" style="font-size: 10px;">Source code</a> <a href="/tags/Spark/" style="font-size: 18.18px;">Spark</a> <a href="/tags/Summary/" style="font-size: 10px;">Summary</a> <a href="/tags/Thoughts/" style="font-size: 10.91px;">Thoughts</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/Vim/" style="font-size: 11.82px;">Vim</a> <a href="/tags/Written-Test/" style="font-size: 10px;">Written Test</a> <a href="/tags/Zeppelin/" style="font-size: 10px;">Zeppelin</a> <a href="/tags/boost/" style="font-size: 10px;">boost</a> <a href="/tags/cpp/" style="font-size: 13.64px;">cpp</a> <a href="/tags/opencv/" style="font-size: 10.91px;">opencv</a> <a href="/tags/p-Stable-LSH/" style="font-size: 10px;">p-Stable LSH</a> <a href="/tags/scikit-learn/" style="font-size: 10px;">scikit-learn</a> <a href="/tags/sklearn/" style="font-size: 10.91px;">sklearn</a> <a href="/tags/互联网时代/" style="font-size: 10px;">互联网时代</a> <a href="/tags/位置敏感哈希/" style="font-size: 10.91px;">位置敏感哈希</a> <a href="/tags/分治/" style="font-size: 10px;">分治</a> <a href="/tags/单元测试/" style="font-size: 10px;">单元测试</a> <a href="/tags/反思/" style="font-size: 10px;">反思</a> <a href="/tags/效率/" style="font-size: 10px;">效率</a> <a href="/tags/核方法/" style="font-size: 10px;">核方法</a> <a href="/tags/算法框架/" style="font-size: 10px;">算法框架</a> <a href="/tags/设计模式/" style="font-size: 11.82px;">设计模式</a>
+    </div>
+  </div>
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle"><a href="/archives">Archives</a></p>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">February 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">November 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">29</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a><span class="archive-list-count">16</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">10</span></li></ul>
+  </div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
+</div>
+
+</aside>
+
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Jason Ding in HUST <br/>
+			I would share moments of life here! </p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/1698420390" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/jasonding1354" target="_blank" title="github"></a>
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2016 
+		
+		<a href="http://blog.jasonding.top" target="_blank" title="Jason Ding">Jason Ding</a>
+		
+		</p>
+		<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+  
+  _st('install','uYyEuxJdzzAGXTax33mt','2.0.0');
+</script>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"jasonding"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,488 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>【Spark Core】Stage生成和Stage源码浅析 | Jason&#39;s Techblog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Jason Ding">
+    
+    <meta name="description" content="引入上一篇文章《DAGScheduler源码浅析》中，介绍了handleJobSubmitted函数，它作为生成finalStage的重要函数存在，这一篇文章中，我将就DAGScheduler生成Stage过程继续学习，同时介绍Stage的相关源码。
+Stage生成Stage的调度是由DAGSche">
+    
+    
+    
+    
+    <link rel="alternate" href="/atom.xml" title="Jason&#39;s Techblog" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/author.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/author.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F3cc71cd5738b99a1db174951e194ba55' type='text/javascript'%3E%3C/script%3E"));
+
+
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F1dcf1fa58b0eca1ac5bd089ee6a6e78c' type='text/javascript'%3E%3C/script%3E"));
+
+
+</script>
+
+
+    <!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Jason&#39;s Techblog" title="Jason&#39;s Techblog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Jason&#39;s Techblog">Jason&#39;s Techblog</a></h1>
+				<h2 class="blog-motto">Technician =&gt; Scientist =&gt; Philosopher =&gt; Artists</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="http://jasonding.top">Main</a></li>
+					
+					<li>
+					
+						<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" class="st-default-search-input" maxlength="20" placeholder="Search" />
+						</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody">
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/07/15/Spark/【Spark Core】Stage生成和Stage源码浅析/" title="【Spark Core】Stage生成和Stage源码浅析" itemprop="url">【Spark Core】Stage生成和Stage源码浅析</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://blog.jasonding.top" title="Jason Ding">Jason Ding</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2015-07-15T09:37:24.000Z" itemprop="datePublished">2015-07-15</time>
+    Updated:<time datetime="2016-03-16T06:24:42.000Z" itemprop="dateModified">2016-03-16</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#引入"><span class="toc-number">1.</span> <span class="toc-text">引入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Stage生成"><span class="toc-number">2.</span> <span class="toc-text">Stage生成</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#依赖关系"><span class="toc-number">3.</span> <span class="toc-text">依赖关系</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Stage的划分"><span class="toc-number">4.</span> <span class="toc-text">Stage的划分</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Stage类"><span class="toc-number">5.</span> <span class="toc-text">Stage类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#处理Job，分割Job为Stage，封装Stage成TaskSet，最终提交给TaskScheduler的调用链"><span class="toc-number">6.</span> <span class="toc-text">处理Job，分割Job为Stage，封装Stage成TaskSet，最终提交给TaskScheduler的调用链</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#handleJobSubmitted函数"><span class="toc-number">7.</span> <span class="toc-text">handleJobSubmitted函数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#newStage函数"><span class="toc-number">7.1.</span> <span class="toc-text">newStage函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ActiveJob类"><span class="toc-number">7.2.</span> <span class="toc-text">ActiveJob类</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#submitStage函数"><span class="toc-number">8.</span> <span class="toc-text">submitStage函数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#getMissingParentStages"><span class="toc-number">8.1.</span> <span class="toc-text">getMissingParentStages</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#submitMissingTasks"><span class="toc-number">8.2.</span> <span class="toc-text">submitMissingTasks</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">9.</span> <span class="toc-text">参考资料</span></a></li></ol>
+		</div>
+		
+		<h2 id="引入"><a href="#引入" class="headerlink" title="引入"></a>引入</h2><p>上一篇文章<a href="http://jasonding1354.github.io/2015/07/14/Spark/%E3%80%90Spark%20Core%E3%80%91DAGScheduler%E6%BA%90%E7%A0%81%E6%B5%85%E6%9E%90/" target="_blank" rel="external">《DAGScheduler源码浅析》</a>中，介绍了handleJobSubmitted函数，它作为生成finalStage的重要函数存在，这一篇文章中，我将就DAGScheduler生成Stage过程继续学习，同时介绍Stage的相关源码。</p>
+<h2 id="Stage生成"><a href="#Stage生成" class="headerlink" title="Stage生成"></a>Stage生成</h2><p>Stage的调度是由DAGScheduler完成的。由RDD的有向无环图DAG切分出了Stage的有向无环图DAG。Stage的DAG通过最后执行的Stage为根进行广度优先遍历，遍历到最开始执行的Stage执行，如果提交的Stage仍有未完成的父母Stage，则Stage需要等待其父Stage执行完才能执行。同时DAGScheduler中还维持了几个重要的Key-Value集合结构，用来记录Stage的状态，这样能够避免过早执行和重复提交Stage。waitingStages中记录仍有未执行的父母Stage，防止过早执行。runningStages中保存正在执行的Stage，防止重复执行。failedStages中保存执行失败的Stage，需要重新执行，这里的设计是出于容错的考虑。<br><figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// Stages we need to run whose parents aren't done</span></div><div class="line"><span class="keyword">private</span>[scheduler] <span class="keyword">val</span> waitingStages = <span class="keyword">new</span> <span class="type">HashSet</span>[<span class="type">Stage</span>]</div><div class="line"></div><div class="line"><span class="comment">// Stages we are running right now</span></div><div class="line"><span class="keyword">private</span>[scheduler] <span class="keyword">val</span> runningStages = <span class="keyword">new</span> <span class="type">HashSet</span>[<span class="type">Stage</span>]</div><div class="line"></div><div class="line"><span class="comment">// Stages that must be resubmitted due to fetch failures</span></div><div class="line"><span class="keyword">private</span>[scheduler] <span class="keyword">val</span> failedStages = <span class="keyword">new</span> <span class="type">HashSet</span>[<span class="type">Stage</span>]</div></pre></td></tr></table></figure></p>
+<h2 id="依赖关系"><a href="#依赖关系" class="headerlink" title="依赖关系"></a>依赖关系</h2><p>RDD的窄依赖是指父RDD的所有输出都会被指定的子RDD消费，即输出路径是固定的；宽依赖是指父RDD的输出会由不同的子RDD消费，即输出路径不固定。<br><strong>调度器会计算RDD之间的依赖关系，将拥有持续窄依赖的RDD归并到同一个Stage中，而宽依赖则作为划分不同Stage的判断标准。</strong><br>导致窄依赖的Transformation操作：map、flatMap、filter、sample；导致宽依赖的Transformation操作：sortByKey、reduceByKey、groupByKey、cogroupByKey、join、cartensian。<br><img src="http://7nj1qk.com1.z0.glb.clouddn.com/@/spark/rdd/stage.jpg" alt=""></p>
+<p>Stage分为两种：<br><strong>ShuffleMapStage</strong>, in which case its tasks’ results are input for another stage<br>其实就是,非最终stage, 后面还有其他的stage, 所以它的输出一定是需要shuffle并作为后续的输入。</p>
+<p>这种Stage是以Shuffle为输出边界，其输入边界可以是从外部获取数据，也可以是另一个ShuffleMapStage的输出<br>其输出可以是另一个Stage的开始。<br>ShuffleMapStage的最后Task就是ShuffleMapTask。<br>在一个Job里可能有该类型的Stage，也可以能没有该类型Stage。</p>
+<p><strong>ResultStage</strong>, in which case its tasks directly compute the action that initiated a job (e.g. count(), save(), etc)<br>最终的stage, 没有输出, 而是直接产生结果或存储。</p>
+<p>这种Stage是直接输出结果，其输入边界可以是从外部获取数据，也可以是另一个ShuffleMapStage的输出。<br>ResultStage的最后Task就是ResultTask，在一个Job里必定有该类型Stage。<br>一个Job含有一个或多个Stage，但至少含有一个ResultStage。</p>
+<h2 id="Stage的划分"><a href="#Stage的划分" class="headerlink" title="Stage的划分"></a>Stage的划分</h2><p>RDD转换本身存在ShuffleDependency，像ShuffleRDD、CoGroupdRDD、SubtractedRDD会返回ShuffleDependency。<br>如果RDD中存在ShuffleDependency，就会创建一个新的Stage。<br>Stage划分完毕就明确了以下内容：</p>
+<blockquote>
+<ol>
+<li>产生的Stage需要从多少个Partition中读取数据</li>
+<li>产生的Stage会生成多少Partition</li>
+<li>产生的Stage是否属于ShuffleMap类型</li>
+</ol>
+</blockquote>
+<p>确认Partition以决定需要产生多少不同的Task，ShuffleMap类型判断来决定生成的Task类型。Spark中有两种Task，分别是ShuffleMapTask和ResultTask。</p>
+<h2 id="Stage类"><a href="#Stage类" class="headerlink" title="Stage类"></a>Stage类</h2><p>stage的RDD参数只有一个RDD, final RDD, 而不是一系列的RDD。<br>因为在一个stage中的所有RDD都是map, partition不会有任何改变, 只是在data依次执行不同的map function所以对于TaskScheduler而言, 一个RDD的状况就可以代表这个stage。</p>
+<blockquote>
+<p>Stage参数说明：<br>val id: Int    //Stage的序号数值越大，优先级越高<br>val rdd: RDD[<em>], //归属于本Stage的最后一个rdd<br>val numTasks: Int, //创建的Task数目，等于父RDD的输出Partition数目<br>val shuffleDep: Option[ShuffleDependency[</em>, <em>, </em>]],  //是否存在SuffleDependency，宽依赖<br>val parents: List[Stage], //父Stage列表<br>val jobId: Int //作业ID</p>
+</blockquote>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">private</span>[spark] <span class="class"><span class="keyword">class</span> <span class="title">Stage</span>(<span class="params"></span></span></div><div class="line">    val id: <span class="type">Int</span>,</div><div class="line">    val rdd: <span class="type">RDD</span>[_],</div><div class="line">    val numTasks: <span class="type">Int</span>,</div><div class="line">    val shuffleDep: <span class="type">Option</span>[<span class="type">ShuffleDependency</span>[_, _, _]],  // <span class="type">Output</span> shuffle if stage is a map stage</div><div class="line">    val parents: <span class="type">List</span>[<span class="type">Stage</span>],</div><div class="line">    val jobId: <span class="type">Int</span>,</div><div class="line">    val callSite: <span class="type">CallSite</span>)</div><div class="line">  <span class="keyword">extends</span> <span class="type">Logging</span> &#123;</div><div class="line"></div><div class="line">  <span class="keyword">val</span> isShuffleMap = shuffleDep.isDefined</div><div class="line">  <span class="keyword">val</span> numPartitions = rdd.partitions.size</div><div class="line">  <span class="keyword">val</span> outputLocs = <span class="type">Array</span>.fill[<span class="type">List</span>[<span class="type">MapStatus</span>]](numPartitions)(<span class="type">Nil</span>)</div><div class="line">  <span class="keyword">var</span> numAvailableOutputs = <span class="number">0</span></div><div class="line"></div><div class="line">  <span class="comment">/** Set of jobs that this stage belongs to. */</span></div><div class="line">  <span class="keyword">val</span> jobIds = <span class="keyword">new</span> <span class="type">HashSet</span>[<span class="type">Int</span>]</div><div class="line"></div><div class="line">  <span class="comment">/** For stages that are the final (consists of only ResultTasks), link to the ActiveJob. */</span></div><div class="line">  <span class="keyword">var</span> resultOfJob: <span class="type">Option</span>[<span class="type">ActiveJob</span>] = <span class="type">None</span></div><div class="line">  <span class="keyword">var</span> pendingTasks = <span class="keyword">new</span> <span class="type">HashSet</span>[<span class="type">Task</span>[_]]</div><div class="line"></div><div class="line">  <span class="keyword">private</span> <span class="keyword">var</span> nextAttemptId = <span class="number">0</span></div><div class="line"></div><div class="line">  <span class="keyword">val</span> name = callSite.shortForm</div><div class="line">  <span class="keyword">val</span> details = callSite.longForm</div><div class="line"></div><div class="line">  <span class="comment">/** Pointer to the latest [StageInfo] object, set by DAGScheduler. */</span></div><div class="line">  <span class="keyword">var</span> latestInfo: <span class="type">StageInfo</span> = <span class="type">StageInfo</span>.fromStage(<span class="keyword">this</span>)</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">isAvailable</span></span>: <span class="type">Boolean</span> = &#123;</div><div class="line">    <span class="keyword">if</span> (!isShuffleMap) &#123;</div><div class="line">      <span class="literal">true</span></div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">      numAvailableOutputs == numPartitions</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">addOutputLoc</span></span>(partition: <span class="type">Int</span>, status: <span class="type">MapStatus</span>) &#123;</div><div class="line">    <span class="keyword">val</span> prevList = outputLocs(partition)</div><div class="line">    outputLocs(partition) = status :: prevList</div><div class="line">    <span class="keyword">if</span> (prevList == <span class="type">Nil</span>) &#123;</div><div class="line">      numAvailableOutputs += <span class="number">1</span></div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">removeOutputLoc</span></span>(partition: <span class="type">Int</span>, bmAddress: <span class="type">BlockManagerId</span>) &#123;</div><div class="line">    <span class="keyword">val</span> prevList = outputLocs(partition)</div><div class="line">    <span class="keyword">val</span> newList = prevList.filterNot(_.location == bmAddress)</div><div class="line">    outputLocs(partition) = newList</div><div class="line">    <span class="keyword">if</span> (prevList != <span class="type">Nil</span> &amp;&amp; newList == <span class="type">Nil</span>) &#123;</div><div class="line">      numAvailableOutputs -= <span class="number">1</span></div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="comment">/**</span></div><div class="line">   * Removes all shuffle outputs associated with this executor. Note that this will also remove</div><div class="line">   * outputs which are served by an external shuffle server (if one exists), as they are still</div><div class="line">   * registered with this execId.</div><div class="line">   */</div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">removeOutputsOnExecutor</span></span>(execId: <span class="type">String</span>) &#123;</div><div class="line">    <span class="keyword">var</span> becameUnavailable = <span class="literal">false</span></div><div class="line">    <span class="keyword">for</span> (partition &lt;- <span class="number">0</span> until numPartitions) &#123;</div><div class="line">      <span class="keyword">val</span> prevList = outputLocs(partition)</div><div class="line">      <span class="keyword">val</span> newList = prevList.filterNot(_.location.executorId == execId)</div><div class="line">      outputLocs(partition) = newList</div><div class="line">      <span class="keyword">if</span> (prevList != <span class="type">Nil</span> &amp;&amp; newList == <span class="type">Nil</span>) &#123;</div><div class="line">        becameUnavailable = <span class="literal">true</span></div><div class="line">        numAvailableOutputs -= <span class="number">1</span></div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> (becameUnavailable) &#123;</div><div class="line">      logInfo(<span class="string">"%s is now unavailable on executor %s (%d/%d, %s)"</span>.format(</div><div class="line">        <span class="keyword">this</span>, execId, numAvailableOutputs, numPartitions, isAvailable))</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="comment">/** Return a new attempt id, starting with 0. */</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">newAttemptId</span></span>(): <span class="type">Int</span> = &#123;</div><div class="line">    <span class="keyword">val</span> id = nextAttemptId</div><div class="line">    nextAttemptId += <span class="number">1</span></div><div class="line">    id</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">attemptId</span></span>: <span class="type">Int</span> = nextAttemptId</div><div class="line"></div><div class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">toString</span> </span>= <span class="string">"Stage "</span> + id</div><div class="line"></div><div class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">hashCode</span></span>(): <span class="type">Int</span> = id</div><div class="line"></div><div class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">equals</span></span>(other: <span class="type">Any</span>): <span class="type">Boolean</span> = other <span class="keyword">match</span> &#123;</div><div class="line">    <span class="keyword">case</span> stage: <span class="type">Stage</span> =&gt; stage != <span class="literal">null</span> &amp;&amp; stage.id == id</div><div class="line">    <span class="keyword">case</span> _ =&gt; <span class="literal">false</span></div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="处理Job，分割Job为Stage，封装Stage成TaskSet，最终提交给TaskScheduler的调用链"><a href="#处理Job，分割Job为Stage，封装Stage成TaskSet，最终提交给TaskScheduler的调用链" class="headerlink" title="处理Job，分割Job为Stage，封装Stage成TaskSet，最终提交给TaskScheduler的调用链"></a>处理Job，分割Job为Stage，封装Stage成TaskSet，最终提交给TaskScheduler的调用链</h2><p><code>dagScheduler.handleJobSubmitted</code>–&gt;<code>dagScheduler.submitStage</code>–&gt;<code>dagScheduler.submitMissingTasks</code>–&gt;<code>taskScheduler.submitTasks</code>。</p>
+<h2 id="handleJobSubmitted函数"><a href="#handleJobSubmitted函数" class="headerlink" title="handleJobSubmitted函数"></a>handleJobSubmitted函数</h2><p>函数handleJobSubmitted和submitStage主要负责依赖性分析，对其处理逻辑做进一步的分析。<br>handleJobSubmitted最主要的工作是生成Stage，并根据finalStage来产生ActiveJob。<br><figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">private</span>[scheduler] <span class="function"><span class="keyword">def</span> <span class="title">handleJobSubmitted</span></span>(jobId: <span class="type">Int</span>,</div><div class="line">    finalRDD: <span class="type">RDD</span>[_],</div><div class="line">    func: (<span class="type">TaskContext</span>, <span class="type">Iterator</span>[_]) =&gt; _,</div><div class="line">    partitions: <span class="type">Array</span>[<span class="type">Int</span>],</div><div class="line">    allowLocal: <span class="type">Boolean</span>,</div><div class="line">    callSite: <span class="type">CallSite</span>,</div><div class="line">    listener: <span class="type">JobListener</span>,</div><div class="line">    properties: <span class="type">Properties</span>) &#123;</div><div class="line">  <span class="keyword">var</span> finalStage: <span class="type">Stage</span> = <span class="literal">null</span></div><div class="line">  <span class="keyword">try</span> &#123;</div><div class="line">    <span class="comment">// New stage creation may throw an exception if, for example, jobs are run on a</span></div><div class="line">    <span class="comment">// HadoopRDD whose underlying HDFS files have been deleted.</span></div><div class="line">    finalStage = newStage(finalRDD, partitions.size, <span class="type">None</span>, jobId, callSite)</div><div class="line">  &#125; <span class="keyword">catch</span> &#123;</div><div class="line">    <span class="comment">//错误处理，告诉监听器作业失败，返回....</span></div><div class="line">    <span class="keyword">case</span> e: <span class="type">Exception</span> =&gt;</div><div class="line">      logWarning(<span class="string">"Creating new stage failed due to exception - job: "</span> + jobId, e)</div><div class="line">      listener.jobFailed(e)</div><div class="line">      <span class="keyword">return</span></div><div class="line">  &#125;</div><div class="line">  <span class="keyword">if</span> (finalStage != <span class="literal">null</span>) &#123;</div><div class="line">    <span class="keyword">val</span> job = <span class="keyword">new</span> <span class="type">ActiveJob</span>(jobId, finalStage, func, partitions, callSite, listener, properties)</div><div class="line">    clearCacheLocs()</div><div class="line">    logInfo(<span class="string">"Got job %s (%s) with %d output partitions (allowLocal=%s)"</span>.format(</div><div class="line">      job.jobId, callSite.shortForm, partitions.length, allowLocal))</div><div class="line">    logInfo(<span class="string">"Final stage: "</span> + finalStage + <span class="string">"("</span> + finalStage.name + <span class="string">")"</span>)</div><div class="line">    logInfo(<span class="string">"Parents of final stage: "</span> + finalStage.parents)</div><div class="line">    logInfo(<span class="string">"Missing parents: "</span> + getMissingParentStages(finalStage))</div><div class="line">    <span class="keyword">val</span> shouldRunLocally =</div><div class="line">      localExecutionEnabled &amp;&amp; allowLocal &amp;&amp; finalStage.parents.isEmpty &amp;&amp; partitions.length == <span class="number">1</span></div><div class="line">    <span class="keyword">val</span> jobSubmissionTime = clock.getTimeMillis()</div><div class="line">    <span class="keyword">if</span> (shouldRunLocally) &#123;</div><div class="line">      <span class="comment">// 很短、没有父stage的本地操作，比如 first() or take() 的操作本地执行</span></div><div class="line">      <span class="comment">// Compute very short actions like first() or take() with no parent stages locally.</span></div><div class="line">      listenerBus.post(</div><div class="line">        <span class="type">SparkListenerJobStart</span>(job.jobId, jobSubmissionTime, <span class="type">Seq</span>.empty, properties))</div><div class="line">      runLocally(job)</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">      <span class="comment">// collect等操作走的是这个过程，更新相关的关系映射，用监听器监听，然后提交作业</span></div><div class="line">      jobIdToActiveJob(jobId) = job</div><div class="line">      activeJobs += job</div><div class="line">      finalStage.resultOfJob = <span class="type">Some</span>(job)</div><div class="line">      <span class="keyword">val</span> stageIds = jobIdToStageIds(jobId).toArray</div><div class="line">      <span class="keyword">val</span> stageInfos = stageIds.flatMap(id =&gt; stageIdToStage.get(id).map(_.latestInfo))</div><div class="line">      listenerBus.post(</div><div class="line">        <span class="type">SparkListenerJobStart</span>(job.jobId, jobSubmissionTime, stageInfos, properties))</div><div class="line">      <span class="comment">// 提交stage</span></div><div class="line">      submitStage(finalStage)</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">  <span class="comment">// 提交stage</span></div><div class="line">  submitWaitingStages()</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="newStage函数"><a href="#newStage函数" class="headerlink" title="newStage函数"></a>newStage函数</h3><figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * Create a Stage -- either directly for use as a result stage, or as part of the (re)-creation</div><div class="line"> * of a shuffle map stage in newOrUsedStage.  The stage will be associated with the provided</div><div class="line"> * jobId. Production of shuffle map stages should always use newOrUsedStage, not newStage</div><div class="line"> * directly.</div><div class="line"> */</div><div class="line"><span class="keyword">private</span> <span class="function"><span class="keyword">def</span> <span class="title">newStage</span></span>(</div><div class="line">    rdd: <span class="type">RDD</span>[_],</div><div class="line">    numTasks: <span class="type">Int</span>,</div><div class="line">    shuffleDep: <span class="type">Option</span>[<span class="type">ShuffleDependency</span>[_, _, _]],</div><div class="line">    jobId: <span class="type">Int</span>,</div><div class="line">    callSite: <span class="type">CallSite</span>)</div><div class="line">  : <span class="type">Stage</span> =</div><div class="line">&#123;</div><div class="line">  <span class="keyword">val</span> parentStages = getParentStages(rdd, jobId)</div><div class="line">  <span class="keyword">val</span> id = nextStageId.getAndIncrement()</div><div class="line">  <span class="keyword">val</span> stage = <span class="keyword">new</span> <span class="type">Stage</span>(id, rdd, numTasks, shuffleDep, parentStages, jobId, callSite)</div><div class="line">  stageIdToStage(id) = stage</div><div class="line">  updateJobIdStageIdMaps(jobId, stage)</div><div class="line">  stage</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>其中，Stage的初始化参数：在创建一个Stage之前，需要知道该Stage需要从多少个Partition读入数据，这个数值直接影响要创建多少个Task。也就是说，创建Stage时，已经清楚该Stage需要从多少不同的Partition读入数据，并写出到多少个不同的Partition中，输入和输出的个数均已明确。</p>
+<p><strong>getParentStages函数：</strong><br>通过不停的遍历它之前的rdd，如果碰到有依赖是ShuffleDependency类型的，就通过getShuffleMapStage方法计算出来它的Stage来。<br><figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * Get or create the list of parent stages for a given RDD. The stages will be assigned the</div><div class="line"> * provided jobId if they haven't already been created with a lower jobId.</div><div class="line"> */</div><div class="line"><span class="keyword">private</span> <span class="function"><span class="keyword">def</span> <span class="title">getParentStages</span></span>(rdd: <span class="type">RDD</span>[_], jobId: <span class="type">Int</span>): <span class="type">List</span>[<span class="type">Stage</span>] = &#123;</div><div class="line">  <span class="keyword">val</span> parents = <span class="keyword">new</span> <span class="type">HashSet</span>[<span class="type">Stage</span>]</div><div class="line">  <span class="keyword">val</span> visited = <span class="keyword">new</span> <span class="type">HashSet</span>[<span class="type">RDD</span>[_]]</div><div class="line">  <span class="comment">// We are manually maintaining a stack here to prevent StackOverflowError</span></div><div class="line">  <span class="comment">// caused by recursively visiting</span></div><div class="line">  <span class="keyword">val</span> waitingForVisit = <span class="keyword">new</span> <span class="type">Stack</span>[<span class="type">RDD</span>[_]]</div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">visit</span></span>(r: <span class="type">RDD</span>[_]) &#123;</div><div class="line">    <span class="keyword">if</span> (!visited(r)) &#123;</div><div class="line">      visited += r</div><div class="line">      <span class="comment">// Kind of ugly: need to register RDDs with the cache here since</span></div><div class="line">      <span class="comment">// we can't do it in its constructor because # of partitions is unknown</span></div><div class="line">      <span class="keyword">for</span> (dep &lt;- r.dependencies) &#123;</div><div class="line">        dep <span class="keyword">match</span> &#123;</div><div class="line">          <span class="keyword">case</span> shufDep: <span class="type">ShuffleDependency</span>[_, _, _] =&gt;</div><div class="line">            parents += getShuffleMapStage(shufDep, jobId)</div><div class="line">          <span class="keyword">case</span> _ =&gt;</div><div class="line">            waitingForVisit.push(dep.rdd)</div><div class="line">        &#125;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">  waitingForVisit.push(rdd)</div><div class="line">  <span class="keyword">while</span> (!waitingForVisit.isEmpty) &#123;</div><div class="line">    visit(waitingForVisit.pop())</div><div class="line">  &#125;</div><div class="line">  parents.toList</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="ActiveJob类"><a href="#ActiveJob类" class="headerlink" title="ActiveJob类"></a>ActiveJob类</h3><p>用户所提交的job在得到DAGScheduler的调度后，会被包装成ActiveJob，同时会启动JobWaiter阻塞监听job的完成状况。<br>同时依据job中RDD的dependency和dependency属性(NarrowDependency，ShufflerDependecy)，DAGScheduler会根据依赖关系的先后产生出不同的stage DAG(result stage, shuffle map stage)。<br>在每一个stage内部，根据stage产生出相应的task，包括ResultTask或是ShuffleMapTask，这些task会根据RDD中partition的数量和分布，产生出一组相应的task，并将其包装为TaskSet提交到TaskScheduler上去。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * Tracks information about an active job in the DAGScheduler.</div><div class="line"> */</div><div class="line"><span class="keyword">private</span>[spark] <span class="class"><span class="keyword">class</span> <span class="title">ActiveJob</span>(<span class="params"></span></span></div><div class="line">    val jobId: <span class="type">Int</span>,</div><div class="line">    val finalStage: <span class="type">Stage</span>,</div><div class="line">    val func: (<span class="type">TaskContext</span>, <span class="type">Iterator</span>[_]) <span class="title">=&gt;</span> <span class="title">_</span>,</div><div class="line">    <span class="keyword">val</span> partitions: <span class="type">Array</span>[<span class="type">Int</span>],</div><div class="line">    <span class="keyword">val</span> callSite: <span class="type">CallSite</span>,</div><div class="line">    <span class="keyword">val</span> listener: <span class="type">JobListener</span>,</div><div class="line">    <span class="keyword">val</span> properties: <span class="type">Properties</span>) &#123;</div><div class="line"></div><div class="line">  <span class="keyword">val</span> numPartitions = partitions.length</div><div class="line">  <span class="keyword">val</span> finished = <span class="type">Array</span>.fill[<span class="type">Boolean</span>](numPartitions)(<span class="literal">false</span>)</div><div class="line">  <span class="keyword">var</span> numFinished = <span class="number">0</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="submitStage函数"><a href="#submitStage函数" class="headerlink" title="submitStage函数"></a>submitStage函数</h2><p><strong>submitStage函数中会根据依赖关系划分stage，通过递归调用从finalStage一直往前找它的父stage，直到stage没有父stage时就调用submitMissingTasks方法提交改stage。这样就完成了将job划分为一个或者多个stage。</strong><br>submitStage处理流程：</p>
+<blockquote>
+<ul>
+<li>所依赖的Stage是否都已经完成，如果没有完成则先执行所依赖的Stage</li>
+<li>如果所有的依赖已经完成，则提交自身所处的Stage</li>
+<li>最后会在submitMissingTasks函数中将stage封装成TaskSet通过taskScheduler.submitTasks函数提交给TaskScheduler处理。</li>
+</ul>
+</blockquote>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/** Submits stage, but first recursively submits any missing parents. */</span></div><div class="line"><span class="keyword">private</span> <span class="function"><span class="keyword">def</span> <span class="title">submitStage</span></span>(stage: <span class="type">Stage</span>) &#123;</div><div class="line">  <span class="keyword">val</span> jobId = activeJobForStage(stage)</div><div class="line">  <span class="keyword">if</span> (jobId.isDefined) &#123;</div><div class="line">    logDebug(<span class="string">"submitStage("</span> + stage + <span class="string">")"</span>)</div><div class="line">    <span class="keyword">if</span> (!waitingStages(stage) &amp;&amp; !runningStages(stage) &amp;&amp; !failedStages(stage)) &#123;</div><div class="line">      <span class="keyword">val</span> missing = getMissingParentStages(stage).sortBy(_.id) <span class="comment">// 根据final stage发现是否有parent stage</span></div><div class="line">      logDebug(<span class="string">"missing: "</span> + missing)</div><div class="line">      <span class="keyword">if</span> (missing == <span class="type">Nil</span>) &#123;</div><div class="line">        logInfo(<span class="string">"Submitting "</span> + stage + <span class="string">" ("</span> + stage.rdd + <span class="string">"), which has no missing parents"</span>)</div><div class="line">        submitMissingTasks(stage, jobId.get) <span class="comment">// 如果没有parent stage需要执行, 则直接submit当前stage的task</span></div><div class="line">      &#125; <span class="keyword">else</span> &#123;</div><div class="line">        <span class="keyword">for</span> (parent &lt;- missing) &#123;</div><div class="line">          submitStage(parent) <span class="comment">// 提交父stage的task，这里是个递归，直到没有父stage才在上面的语句中提交task</span></div><div class="line">        &#125;</div><div class="line">        waitingStages += stage <span class="comment">// 暂时不能提交的stage，先添加到等待队列</span></div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125; <span class="keyword">else</span> &#123;</div><div class="line">    abortStage(stage, <span class="string">"No active job for stage "</span> + stage.id)</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这个提交stage的过程是一个递归的过程，它是先要把父stage先提交，然后把自己添加到等待队列中，直到没有父stage之后，就提交该stage中的任务。等待队列在最后的submitWaitingStages方法中提交。</p>
+<h3 id="getMissingParentStages"><a href="#getMissingParentStages" class="headerlink" title="getMissingParentStages"></a>getMissingParentStages</h3><p>getMissingParentStages通过图的遍历，来找出所依赖的所有父Stage。<br><figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">private</span> <span class="function"><span class="keyword">def</span> <span class="title">getMissingParentStages</span></span>(stage: <span class="type">Stage</span>): <span class="type">List</span>[<span class="type">Stage</span>] = &#123;</div><div class="line">  <span class="keyword">val</span> missing = <span class="keyword">new</span> <span class="type">HashSet</span>[<span class="type">Stage</span>]</div><div class="line">  <span class="keyword">val</span> visited = <span class="keyword">new</span> <span class="type">HashSet</span>[<span class="type">RDD</span>[_]]</div><div class="line">  <span class="comment">// We are manually maintaining a stack here to prevent StackOverflowError</span></div><div class="line">  <span class="comment">// caused by recursively visiting</span></div><div class="line">  <span class="keyword">val</span> waitingForVisit = <span class="keyword">new</span> <span class="type">Stack</span>[<span class="type">RDD</span>[_]]</div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">visit</span></span>(rdd: <span class="type">RDD</span>[_]) &#123;</div><div class="line">    <span class="keyword">if</span> (!visited(rdd)) &#123;</div><div class="line">      visited += rdd</div><div class="line">      <span class="keyword">if</span> (getCacheLocs(rdd).contains(<span class="type">Nil</span>)) &#123;</div><div class="line">        <span class="keyword">for</span> (dep &lt;- rdd.dependencies) &#123;</div><div class="line">          dep <span class="keyword">match</span> &#123;</div><div class="line">            <span class="keyword">case</span> shufDep: <span class="type">ShuffleDependency</span>[_, _, _] =&gt;  <span class="comment">// 如果发现ShuffleDependency, 说明遇到新的stage</span></div><div class="line">              <span class="keyword">val</span> mapStage = getShuffleMapStage(shufDep, stage.jobId)</div><div class="line">              <span class="comment">// check shuffleToMapStage, 如果该stage已经被创建则直接返回, 否则newStage</span></div><div class="line">              <span class="keyword">if</span> (!mapStage.isAvailable) &#123;</div><div class="line">                missing += mapStage</div><div class="line">              &#125;</div><div class="line">            <span class="keyword">case</span> narrowDep: <span class="type">NarrowDependency</span>[_] =&gt; <span class="comment">// 对于NarrowDependency, 说明仍然在这个stage中</span></div><div class="line">              waitingForVisit.push(narrowDep.rdd)</div><div class="line">          &#125;</div><div class="line">        &#125;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">  waitingForVisit.push(stage.rdd)</div><div class="line">  <span class="keyword">while</span> (!waitingForVisit.isEmpty) &#123;</div><div class="line">    visit(waitingForVisit.pop())</div><div class="line">  &#125;</div><div class="line">  missing.toList</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="submitMissingTasks"><a href="#submitMissingTasks" class="headerlink" title="submitMissingTasks"></a>submitMissingTasks</h3><p>可见无论是哪种stage，都是对于每个stage中的每个partitions创建task，并最终封装成TaskSet，将该stage提交给taskscheduler。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/** Called when stage's parents are available and we can now do its task. */</span></div><div class="line"><span class="keyword">private</span> <span class="function"><span class="keyword">def</span> <span class="title">submitMissingTasks</span></span>(stage: <span class="type">Stage</span>, jobId: <span class="type">Int</span>) &#123;</div><div class="line">  logDebug(<span class="string">"submitMissingTasks("</span> + stage + <span class="string">")"</span>)</div><div class="line">  <span class="comment">// Get our pending tasks and remember them in our pendingTasks entry</span></div><div class="line">  stage.pendingTasks.clear()</div><div class="line"></div><div class="line">  <span class="comment">// First figure out the indexes of partition ids to compute.</span></div><div class="line">  <span class="keyword">val</span> partitionsToCompute: <span class="type">Seq</span>[<span class="type">Int</span>] = &#123;</div><div class="line">    <span class="keyword">if</span> (stage.isShuffleMap) &#123;</div><div class="line">      (<span class="number">0</span> until stage.numPartitions).filter(id =&gt; stage.outputLocs(id) == <span class="type">Nil</span>)</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">      <span class="keyword">val</span> job = stage.resultOfJob.get</div><div class="line">      (<span class="number">0</span> until job.numPartitions).filter(id =&gt; !job.finished(id))</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="keyword">val</span> properties = <span class="keyword">if</span> (jobIdToActiveJob.contains(jobId)) &#123;</div><div class="line">    jobIdToActiveJob(stage.jobId).properties</div><div class="line">  &#125; <span class="keyword">else</span> &#123;</div><div class="line">    <span class="comment">// this stage will be assigned to "default" pool</span></div><div class="line">    <span class="literal">null</span></div><div class="line">  &#125;</div><div class="line"></div><div class="line">  runningStages += stage</div><div class="line">  <span class="comment">// SparkListenerStageSubmitted should be posted before testing whether tasks are</span></div><div class="line">  <span class="comment">// serializable. If tasks are not serializable, a SparkListenerStageCompleted event</span></div><div class="line">  <span class="comment">// will be posted, which should always come after a corresponding SparkListenerStageSubmitted</span></div><div class="line">  <span class="comment">// event.</span></div><div class="line">  stage.latestInfo = <span class="type">StageInfo</span>.fromStage(stage, <span class="type">Some</span>(partitionsToCompute.size))</div><div class="line">  outputCommitCoordinator.stageStart(stage.id)</div><div class="line">  listenerBus.post(<span class="type">SparkListenerStageSubmitted</span>(stage.latestInfo, properties))</div><div class="line"></div><div class="line">  <span class="comment">// <span class="doctag">TODO:</span> Maybe we can keep the taskBinary in Stage to avoid serializing it multiple times.</span></div><div class="line">  <span class="comment">// Broadcasted binary for the task, used to dispatch tasks to executors. Note that we broadcast</span></div><div class="line">  <span class="comment">// the serialized copy of the RDD and for each task we will deserialize it, which means each</span></div><div class="line">  <span class="comment">// task gets a different copy of the RDD. This provides stronger isolation between tasks that</span></div><div class="line">  <span class="comment">// might modify state of objects referenced in their closures. This is necessary in Hadoop</span></div><div class="line">  <span class="comment">// where the JobConf/Configuration object is not thread-safe.</span></div><div class="line">  <span class="keyword">var</span> taskBinary: <span class="type">Broadcast</span>[<span class="type">Array</span>[<span class="type">Byte</span>]] = <span class="literal">null</span></div><div class="line">  <span class="keyword">try</span> &#123;</div><div class="line">    <span class="comment">// For ShuffleMapTask, serialize and broadcast (rdd, shuffleDep).</span></div><div class="line">    <span class="comment">// For ResultTask, serialize and broadcast (rdd, func).</span></div><div class="line">    <span class="keyword">val</span> taskBinaryBytes: <span class="type">Array</span>[<span class="type">Byte</span>] =</div><div class="line">      <span class="keyword">if</span> (stage.isShuffleMap) &#123;</div><div class="line">        closureSerializer.serialize((stage.rdd, stage.shuffleDep.get) : <span class="type">AnyRef</span>).array()</div><div class="line">      &#125; <span class="keyword">else</span> &#123;</div><div class="line">        closureSerializer.serialize((stage.rdd, stage.resultOfJob.get.func) : <span class="type">AnyRef</span>).array()</div><div class="line">      &#125;</div><div class="line">    taskBinary = sc.broadcast(taskBinaryBytes)</div><div class="line">  &#125; <span class="keyword">catch</span> &#123;</div><div class="line">    <span class="comment">// In the case of a failure during serialization, abort the stage.</span></div><div class="line">    <span class="keyword">case</span> e: <span class="type">NotSerializableException</span> =&gt;</div><div class="line">      abortStage(stage, <span class="string">"Task not serializable: "</span> + e.toString)</div><div class="line">      runningStages -= stage</div><div class="line">      <span class="keyword">return</span></div><div class="line">    <span class="keyword">case</span> <span class="type">NonFatal</span>(e) =&gt;</div><div class="line">      abortStage(stage, <span class="string">s"Task serialization failed: <span class="subst">$e</span>\n<span class="subst">$&#123;e.getStackTraceString&#125;</span>"</span>)</div><div class="line">      runningStages -= stage</div><div class="line">      <span class="keyword">return</span></div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="keyword">val</span> tasks: <span class="type">Seq</span>[<span class="type">Task</span>[_]] = <span class="keyword">if</span> (stage.isShuffleMap) &#123;</div><div class="line">    partitionsToCompute.map &#123; id =&gt;</div><div class="line">      <span class="keyword">val</span> locs = getPreferredLocs(stage.rdd, id)</div><div class="line">      <span class="keyword">val</span> part = stage.rdd.partitions(id)</div><div class="line">      <span class="keyword">new</span> <span class="type">ShuffleMapTask</span>(stage.id, taskBinary, part, locs)</div><div class="line">    &#125;</div><div class="line">  &#125; <span class="keyword">else</span> &#123;</div><div class="line">    <span class="keyword">val</span> job = stage.resultOfJob.get</div><div class="line">    partitionsToCompute.map &#123; id =&gt;</div><div class="line">      <span class="keyword">val</span> p: <span class="type">Int</span> = job.partitions(id)</div><div class="line">      <span class="keyword">val</span> part = stage.rdd.partitions(p)</div><div class="line">      <span class="keyword">val</span> locs = getPreferredLocs(stage.rdd, p)</div><div class="line">      <span class="keyword">new</span> <span class="type">ResultTask</span>(stage.id, taskBinary, part, locs, id)</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="keyword">if</span> (tasks.size &gt; <span class="number">0</span>) &#123;</div><div class="line">    logInfo(<span class="string">"Submitting "</span> + tasks.size + <span class="string">" missing tasks from "</span> + stage + <span class="string">" ("</span> + stage.rdd + <span class="string">")"</span>)</div><div class="line">    stage.pendingTasks ++= tasks</div><div class="line">    logDebug(<span class="string">"New pending tasks: "</span> + stage.pendingTasks)</div><div class="line">    taskScheduler.submitTasks(</div><div class="line">      <span class="keyword">new</span> <span class="type">TaskSet</span>(tasks.toArray, stage.id, stage.newAttemptId(), stage.jobId, properties))</div><div class="line">    stage.latestInfo.submissionTime = <span class="type">Some</span>(clock.getTimeMillis())</div><div class="line">  &#125; <span class="keyword">else</span> &#123;</div><div class="line">    <span class="comment">// Because we posted SparkListenerStageSubmitted earlier, we should mark</span></div><div class="line">    <span class="comment">// the stage as completed here in case there are no tasks to run</span></div><div class="line">    markStageAsFinished(stage, <span class="type">None</span>)</div><div class="line">    logDebug(<span class="string">"Stage "</span> + stage + <span class="string">" is actually done; %b %d %d"</span>.format(</div><div class="line">      stage.isAvailable, stage.numAvailableOutputs, stage.numPartitions))</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="http://www.cnblogs.com/fxjwind/p/3492678.html" target="_blank" rel="external">fxjwind–Spark源码分析–Stage</a><br><a href="http://www.cnblogs.com/cenyuhai/p/3784602.html" target="_blank" rel="external">Spark源码系列（三）作业运行过程</a><br><a href="http://blog.csdn.net/anzhsoft/article/details/39859463" target="_blank" rel="external">Spark技术内幕：Stage划分及提交源码分析</a></p>
+<p><strong>转载请注明作者Jason Ding及其出处</strong><br><a href="http://jasonding1354.gitcafe.io/" target="_blank" rel="external">GitCafe博客主页(http://jasonding1354.gitcafe.io/)</a><br><a href="http://jasonding1354.github.io/" target="_blank" rel="external">Github博客主页(http://jasonding1354.github.io/)</a><br><a href="http://blog.csdn.net/jasonding1354" target="_blank" rel="external">CSDN博客(http://blog.csdn.net/jasonding1354)</a><br><a href="http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles" target="_blank" rel="external">简书主页(http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles)</a><br><strong>Google搜索jasonding1354进入我的博客主页</strong></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Spark/">Spark</a>
+  </div>
+
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Spark/">Spark</a>
+</div>
+
+
+
+<div class="article-share" id="share">
+
+  
+<div class="jiathis_style">
+    <span class="jiathis_txt">分享到：</span>
+    <a class="jiathis_button_tsina">新浪微博</a>
+    <a class="jiathis_button_weixin">微信</a>
+    <a class="jiathis_button_twitter">Twitter</a>
+    <a class="jiathis_button_evernote">EverNote</a>
+    <a href="http://www.jiathis.com/share?uid=1501277" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript" >
+    var jiathis_config={
+    data_track_clickback:true,
+    sm:"copy,renren,cqq",
+    pic:"",
+    summary:"",
+    
+  </script> 
+<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=
+1394018007141544" charset="utf-8"></script>      
+
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2015/07/15/Spark/【Spark Core】TaskScheduler源码与任务提交原理浅析1/" title="【Spark Core】TaskScheduler源码与任务提交原理浅析1">
+  <strong>之后的一篇</strong><br/>
+  <span>
+  【Spark Core】TaskScheduler源码与任务提交原理浅析1</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2015/07/15/Spark/【Spark Core】DAGScheduler源码浅析2/"  title="【Spark Core】DAGScheduler源码浅析2">
+ <strong>之前的一篇</strong><br/> 
+ <span>【Spark Core】DAGScheduler源码浅析2
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section class="comment">
+	<div class="ds-thread"></div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#引入"><span class="toc-number">1.</span> <span class="toc-text">引入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Stage生成"><span class="toc-number">2.</span> <span class="toc-text">Stage生成</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#依赖关系"><span class="toc-number">3.</span> <span class="toc-text">依赖关系</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Stage的划分"><span class="toc-number">4.</span> <span class="toc-text">Stage的划分</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Stage类"><span class="toc-number">5.</span> <span class="toc-text">Stage类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#处理Job，分割Job为Stage，封装Stage成TaskSet，最终提交给TaskScheduler的调用链"><span class="toc-number">6.</span> <span class="toc-text">处理Job，分割Job为Stage，封装Stage成TaskSet，最终提交给TaskScheduler的调用链</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#handleJobSubmitted函数"><span class="toc-number">7.</span> <span class="toc-text">handleJobSubmitted函数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#newStage函数"><span class="toc-number">7.1.</span> <span class="toc-text">newStage函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ActiveJob类"><span class="toc-number">7.2.</span> <span class="toc-text">ActiveJob类</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#submitStage函数"><span class="toc-number">8.</span> <span class="toc-text">submitStage函数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#getMissingParentStages"><span class="toc-number">8.1.</span> <span class="toc-text">getMissingParentStages</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#submitMissingTasks"><span class="toc-number">8.2.</span> <span class="toc-text">submitMissingTasks</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">9.</span> <span class="toc-text">参考资料</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+<div class="maps">
+    <p class="asidetitle">访问统计</p>
+    <br>
+    <script type="text/javascript" src="//ra.revolvermaps.com/0/0/6.js?i=0leibswamim&amp;m=0&amp;s=210&amp;c=ff0000&amp;cr1=ffffff&amp;f=arial&amp;l=0" async="async"></script>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">Categories</p>
+		<ul>
+		
+			<li><a href="/categories/Algorithm-Problem/" title="Algorithm Problem">Algorithm Problem<sup>1</sup></a></li>
+		
+			<li><a href="/categories/C/" title="C++">C++<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Classic-Algorithm/" title="Classic Algorithm">Classic Algorithm<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Cluster-Analysis/" title="Cluster Analysis">Cluster Analysis<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Design-Pattern/" title="Design Pattern">Design Pattern<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Developer-Kits/" title="Developer Kits">Developer Kits<sup>5</sup></a></li>
+		
+			<li><a href="/categories/Energy-Big-Data/" title="Energy Big Data">Energy Big Data<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Feature-Engineering/" title="Feature Engineering">Feature Engineering<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Functional/" title="Functional">Functional<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Functional-Programming/" title="Functional Programming">Functional Programming<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Git/" title="Git">Git<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Jobs/" title="Jobs">Jobs<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>4</sup></a></li>
+		
+			<li><a href="/categories/ML-Experiments/" title="ML Experiments">ML Experiments<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Machine-Learning/" title="Machine Learning">Machine Learning<sup>50</sup></a></li>
+		
+			<li><a href="/categories/Math/" title="Math">Math<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Programming/" title="Programming">Programming<sup>11</sup></a></li>
+		
+			<li><a href="/categories/Python/" title="Python">Python<sup>10</sup></a></li>
+		
+			<li><a href="/categories/Scala/" title="Scala">Scala<sup>27</sup></a></li>
+		
+			<li><a href="/categories/Scala-ML/" title="Scala-ML">Scala-ML<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Similarity-Search/" title="Similarity Search">Similarity Search<sup>4</sup></a></li>
+		
+			<li><a href="/categories/Small-Problems/" title="Small Problems">Small Problems<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Spark/" title="Spark">Spark<sup>23</sup></a></li>
+		
+			<li><a href="/categories/Thoughts/" title="Thoughts">Thoughts<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">Tag Cloud</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/Actor/" style="font-size: 10px;">Actor</a> <a href="/tags/Akka/" style="font-size: 14.55px;">Akka</a> <a href="/tags/Algorithm/" style="font-size: 10px;">Algorithm</a> <a href="/tags/Approximate-Nearest-Neighbor-Search/" style="font-size: 10px;">Approximate Nearest Neighbor Search</a> <a href="/tags/Bayesian-Analysis/" style="font-size: 10.91px;">Bayesian Analysis</a> <a href="/tags/Big-Data/" style="font-size: 10px;">Big Data</a> <a href="/tags/C/" style="font-size: 12.73px;">C++</a> <a href="/tags/Classification/" style="font-size: 11.82px;">Classification</a> <a href="/tags/Cluster-Analysis/" style="font-size: 10px;">Cluster Analysis</a> <a href="/tags/Computer-Vision/" style="font-size: 14.55px;">Computer Vision</a> <a href="/tags/Eclipse/" style="font-size: 10px;">Eclipse</a> <a href="/tags/Energy-Forecasting/" style="font-size: 10px;">Energy Forecasting</a> <a href="/tags/Feature-Engineering/" style="font-size: 10.91px;">Feature Engineering</a> <a href="/tags/Functional-Programming/" style="font-size: 16.36px;">Functional Programming</a> <a href="/tags/Gaussian-Process/" style="font-size: 10px;">Gaussian Process</a> <a href="/tags/Git/" style="font-size: 10.91px;">Git</a> <a href="/tags/GraphLab/" style="font-size: 10px;">GraphLab</a> <a href="/tags/IPython/" style="font-size: 10px;">IPython</a> <a href="/tags/Internet-of-Energy/" style="font-size: 10px;">Internet of Energy</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/Kaggle/" style="font-size: 10px;">Kaggle</a> <a href="/tags/Kernel-Method/" style="font-size: 10px;">Kernel Method</a> <a href="/tags/LSH/" style="font-size: 12.73px;">LSH</a> <a href="/tags/LaTex/" style="font-size: 10px;">LaTex</a> <a href="/tags/Linux/" style="font-size: 11.82px;">Linux</a> <a href="/tags/Machine-Learning/" style="font-size: 20px;">Machine Learning</a> <a href="/tags/Math/" style="font-size: 11.82px;">Math</a> <a href="/tags/Mathematics/" style="font-size: 13.64px;">Mathematics</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MeanShift/" style="font-size: 10px;">MeanShift</a> <a href="/tags/Mint/" style="font-size: 10px;">Mint</a> <a href="/tags/OpenCV/" style="font-size: 15.45px;">OpenCV</a> <a href="/tags/Probabilistic-Programming/" style="font-size: 10px;">Probabilistic Programming</a> <a href="/tags/Probability-Distributions/" style="font-size: 10px;">Probability Distributions</a> <a href="/tags/Programming/" style="font-size: 14.55px;">Programming</a> <a href="/tags/Python/" style="font-size: 17.27px;">Python</a> <a href="/tags/Regression/" style="font-size: 11.82px;">Regression</a> <a href="/tags/Resume/" style="font-size: 10px;">Resume</a> <a href="/tags/SVM/" style="font-size: 12.73px;">SVM</a> <a href="/tags/Scala/" style="font-size: 19.09px;">Scala</a> <a href="/tags/Similarity-Search/" style="font-size: 10.91px;">Similarity Search</a> <a href="/tags/Source-code/" style="font-size: 10px;">Source code</a> <a href="/tags/Spark/" style="font-size: 18.18px;">Spark</a> <a href="/tags/Summary/" style="font-size: 10px;">Summary</a> <a href="/tags/Thoughts/" style="font-size: 10.91px;">Thoughts</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/Vim/" style="font-size: 11.82px;">Vim</a> <a href="/tags/Written-Test/" style="font-size: 10px;">Written Test</a> <a href="/tags/Zeppelin/" style="font-size: 10px;">Zeppelin</a> <a href="/tags/boost/" style="font-size: 10px;">boost</a> <a href="/tags/cpp/" style="font-size: 13.64px;">cpp</a> <a href="/tags/opencv/" style="font-size: 10.91px;">opencv</a> <a href="/tags/p-Stable-LSH/" style="font-size: 10px;">p-Stable LSH</a> <a href="/tags/scikit-learn/" style="font-size: 10px;">scikit-learn</a> <a href="/tags/sklearn/" style="font-size: 10.91px;">sklearn</a> <a href="/tags/互联网时代/" style="font-size: 10px;">互联网时代</a> <a href="/tags/位置敏感哈希/" style="font-size: 10.91px;">位置敏感哈希</a> <a href="/tags/分治/" style="font-size: 10px;">分治</a> <a href="/tags/单元测试/" style="font-size: 10px;">单元测试</a> <a href="/tags/反思/" style="font-size: 10px;">反思</a> <a href="/tags/效率/" style="font-size: 10px;">效率</a> <a href="/tags/核方法/" style="font-size: 10px;">核方法</a> <a href="/tags/算法框架/" style="font-size: 10px;">算法框架</a> <a href="/tags/设计模式/" style="font-size: 11.82px;">设计模式</a>
+    </div>
+  </div>
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle"><a href="/archives">Archives</a></p>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">February 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">November 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">29</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a><span class="archive-list-count">16</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">10</span></li></ul>
+  </div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
+</div>
+
+</aside>
+
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Jason Ding in HUST <br/>
+			I would share moments of life here! </p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/1698420390" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/jasonding1354" target="_blank" title="github"></a>
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2016 
+		
+		<a href="http://blog.jasonding.top" target="_blank" title="Jason Ding">Jason Ding</a>
+		
+		</p>
+		<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+  
+  _st('install','uYyEuxJdzzAGXTax33mt','2.0.0');
+</script>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"jasonding"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+  </body>
+</html>

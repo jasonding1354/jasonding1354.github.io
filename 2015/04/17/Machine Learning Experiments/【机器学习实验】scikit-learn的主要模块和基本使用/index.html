@@ -1,0 +1,509 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>【机器学习实验】scikit-learn的主要模块和基本使用 | Jason&#39;s Techblog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Jason Ding">
+    
+    <meta name="description" content="引言对于一些开始搞机器学习算法有害怕下手的小朋友，该如何快速入门，这让人挺挣扎的。在从事数据科学的人中，最常用的工具就是R和Python了，每个工具都有其利弊，但是Python在各方面都相对胜出一些，这是因为scikit-learn库实现了很多机器学习算法。
+加载数据(Data Loading)我们">
+    
+    
+    
+    
+    <link rel="alternate" href="/atom.xml" title="Jason&#39;s Techblog" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/author.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/author.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F3cc71cd5738b99a1db174951e194ba55' type='text/javascript'%3E%3C/script%3E"));
+
+
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F1dcf1fa58b0eca1ac5bd089ee6a6e78c' type='text/javascript'%3E%3C/script%3E"));
+
+
+</script>
+
+
+    <!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Jason&#39;s Techblog" title="Jason&#39;s Techblog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Jason&#39;s Techblog">Jason&#39;s Techblog</a></h1>
+				<h2 class="blog-motto">Technician =&gt; Scientist =&gt; Philosopher =&gt; Artists</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="http://jasonding.top">Main</a></li>
+					
+					<li>
+					
+						<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" class="st-default-search-input" maxlength="20" placeholder="Search" />
+						</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody">
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/04/17/Machine Learning Experiments/【机器学习实验】scikit-learn的主要模块和基本使用/" title="【机器学习实验】scikit-learn的主要模块和基本使用" itemprop="url">【机器学习实验】scikit-learn的主要模块和基本使用</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://blog.jasonding.top" title="Jason Ding">Jason Ding</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2015-04-17T09:08:47.000Z" itemprop="datePublished">2015-04-17</time>
+    Updated:<time datetime="2016-03-16T06:24:42.000Z" itemprop="dateModified">2016-03-16</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#引言"><span class="toc-number">1.</span> <span class="toc-text">引言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#加载数据-Data-Loading"><span class="toc-number">2.</span> <span class="toc-text">加载数据(Data Loading)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#数据归一化-Data-Normalization"><span class="toc-number">3.</span> <span class="toc-text">数据归一化(Data Normalization)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#特征选择-Feature-Selection"><span class="toc-number">4.</span> <span class="toc-text">特征选择(Feature Selection)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#算法的使用"><span class="toc-number">5.</span> <span class="toc-text">算法的使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#逻辑回归"><span class="toc-number">5.1.</span> <span class="toc-text">逻辑回归</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#朴素贝叶斯"><span class="toc-number">5.2.</span> <span class="toc-text">朴素贝叶斯</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#k近邻"><span class="toc-number">5.3.</span> <span class="toc-text">k近邻</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#决策树"><span class="toc-number">5.4.</span> <span class="toc-text">决策树</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#支持向量机"><span class="toc-number">5.5.</span> <span class="toc-text">支持向量机</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何优化算法参数"><span class="toc-number">6.</span> <span class="toc-text">如何优化算法参数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">7.</span> <span class="toc-text">小结</span></a></li></ol>
+		</div>
+		
+		<h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>对于一些开始搞机器学习算法有害怕下手的小朋友，该如何快速入门，这让人挺挣扎的。<br>在从事数据科学的人中，最常用的工具就是R和Python了，每个工具都有其利弊，但是Python在各方面都相对胜出一些，这是因为scikit-learn库实现了很多机器学习算法。</p>
+<h2 id="加载数据-Data-Loading"><a href="#加载数据-Data-Loading" class="headerlink" title="加载数据(Data Loading)"></a>加载数据(Data Loading)</h2><p>我们假设输入时一个特征矩阵或者csv文件。<br>首先，数据应该被载入内存中。<br>scikit-learn的实现使用了NumPy中的arrays，所以，我们要使用NumPy来载入csv文件。<br>以下是从UCI机器学习数据仓库中下载的数据。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</div><div class="line"><span class="keyword">import</span> urllib</div><div class="line"><span class="comment"># url with dataset</span></div><div class="line">url = <span class="string">"http://archive.ics.uci.edu/ml/machine-learning-databases/pima-indians-diabetes/pima-indians-diabetes.data"</span></div><div class="line"><span class="comment"># download the file</span></div><div class="line">raw_data = urllib.urlopen(url)</div><div class="line"><span class="comment"># load the CSV file as a numpy matrix</span></div><div class="line">dataset = np.loadtxt(raw_data, delimiter=<span class="string">","</span>)</div><div class="line"><span class="comment"># separate the data from the target attributes</span></div><div class="line">X = dataset[:,<span class="number">0</span>:<span class="number">7</span>]</div><div class="line">y = dataset[:,<span class="number">8</span>]</div></pre></td></tr></table></figure></p>
+<p>我们要使用该数据集作为例子，将特征矩阵作为X，目标变量作为y。</p>
+<h2 id="数据归一化-Data-Normalization"><a href="#数据归一化-Data-Normalization" class="headerlink" title="数据归一化(Data Normalization)"></a>数据归一化(Data Normalization)</h2><p>大多数机器学习算法中的梯度方法对于数据的缩放和尺度都是很敏感的，在开始跑算法之前，我们应该进行归一化或者标准化的过程，这使得特征数据缩放到0-1范围中。scikit-learn提供了归一化的方法：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> sklearn <span class="keyword">import</span> preprocessing</div><div class="line"><span class="comment"># normalize the data attributes</span></div><div class="line">normalized_X = preprocessing.normalize(X)</div><div class="line"><span class="comment"># standardize the data attributes</span></div><div class="line">standardized_X = preprocessing.scale(X)</div></pre></td></tr></table></figure></p>
+<h2 id="特征选择-Feature-Selection"><a href="#特征选择-Feature-Selection" class="headerlink" title="特征选择(Feature Selection)"></a>特征选择(Feature Selection)</h2><p>在解决一个实际问题的过程中，选择合适的特征或者构建特征的能力特别重要。这成为特征选择或者特征工程。<br>特征选择时一个很需要创造力的过程，更多的依赖于直觉和专业知识，并且有很多现成的算法来进行特征的选择。<br>下面的树算法(Tree algorithms)计算特征的信息量：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> sklearn <span class="keyword">import</span> metrics</div><div class="line"><span class="keyword">from</span> sklearn.ensemble <span class="keyword">import</span> ExtraTreesClassifier</div><div class="line">model = ExtraTreesClassifier()</div><div class="line">model.fit(X, y)</div><div class="line"><span class="comment"># display the relative importance of each attribute</span></div><div class="line">print(model.feature_importances_)</div></pre></td></tr></table></figure></p>
+<h2 id="算法的使用"><a href="#算法的使用" class="headerlink" title="算法的使用"></a>算法的使用</h2><p>scikit-learn实现了机器学习的大部分基础算法，让我们快速了解一下。</p>
+<h3 id="逻辑回归"><a href="#逻辑回归" class="headerlink" title="逻辑回归"></a>逻辑回归</h3><p>大多数问题都可以归结为二元分类问题。这个算法的优点是可以给出数据所在类别的概率。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> sklearn <span class="keyword">import</span> metrics</div><div class="line"><span class="keyword">from</span> sklearn.linear_model <span class="keyword">import</span> LogisticRegression</div><div class="line">model = LogisticRegression()</div><div class="line">model.fit(X, y)</div><div class="line">print(model)</div><div class="line"><span class="comment"># make predictions</span></div><div class="line">expected = y</div><div class="line">predicted = model.predict(X)</div><div class="line"><span class="comment"># summarize the fit of the model</span></div><div class="line">print(metrics.classification_report(expected, predicted))</div><div class="line">print(metrics.confusion_matrix(expected, predicted))</div></pre></td></tr></table></figure></p>
+<p><strong>结果：</strong></p>
+<blockquote>
+<p>LogisticRegression(C=1.0, class_weight=None, dual=False, fit_intercept=True,<br>          intercept_scaling=1, penalty=l2, random_state=None, tol=0.0001)<br>             precision    recall  f1-score   support</p>
+<pre><code>0.0       0.79      0.89      0.84       500
+1.0       0.74      0.55      0.63       268
+</code></pre><p>avg / total       0.77      0.77      0.77       768</p>
+<p>[[447  53]<br> [120 148]]</p>
+</blockquote>
+<h3 id="朴素贝叶斯"><a href="#朴素贝叶斯" class="headerlink" title="朴素贝叶斯"></a>朴素贝叶斯</h3><p>这也是著名的机器学习算法，该方法的任务是还原训练样本数据的分布密度，其在多类别分类中有很好的效果。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> sklearn <span class="keyword">import</span> metrics</div><div class="line"><span class="keyword">from</span> sklearn.naive_bayes <span class="keyword">import</span> GaussianNB</div><div class="line">model = GaussianNB()</div><div class="line">model.fit(X, y)</div><div class="line">print(model)</div><div class="line"><span class="comment"># make predictions</span></div><div class="line">expected = y</div><div class="line">predicted = model.predict(X)</div><div class="line"><span class="comment"># summarize the fit of the model</span></div><div class="line">print(metrics.classification_report(expected, predicted))</div><div class="line">print(metrics.confusion_matrix(expected, predicted))</div></pre></td></tr></table></figure></p>
+<p><strong>结果：</strong></p>
+<blockquote>
+<p>GaussianNB()<br>             precision    recall  f1-score   support</p>
+<pre><code>0.0       0.80      0.86      0.83       500
+ 1.0       0.69      0.60      0.64       268
+</code></pre><p>avg / total       0.76      0.77      0.76       768</p>
+<p>[[429  71]<br> [108 160]]</p>
+</blockquote>
+<h3 id="k近邻"><a href="#k近邻" class="headerlink" title="k近邻"></a>k近邻</h3><p>k近邻算法常常被用作是分类算法一部分，比如可以用它来评估特征，在特征选择上我们可以用到它。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> sklearn <span class="keyword">import</span> metrics</div><div class="line"><span class="keyword">from</span> sklearn.neighbors <span class="keyword">import</span> KNeighborsClassifier</div><div class="line"><span class="comment"># fit a k-nearest neighbor model to the data</span></div><div class="line">model = KNeighborsClassifier()</div><div class="line">model.fit(X, y)</div><div class="line">print(model)</div><div class="line"><span class="comment"># make predictions</span></div><div class="line">expected = y</div><div class="line">predicted = model.predict(X)</div><div class="line"><span class="comment"># summarize the fit of the model</span></div><div class="line">print(metrics.classification_report(expected, predicted))</div><div class="line">print(metrics.confusion_matrix(expected, predicted))</div></pre></td></tr></table></figure></p>
+<p><strong>结果：</strong></p>
+<blockquote>
+<p>KNeighborsClassifier(algorithm=auto, leaf_size=30, metric=minkowski,<br>           n_neighbors=5, p=2, weights=uniform)<br>             precision    recall  f1-score   support</p>
+<pre><code>0.0       0.82      0.90      0.86       500
+ 1.0       0.77      0.63      0.69       268
+</code></pre><p>avg / total       0.80      0.80      0.80       768</p>
+<p>[[448  52]<br> [ 98 170]]</p>
+</blockquote>
+<h3 id="决策树"><a href="#决策树" class="headerlink" title="决策树"></a>决策树</h3><p>分类与回归树(Classification and Regression Trees ,CART)算法常用于特征含有类别信息的分类或者回归问题，这种方法非常适用于多分类情况。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> sklearn <span class="keyword">import</span> metrics</div><div class="line"><span class="keyword">from</span> sklearn.tree <span class="keyword">import</span> DecisionTreeClassifier</div><div class="line"><span class="comment"># fit a CART model to the data</span></div><div class="line">model = DecisionTreeClassifier()</div><div class="line">model.fit(X, y)</div><div class="line">print(model)</div><div class="line"><span class="comment"># make predictions</span></div><div class="line">expected = y</div><div class="line">predicted = model.predict(X)</div><div class="line"><span class="comment"># summarize the fit of the model</span></div><div class="line">print(metrics.classification_report(expected, predicted))</div><div class="line">print(metrics.confusion_matrix(expected, predicted))</div></pre></td></tr></table></figure></p>
+<p><strong>结果：</strong></p>
+<blockquote>
+<p>DecisionTreeClassifier(compute_importances=None, criterion=gini,<br>            max_depth=None, max_features=None, min_density=None,<br>            min_samples_leaf=1, min_samples_split=2, random_state=None,<br>            splitter=best)<br>             precision    recall  f1-score   support</p>
+<pre><code>0.0       1.00      1.00      1.00       500
+ 1.0       1.00      1.00      1.00       268
+</code></pre><p>avg / total       1.00      1.00      1.00       768</p>
+<p>[[500   0]<br> [  0 268]]</p>
+</blockquote>
+<h3 id="支持向量机"><a href="#支持向量机" class="headerlink" title="支持向量机"></a>支持向量机</h3><p>SVM是非常流行的机器学习算法，主要用于分类问题，如同逻辑回归问题，它可以使用一对多的方法进行多类别的分类。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> sklearn <span class="keyword">import</span> metrics</div><div class="line"><span class="keyword">from</span> sklearn.svm <span class="keyword">import</span> SVC</div><div class="line"><span class="comment"># fit a SVM model to the data</span></div><div class="line">model = SVC()</div><div class="line">model.fit(X, y)</div><div class="line">print(model)</div><div class="line"><span class="comment"># make predictions</span></div><div class="line">expected = y</div><div class="line">predicted = model.predict(X)</div><div class="line"><span class="comment"># summarize the fit of the model</span></div><div class="line">print(metrics.classification_report(expected, predicted))</div><div class="line">print(metrics.confusion_matrix(expected, predicted))</div></pre></td></tr></table></figure></p>
+<p><strong>结果：</strong></p>
+<blockquote>
+<p>SVC(C=1.0, cache_size=200, class_weight=None, coef0=0.0, degree=3, gamma=0.0,<br>  kernel=rbf, max_iter=-1, probability=False, random_state=None,<br>  shrinking=True, tol=0.001, verbose=False)<br>             precision    recall  f1-score   support</p>
+<pre><code>0.0       1.00      1.00      1.00       500
+ 1.0       1.00      1.00      1.00       268
+</code></pre><p>avg / total       1.00      1.00      1.00       768</p>
+<p>[[500   0]<br> [  0 268]]</p>
+</blockquote>
+<p>除了分类和回归算法外，scikit-learn提供了更加复杂的算法，比如聚类算法，还实现了算法组合的技术，如Bagging和Boosting算法。</p>
+<h2 id="如何优化算法参数"><a href="#如何优化算法参数" class="headerlink" title="如何优化算法参数"></a>如何优化算法参数</h2><p>一项更加困难的任务是构建一个有效的方法用于选择正确的参数，我们需要用搜索的方法来确定参数。scikit-learn提供了实现这一目标的函数。<br>下面的例子是一个进行正则参数选择的程序：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</div><div class="line"><span class="keyword">from</span> sklearn.linear_model <span class="keyword">import</span> Ridge</div><div class="line"><span class="keyword">from</span> sklearn.grid_search <span class="keyword">import</span> GridSearchCV</div><div class="line"><span class="comment"># prepare a range of alpha values to test</span></div><div class="line">alphas = np.array([<span class="number">1</span>,<span class="number">0.1</span>,<span class="number">0.01</span>,<span class="number">0.001</span>,<span class="number">0.0001</span>,<span class="number">0</span>])</div><div class="line"><span class="comment"># create and fit a ridge regression model, testing each alpha</span></div><div class="line">model = Ridge()</div><div class="line">grid = GridSearchCV(estimator=model, param_grid=dict(alpha=alphas))</div><div class="line">grid.fit(X, y)</div><div class="line">print(grid)</div><div class="line"><span class="comment"># summarize the results of the grid search</span></div><div class="line">print(grid.best_score_)</div><div class="line">print(grid.best_estimator_.alpha)</div></pre></td></tr></table></figure></p>
+<p><strong>结果：</strong></p>
+<blockquote>
+<p>GridSearchCV(cv=None,<br>       estimator=Ridge(alpha=1.0, copy_X=True, fit_intercept=True, max_iter=None,<br>   normalize=False, solver=auto, tol=0.001),<br>       estimator<strong>alpha=1.0, estimator</strong>copy_X=True,<br>       estimator<strong>fit_intercept=True, estimator</strong>max_iter=None,<br>       estimator<strong>normalize=False, estimator</strong>solver=auto,<br>       estimator__tol=0.001, fit_params={}, iid=True, loss_func=None,<br>       n_jobs=1,<br>       param_grid={‘alpha’: array([  1.00000e+00,   1.00000e-01,   1.00000e-02,   1.00000e-03,<br>         1.00000e-04,   0.00000e+00])},<br>       pre_dispatch=2*n_jobs, refit=True, score_func=None, scoring=None,<br>       verbose=0)<br>0.282118955686<br>1.0</p>
+</blockquote>
+<p>有时随机从给定区间中选择参数是很有效的方法，然后根据这些参数来评估算法的效果进而选择最佳的那个。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</div><div class="line"><span class="keyword">from</span> scipy.stats <span class="keyword">import</span> uniform <span class="keyword">as</span> sp_rand</div><div class="line"><span class="keyword">from</span> sklearn.linear_model <span class="keyword">import</span> Ridge</div><div class="line"><span class="keyword">from</span> sklearn.grid_search <span class="keyword">import</span> RandomizedSearchCV</div><div class="line"><span class="comment"># prepare a uniform distribution to sample for the alpha parameter</span></div><div class="line">param_grid = &#123;<span class="string">'alpha'</span>: sp_rand()&#125;</div><div class="line"><span class="comment"># create and fit a ridge regression model, testing random alpha values</span></div><div class="line">model = Ridge()</div><div class="line">rsearch = RandomizedSearchCV(estimator=model, param_distributions=param_grid, n_iter=<span class="number">100</span>)</div><div class="line">rsearch.fit(X, y)</div><div class="line">print(rsearch)</div><div class="line"><span class="comment"># summarize the results of the random parameter search</span></div><div class="line">print(rsearch.best_score_)</div><div class="line">print(rsearch.best_estimator_.alpha)</div></pre></td></tr></table></figure></p>
+<p><strong>结果：</strong></p>
+<blockquote>
+<p>RandomizedSearchCV(cv=None,<br>          estimator=Ridge(alpha=1.0, copy_X=True, fit_intercept=True, max_iter=None,<br>   normalize=False, solver=auto, tol=0.001),<br>          estimator<strong>alpha=1.0, estimator</strong>copy_X=True,<br>          estimator<strong>fit_intercept=True, estimator</strong>max_iter=None,<br>          estimator<strong>normalize=False, estimator</strong>solver=auto,<br>          estimator__tol=0.001, fit_params={}, iid=True, n_iter=100,<br>          n_jobs=1,<br>          param_distributions={‘alpha’: <scipy.stats.distributions.rv_frozen object="" at="" 0x04b86dd0="">},<br>          pre_dispatch=2*n_jobs, random_state=None, refit=True,<br>          scoring=None, verbose=0)<br>0.282118643885<br>0.988443794636</scipy.stats.distributions.rv_frozen></p>
+</blockquote>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>我们总体了解了使用scikit-learn库的大致流程，希望这些总结能让初学者沉下心来，一步一步尽快的学习如何去解决具体的机器学习问题。</p>
+<p><strong>转载请注明作者Jason Ding及其出处</strong><br><a href="http://jasonding1354.gitcafe.io/" target="_blank" rel="external">GitCafe博客主页(http://jasonding1354.gitcafe.io/)</a><br><a href="http://jasonding1354.github.io/" target="_blank" rel="external">Github博客主页(http://jasonding1354.github.io/)</a><br><a href="http://blog.csdn.net/jasonding1354" target="_blank" rel="external">CSDN博客(http://blog.csdn.net/jasonding1354)</a><br><a href="http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles" target="_blank" rel="external">简书主页(http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles)</a><br><strong>百度搜索jasonding1354进入我的博客主页</strong></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Machine-Learning/">Machine Learning</a><a href="/tags/scikit-learn/">scikit-learn</a>
+  </div>
+
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/ML-Experiments/">ML Experiments</a>
+</div>
+
+
+
+<div class="article-share" id="share">
+
+  
+<div class="jiathis_style">
+    <span class="jiathis_txt">分享到：</span>
+    <a class="jiathis_button_tsina">新浪微博</a>
+    <a class="jiathis_button_weixin">微信</a>
+    <a class="jiathis_button_twitter">Twitter</a>
+    <a class="jiathis_button_evernote">EverNote</a>
+    <a href="http://www.jiathis.com/share?uid=1501277" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript" >
+    var jiathis_config={
+    data_track_clickback:true,
+    sm:"copy,renren,cqq",
+    pic:"",
+    summary:"",
+    
+  </script> 
+<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=
+1394018007141544" charset="utf-8"></script>      
+
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2015/04/22/Machine Learning/程序员初学机器学习的四种方式/" title="程序员初学机器学习的四种方式">
+  <strong>之后的一篇</strong><br/>
+  <span>
+  程序员初学机器学习的四种方式</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2015/04/17/Machine Learning/【机器学习基础】软间隔支持向量机/"  title="【机器学习基础】软间隔支持向量机">
+ <strong>之前的一篇</strong><br/> 
+ <span>【机器学习基础】软间隔支持向量机
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section class="comment">
+	<div class="ds-thread"></div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#引言"><span class="toc-number">1.</span> <span class="toc-text">引言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#加载数据-Data-Loading"><span class="toc-number">2.</span> <span class="toc-text">加载数据(Data Loading)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#数据归一化-Data-Normalization"><span class="toc-number">3.</span> <span class="toc-text">数据归一化(Data Normalization)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#特征选择-Feature-Selection"><span class="toc-number">4.</span> <span class="toc-text">特征选择(Feature Selection)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#算法的使用"><span class="toc-number">5.</span> <span class="toc-text">算法的使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#逻辑回归"><span class="toc-number">5.1.</span> <span class="toc-text">逻辑回归</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#朴素贝叶斯"><span class="toc-number">5.2.</span> <span class="toc-text">朴素贝叶斯</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#k近邻"><span class="toc-number">5.3.</span> <span class="toc-text">k近邻</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#决策树"><span class="toc-number">5.4.</span> <span class="toc-text">决策树</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#支持向量机"><span class="toc-number">5.5.</span> <span class="toc-text">支持向量机</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何优化算法参数"><span class="toc-number">6.</span> <span class="toc-text">如何优化算法参数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">7.</span> <span class="toc-text">小结</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+<div class="maps">
+    <p class="asidetitle">访问统计</p>
+    <br>
+    <script type="text/javascript" src="//ra.revolvermaps.com/0/0/6.js?i=0leibswamim&amp;m=0&amp;s=210&amp;c=ff0000&amp;cr1=ffffff&amp;f=arial&amp;l=0" async="async"></script>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">Categories</p>
+		<ul>
+		
+			<li><a href="/categories/Algorithm-Problem/" title="Algorithm Problem">Algorithm Problem<sup>1</sup></a></li>
+		
+			<li><a href="/categories/C/" title="C++">C++<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Classic-Algorithm/" title="Classic Algorithm">Classic Algorithm<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Cluster-Analysis/" title="Cluster Analysis">Cluster Analysis<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Design-Pattern/" title="Design Pattern">Design Pattern<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Developer-Kits/" title="Developer Kits">Developer Kits<sup>5</sup></a></li>
+		
+			<li><a href="/categories/Energy-Big-Data/" title="Energy Big Data">Energy Big Data<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Feature-Engineering/" title="Feature Engineering">Feature Engineering<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Functional/" title="Functional">Functional<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Functional-Programming/" title="Functional Programming">Functional Programming<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Git/" title="Git">Git<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Jobs/" title="Jobs">Jobs<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>4</sup></a></li>
+		
+			<li><a href="/categories/ML-Experiments/" title="ML Experiments">ML Experiments<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Machine-Learning/" title="Machine Learning">Machine Learning<sup>50</sup></a></li>
+		
+			<li><a href="/categories/Math/" title="Math">Math<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Programming/" title="Programming">Programming<sup>11</sup></a></li>
+		
+			<li><a href="/categories/Python/" title="Python">Python<sup>10</sup></a></li>
+		
+			<li><a href="/categories/Scala/" title="Scala">Scala<sup>27</sup></a></li>
+		
+			<li><a href="/categories/Scala-ML/" title="Scala-ML">Scala-ML<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Similarity-Search/" title="Similarity Search">Similarity Search<sup>4</sup></a></li>
+		
+			<li><a href="/categories/Small-Problems/" title="Small Problems">Small Problems<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Spark/" title="Spark">Spark<sup>23</sup></a></li>
+		
+			<li><a href="/categories/Thoughts/" title="Thoughts">Thoughts<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">Tag Cloud</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/Actor/" style="font-size: 10px;">Actor</a> <a href="/tags/Akka/" style="font-size: 14.55px;">Akka</a> <a href="/tags/Algorithm/" style="font-size: 10px;">Algorithm</a> <a href="/tags/Approximate-Nearest-Neighbor-Search/" style="font-size: 10px;">Approximate Nearest Neighbor Search</a> <a href="/tags/Bayesian-Analysis/" style="font-size: 10.91px;">Bayesian Analysis</a> <a href="/tags/Big-Data/" style="font-size: 10px;">Big Data</a> <a href="/tags/C/" style="font-size: 12.73px;">C++</a> <a href="/tags/Classification/" style="font-size: 11.82px;">Classification</a> <a href="/tags/Cluster-Analysis/" style="font-size: 10px;">Cluster Analysis</a> <a href="/tags/Computer-Vision/" style="font-size: 14.55px;">Computer Vision</a> <a href="/tags/Eclipse/" style="font-size: 10px;">Eclipse</a> <a href="/tags/Energy-Forecasting/" style="font-size: 10px;">Energy Forecasting</a> <a href="/tags/Feature-Engineering/" style="font-size: 10.91px;">Feature Engineering</a> <a href="/tags/Functional-Programming/" style="font-size: 16.36px;">Functional Programming</a> <a href="/tags/Gaussian-Process/" style="font-size: 10px;">Gaussian Process</a> <a href="/tags/Git/" style="font-size: 10.91px;">Git</a> <a href="/tags/GraphLab/" style="font-size: 10px;">GraphLab</a> <a href="/tags/IPython/" style="font-size: 10px;">IPython</a> <a href="/tags/Internet-of-Energy/" style="font-size: 10px;">Internet of Energy</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/Kaggle/" style="font-size: 10px;">Kaggle</a> <a href="/tags/Kernel-Method/" style="font-size: 10px;">Kernel Method</a> <a href="/tags/LSH/" style="font-size: 12.73px;">LSH</a> <a href="/tags/LaTex/" style="font-size: 10px;">LaTex</a> <a href="/tags/Linux/" style="font-size: 11.82px;">Linux</a> <a href="/tags/Machine-Learning/" style="font-size: 20px;">Machine Learning</a> <a href="/tags/Math/" style="font-size: 11.82px;">Math</a> <a href="/tags/Mathematics/" style="font-size: 13.64px;">Mathematics</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MeanShift/" style="font-size: 10px;">MeanShift</a> <a href="/tags/Mint/" style="font-size: 10px;">Mint</a> <a href="/tags/OpenCV/" style="font-size: 15.45px;">OpenCV</a> <a href="/tags/Probabilistic-Programming/" style="font-size: 10px;">Probabilistic Programming</a> <a href="/tags/Probability-Distributions/" style="font-size: 10px;">Probability Distributions</a> <a href="/tags/Programming/" style="font-size: 14.55px;">Programming</a> <a href="/tags/Python/" style="font-size: 17.27px;">Python</a> <a href="/tags/Regression/" style="font-size: 11.82px;">Regression</a> <a href="/tags/Resume/" style="font-size: 10px;">Resume</a> <a href="/tags/SVM/" style="font-size: 12.73px;">SVM</a> <a href="/tags/Scala/" style="font-size: 19.09px;">Scala</a> <a href="/tags/Similarity-Search/" style="font-size: 10.91px;">Similarity Search</a> <a href="/tags/Source-code/" style="font-size: 10px;">Source code</a> <a href="/tags/Spark/" style="font-size: 18.18px;">Spark</a> <a href="/tags/Summary/" style="font-size: 10px;">Summary</a> <a href="/tags/Thoughts/" style="font-size: 10.91px;">Thoughts</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/Vim/" style="font-size: 11.82px;">Vim</a> <a href="/tags/Written-Test/" style="font-size: 10px;">Written Test</a> <a href="/tags/Zeppelin/" style="font-size: 10px;">Zeppelin</a> <a href="/tags/boost/" style="font-size: 10px;">boost</a> <a href="/tags/cpp/" style="font-size: 13.64px;">cpp</a> <a href="/tags/opencv/" style="font-size: 10.91px;">opencv</a> <a href="/tags/p-Stable-LSH/" style="font-size: 10px;">p-Stable LSH</a> <a href="/tags/scikit-learn/" style="font-size: 10px;">scikit-learn</a> <a href="/tags/sklearn/" style="font-size: 10.91px;">sklearn</a> <a href="/tags/互联网时代/" style="font-size: 10px;">互联网时代</a> <a href="/tags/位置敏感哈希/" style="font-size: 10.91px;">位置敏感哈希</a> <a href="/tags/分治/" style="font-size: 10px;">分治</a> <a href="/tags/单元测试/" style="font-size: 10px;">单元测试</a> <a href="/tags/反思/" style="font-size: 10px;">反思</a> <a href="/tags/效率/" style="font-size: 10px;">效率</a> <a href="/tags/核方法/" style="font-size: 10px;">核方法</a> <a href="/tags/算法框架/" style="font-size: 10px;">算法框架</a> <a href="/tags/设计模式/" style="font-size: 11.82px;">设计模式</a>
+    </div>
+  </div>
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle"><a href="/archives">Archives</a></p>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">February 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">November 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">29</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a><span class="archive-list-count">16</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">10</span></li></ul>
+  </div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
+</div>
+
+</aside>
+
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Jason Ding in HUST <br/>
+			I would share moments of life here! </p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/1698420390" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/jasonding1354" target="_blank" title="github"></a>
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2016 
+		
+		<a href="http://blog.jasonding.top" target="_blank" title="Jason Ding">Jason Ding</a>
+		
+		</p>
+		<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+  
+  _st('install','uYyEuxJdzzAGXTax33mt','2.0.0');
+</script>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"jasonding"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+  </body>
+</html>

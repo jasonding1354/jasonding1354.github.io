@@ -1,0 +1,482 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>利用ffmpeg和opencv进行视频的解码播放 | Jason&#39;s Techblog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Jason Ding">
+    
+    <meta name="description" content="引子OpenCV中有自己的用于处理图片和视频的类VideoCapture，可以很方便的读入文件和显示。现在视频数据流是ffmpeg解码h264文件得到的，由于要依赖该数据源进行相应的后续处理，所以需要将ffmpeg中得到的数据缓存转换成可以被OpenCV处理的Mat类对象。
+ffmpeg介绍FFmp">
+    
+    
+    
+    
+    <link rel="alternate" href="/atom.xml" title="Jason&#39;s Techblog" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/author.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/author.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F3cc71cd5738b99a1db174951e194ba55' type='text/javascript'%3E%3C/script%3E"));
+
+
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F1dcf1fa58b0eca1ac5bd089ee6a6e78c' type='text/javascript'%3E%3C/script%3E"));
+
+
+</script>
+
+
+    <!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Jason&#39;s Techblog" title="Jason&#39;s Techblog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Jason&#39;s Techblog">Jason&#39;s Techblog</a></h1>
+				<h2 class="blog-motto">Technician =&gt; Scientist =&gt; Philosopher =&gt; Artists</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="http://jasonding.top">Main</a></li>
+					
+					<li>
+					
+						<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" class="st-default-search-input" maxlength="20" placeholder="Search" />
+						</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody">
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2014/11/17/Programming/利用ffmpeg和opencv进行视频的解码播放/" title="利用ffmpeg和opencv进行视频的解码播放" itemprop="url">利用ffmpeg和opencv进行视频的解码播放</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://blog.jasonding.top" title="Jason Ding">Jason Ding</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2014-11-17T07:35:19.000Z" itemprop="datePublished">2014-11-17</time>
+    Updated:<time datetime="2016-03-16T06:24:42.000Z" itemprop="dateModified">2016-03-16</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#引子"><span class="toc-number">1.</span> <span class="toc-text">引子</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ffmpeg介绍"><span class="toc-number">2.</span> <span class="toc-text">ffmpeg介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#FFmpeg的组成结构"><span class="toc-number">3.</span> <span class="toc-text">FFmpeg的组成结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ffmpeg使用说明"><span class="toc-number">4.</span> <span class="toc-text">ffmpeg使用说明</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用ffmpeg-SDK解码流数据过程"><span class="toc-number">5.</span> <span class="toc-text">使用ffmpeg SDK解码流数据过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#准备变量"><span class="toc-number">5.1.</span> <span class="toc-text">准备变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#初始化解码器"><span class="toc-number">5.2.</span> <span class="toc-text">初始化解码器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#打开视频文件，取出包含在文件中的流信息"><span class="toc-number">5.3.</span> <span class="toc-text">打开视频文件，取出包含在文件中的流信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#寻找视频流的解码器"><span class="toc-number">5.4.</span> <span class="toc-text">寻找视频流的解码器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#打开解码器"><span class="toc-number">5.5.</span> <span class="toc-text">打开解码器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#给视频帧分配空间，以便存储解码后的图片数据"><span class="toc-number">5.6.</span> <span class="toc-text">给视频帧分配空间，以便存储解码后的图片数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#进行解码"><span class="toc-number">5.7.</span> <span class="toc-text">进行解码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#将YUV420p颜色编码转换成BGR颜色编码"><span class="toc-number">5.8.</span> <span class="toc-text">将YUV420p颜色编码转换成BGR颜色编码</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#OpenCV-Mat数据复制"><span class="toc-number">6.</span> <span class="toc-text">OpenCV Mat数据复制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码示例"><span class="toc-number">7.</span> <span class="toc-text">代码示例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ffmpegDecode-h文件"><span class="toc-number">7.1.</span> <span class="toc-text">ffmpegDecode.h文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ffmpegDecode-cpp文件"><span class="toc-number">7.2.</span> <span class="toc-text">ffmpegDecode.cpp文件</span></a></li></ol></li></ol>
+		</div>
+		
+		<h2 id="引子"><a href="#引子" class="headerlink" title="引子"></a>引子</h2><p>OpenCV中有自己的用于处理图片和视频的类<a href="http://www.opencv.org.cn/opencvdoc/2.3.2/html/modules/highgui/doc/reading_and_writing_images_and_video.html" target="_blank" rel="external">VideoCapture</a>，可以很方便的读入文件和显示。<br>现在视频数据流是ffmpeg解码h264文件得到的，由于要依赖该数据源进行相应的后续处理，所以需要将ffmpeg中得到的数据缓存转换成可以被OpenCV处理的Mat类对象。</p>
+<h2 id="ffmpeg介绍"><a href="#ffmpeg介绍" class="headerlink" title="ffmpeg介绍"></a>ffmpeg介绍</h2><p>FFmpeg是一个开源免费跨平台的视频和音频流方案，属于自由软件，采用LGPL或GPL许可证（依据你选择的组件）。它提供了录制、转换以及流化音视频的完整解决方案。它包含了非常先进的音频/视频编解码库libavcodec，为了保证高可移植性和编解码质量，libavcodec里很多codec都是从头开发的。<br>FFmpeg是一套可以用来记录、转换数字音频、视频，并能将其转化为流的开源计算机程序。它包括了目前领先的音/视频编码库libavcodec。 FFmpeg是在Linux下开发出来的，但它可以在包括Windows在内的大多数操作系统中编译。</p>
+<h2 id="FFmpeg的组成结构"><a href="#FFmpeg的组成结构" class="headerlink" title="FFmpeg的组成结构"></a>FFmpeg的组成结构</h2><p>FFmpeg主要由一下几个部分组成：</p>
+<blockquote>
+<ul>
+<li>libavcodec：一个包含了所有FFmpeg音视频编解码器的库。 为了保证最优性能和高可复用性,大多数编解码器从头开发的。</li>
+<li>libavformat：一个包含了所有的普通音视格式的解析器和 产生器的库。</li>
+<li>三个实例程序，这三个实例较为复杂，基本可以作为API使用手册：<br>ffmpeg：命令行的视频格式转换程序。<br>ffplay：视频播放程序。（需要SDL支持）<br>ffserver：多媒体服务器</li>
+</ul>
+</blockquote>
+<p>了解完组成结构后，你会发现，如果你在寻找一种视频格式转换的方式，那FFmpeg绝对是你的第一选择，libavcodec 则又是重 中之重。如果遇上API不会使用的情况，可以参考ffmpeg.c、ffplay.c、 ffserver.c、apiexample.c（解码）和output_example.c（编码）。</p>
+<h2 id="ffmpeg使用说明"><a href="#ffmpeg使用说明" class="headerlink" title="ffmpeg使用说明"></a>ffmpeg使用说明</h2><p>ffmpeg库的接口都是c函数，其头文件也没有extern “C”的声明，所以在cpp文件里调用ffmpeg函数要注意了。<br>一般来说，一个用C写成的库如果想被C/C++同时可以使用，那在头文件应该加上<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="meta"># <span class="meta-keyword">ifdef</span> __cplusplus</span></div><div class="line"><span class="keyword">extern</span> <span class="string">"C"</span> &#123;</div><div class="line"><span class="meta"># <span class="meta-keyword">endif</span></span></div><div class="line"><span class="meta"># <span class="meta-keyword">ifdef</span> __cplusplus</span></div><div class="line">&#125; <span class="comment">// endof extern "C"</span></div><div class="line"><span class="meta"># <span class="meta-keyword">endif</span></span></div></pre></td></tr></table></figure></p>
+<p>如果在.cpp里调用av_register_all()在链接时将找到不符号，因为.cpp要求的符号名<br>和ffmpeg库提供的符号名不一致。<br>可以这么解决:<br><figure class="highlight autoit"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">extern <span class="string">"C"</span></div><div class="line">&#123;</div><div class="line"><span class="meta"># <span class="meta-keyword">include</span> <span class="meta-string">&lt;libavutil/avutil.h&gt;</span></span></div><div class="line"><span class="meta"># <span class="meta-keyword">include</span> <span class="meta-string">&lt;libavcodec/avcodec.h&gt;</span></span></div><div class="line"><span class="meta"># <span class="meta-keyword">include</span> <span class="meta-string">&lt;libavformat/avformat.h&gt;</span></span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="使用ffmpeg-SDK解码流数据过程"><a href="#使用ffmpeg-SDK解码流数据过程" class="headerlink" title="使用ffmpeg SDK解码流数据过程"></a>使用ffmpeg SDK解码流数据过程</h2><p>以H264视频流为例，讲解解码流数据的步骤。</p>
+<h3 id="准备变量"><a href="#准备变量" class="headerlink" title="准备变量"></a>准备变量</h3><p>定义AVCodec，AVCodec *变量为解码器指针。<br>定义AVCodecContext，使用该变量可以将其定义为ffmpeg解码类的类成员。<br>定义AVFrame，AVFrame描述一个多媒体帧。解码后的数据将被放在其中。<br>定义AVFormatContext变量，AVFormatContext用于保存视频流的有效信息。<br><figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">AVCodec	*pCodec<span class="comment">;</span></div><div class="line">AVCodecContext * pCodecCtx<span class="comment">;</span></div><div class="line">AVFrame * pAvFrame<span class="comment">;</span></div><div class="line">AVFormatContext	*pFormatCtx<span class="comment">;</span></div></pre></td></tr></table></figure></p>
+<h3 id="初始化解码器"><a href="#初始化解码器" class="headerlink" title="初始化解码器"></a>初始化解码器</h3><p>第一件事情就是初始化libavformat/libavcodec：<br>ffmpeg注册复用器，编码器等的函数av_register_all()。<br><figure class="highlight gcode"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">av_register_all<span class="comment">()</span>;</div></pre></td></tr></table></figure></p>
+<p><strong>这一步注册库中含有的所有可用的文件格式和编码器，这样当打开一个文件时，它们才能够自动选择相应的文件格式和编码器。要注意你只需调用一次 av_register_all()，所以，尽可能的在你的初始代码中使用它。</strong>这里注册了所有的文件格式和编解码器的库，所以它们将被自动的使用在被打开的合适格式的文件上。注意你只需要调用 av_register_all()一次，因此我们在主函数main()中来调用它。如果你喜欢，也可以只注册特定的格式和编解码器，但是通常你没有必要这样做。</p>
+<h3 id="打开视频文件，取出包含在文件中的流信息"><a href="#打开视频文件，取出包含在文件中的流信息" class="headerlink" title="打开视频文件，取出包含在文件中的流信息"></a>打开视频文件，取出包含在文件中的流信息</h3><figure class="highlight lasso"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 打开视频文件</span></div><div class="line"><span class="keyword">if</span>(av_open_input_file(&amp;pFormatCtx, filename, <span class="built_in">NULL</span>, <span class="number">0</span>, <span class="built_in">NULL</span>)!=<span class="number">0</span>)</div><div class="line">       <span class="keyword">handle_error</span>(); <span class="comment">// 不能打开此文件</span></div></pre></td></tr></table></figure>
+<p>这个函数读取文件的头部并且把信息保存到我们给的AVFormatContext结构体中。<br>最后三个参数描述了文件格式，缓冲区大小（size）和格式参数；我们通过简单地指明NULL或0告诉 libavformat 去自动探测文件格式并且使用默认的缓冲区大小。</p>
+<figure class="highlight lasso"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 取出流信息</span></div><div class="line"><span class="keyword">if</span>(av_find_stream_info(pFormatCtx)&lt;<span class="number">0</span>)</div><div class="line">     <span class="keyword">handle_error</span>(); <span class="comment">// 不能够找到流信息</span></div></pre></td></tr></table></figure>
+<p>查找文件的流信息,avformat_open_input函数只是检测了文件的头部，接着要检查在文件中的流的信息。<br>这一步会用有效的信息把 AVFormatContext 的流域（streams field）填满。作为一个可调试的诊断，我们会将这些信息全盘输出到标准错误输出中，不过你在一个应用程序的产品中并不用这么做。</p>
+<p>我们仅仅处理视频流，而不是音频流。为了让这件事情更容易理解，我们只简单使用我们发现的第一种视频流。<br><figure class="highlight xl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//遍历文件的各个流，找到第一个视频流，并记录该流的编码信息</span></div><div class="line">videoindex = -<span class="number">1</span>;</div><div class="line"><span class="function"><span class="title">for</span>(i=0; i&lt;pFormatCtx-&gt;</span>nb_streams; i++) </div><div class="line">&#123;</div><div class="line">	<span class="function"><span class="title">if</span>(pFormatCtx-&gt;</span><span class="function"><span class="title">streams</span>[i]-&gt;</span><span class="function"><span class="title">codec</span>-&gt;</span>codec_type==AVMEDIA_TYPE_VIDEO)</div><div class="line">	&#123;</div><div class="line">		videoindex=i;</div><div class="line">		break;</div><div class="line">	&#125;</div><div class="line">&#125;</div><div class="line"><span class="keyword">if</span>(videoindex==-<span class="number">1</span>)</div><div class="line">&#123;</div><div class="line">	printf(<span class="string">"Didn't find a video stream.\n"</span>);</div><div class="line">	return;</div><div class="line">&#125;</div><div class="line"><span class="function"><span class="title">pCodecCtx</span>=pFormatCtx-&gt;</span><span class="function"><span class="title">streams</span>[videoindex]-&gt;</span>codec;</div></pre></td></tr></table></figure></p>
+<p>我们已经得到了一个指向视频流的称之为上下文的指针。接下来，我们需要找到真正的编码器打开它。</p>
+<h3 id="寻找视频流的解码器"><a href="#寻找视频流的解码器" class="headerlink" title="寻找视频流的解码器"></a>寻找视频流的解码器</h3><p>在库里面查找支持该格式的解码器<br><figure class="highlight lisp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">pCodec = avcodec_find_decoder(<span class="name">pCodecCtx-&gt;codec_id</span>)<span class="comment">;</span></div><div class="line">if(<span class="name">pCodec</span> == NULL)</div><div class="line">	handle_error()<span class="comment">; // 找不到解码器</span></div></pre></td></tr></table></figure></p>
+<h3 id="打开解码器"><a href="#打开解码器" class="headerlink" title="打开解码器"></a>打开解码器</h3><figure class="highlight lisp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">if(<span class="name">avcodec_open</span>(<span class="name">pCodecCtx</span>, pCodec)&lt;0)</div><div class="line">	handle_error()<span class="comment">;</span></div></pre></td></tr></table></figure>
+<h3 id="给视频帧分配空间，以便存储解码后的图片数据"><a href="#给视频帧分配空间，以便存储解码后的图片数据" class="headerlink" title="给视频帧分配空间，以便存储解码后的图片数据"></a>给视频帧分配空间，以便存储解码后的图片数据</h3><figure class="highlight ini"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="attr">pAvFrame</span> = avcodec_alloc_frame();</div></pre></td></tr></table></figure>
+<p>解码视频帧就像我前面提到过的，视频文件包含数个音频和视频流，并且他们各个独自被分开存储在固定大小的包里。我们要做的就是使用libavformat依次读取这些包，过滤掉所有那些视频流中我们不感兴趣的部分，并把它们交给libavcodec进行解码处理。</p>
+<h3 id="进行解码"><a href="#进行解码" class="headerlink" title="进行解码"></a>进行解码</h3><p>通过该api读入一帧<br><figure class="highlight ini"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="attr">result</span> = av_read_frame(pFormatCtx, packet);</div></pre></td></tr></table></figure></p>
+<p>通过下面的api进行解码一帧数据，将有效的图像数据存储到pAvFrame成员变量中<br><figure class="highlight lisp"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ret = avcodec_decode_video2(<span class="name">pCodecCtx</span>, pAvFrame, <span class="symbol">&amp;got_picture</span>, packet)<span class="comment">;</span></div></pre></td></tr></table></figure></p>
+<p>下面是ffmpeg解码的API：<br><img src="http://jason-images.qiniudn.com/@/ML/opencv/track/ffmpeg_decode_api.jpg" alt=""></p>
+<h3 id="将YUV420p颜色编码转换成BGR颜色编码"><a href="#将YUV420p颜色编码转换成BGR颜色编码" class="headerlink" title="将YUV420p颜色编码转换成BGR颜色编码"></a>将YUV420p颜色编码转换成BGR颜色编码</h3><p>首先得到图片转换上下文img_convert_ctx,<strong>这里注意的是，opencv的RGB编码顺序为BGR，所以选用AV_PIX_FMT_BGR24的编码方式。</strong><br><figure class="highlight xl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//根据编码信息设置渲染格式</span></div><div class="line">			<span class="keyword">if</span>(img_convert_ctx == NULL)&#123;</div><div class="line">				<span class="function"><span class="title">img_convert_ctx</span> = sws_getContext(pCodecCtx-&gt;</span><span class="function"><span class="title">width</span>, pCodecCtx-&gt;</span>height,</div><div class="line">					<span class="function"><span class="title">pCodecCtx</span>-&gt;</span><span class="function"><span class="title">pix_fmt</span>, pCodecCtx-&gt;</span><span class="function"><span class="title">width</span>, pCodecCtx-&gt;</span>height,</div><div class="line">					AV_PIX_FMT_BGR24, SWS_BICUBIC, NULL, NULL, NULL); </div><div class="line">			&#125;</div></pre></td></tr></table></figure></p>
+<p>再得到为BGR格式帧分配内存<br><figure class="highlight arduino"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">AVFrame	*pFrameRGB = NULL;</div><div class="line">uint8_t  *out_bufferRGB = NULL;</div><div class="line">pFrameRGB = avcodec_alloc_frame();</div><div class="line"></div><div class="line"><span class="comment">//给pFrameRGB帧加上分配的内存;</span></div><div class="line"><span class="keyword">int</span> <span class="built_in">size</span> = avpicture_get_size(AV_PIX_FMT_BGR24, pCodecCtx-&gt;<span class="built_in">width</span>, pCodecCtx-&gt;<span class="built_in">height</span>);</div><div class="line">out_bufferRGB = <span class="keyword">new</span> uint8_t[<span class="built_in">size</span>];</div><div class="line">avpicture_fill((AVPicture *)pFrameRGB, out_bufferRGB, AV_PIX_FMT_BGR24, pCodecCtx-&gt;<span class="built_in">width</span>, pCodecCtx-&gt;<span class="built_in">height</span>);</div></pre></td></tr></table></figure></p>
+<p>最后进行转换<br><figure class="highlight xl"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="title">sws_scale</span>(img_convert_ctx, pFrame-&gt;</span><span class="function"><span class="title">data</span>, pFrame-&gt;</span><span class="function"><span class="title">linesize</span>, 0, pCodecCtx-&gt;</span><span class="function"><span class="title">height</span>, pFrameRGB-&gt;</span><span class="function"><span class="title">data</span>, pFrameRGB-&gt;</span>linesize);</div></pre></td></tr></table></figure></p>
+<h2 id="OpenCV-Mat数据复制"><a href="#OpenCV-Mat数据复制" class="headerlink" title="OpenCV Mat数据复制"></a>OpenCV Mat数据复制</h2><p><strong>cv::Mat对象中有data指针，指向内存中存放矩阵数据的一块内存 (uchar* data)。</strong><br>所以，要将ffmpeg解码之后得到的RGB色彩的帧数据复制给该指针，这样就实现了ffmpeg解码数据到opencv中Mat格式的转换，进而就可以对Mat对象进行相应的处理。<br><img src="http://jason-images.qiniudn.com/@/ML/opencv/track/mat2.jpg" alt=""></p>
+<h2 id="代码示例"><a href="#代码示例" class="headerlink" title="代码示例"></a>代码示例</h2><h3 id="ffmpegDecode-h文件"><a href="#ffmpegDecode-h文件" class="headerlink" title="ffmpegDecode.h文件"></a>ffmpegDecode.h文件</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div></pre></td><td class="code"><pre><div class="line"><span class="meta"># <span class="meta-keyword">ifndef</span> __FFMPEG_DECODE_H__</span></div><div class="line"><span class="meta"># <span class="meta-keyword">define</span> __FFMPEG_DECODE_H__</span></div><div class="line"></div><div class="line"><span class="meta"># <span class="meta-keyword">include</span> <span class="meta-string">&lt;opencv2/core/core.hpp&gt;</span></span></div><div class="line"><span class="keyword">extern</span> <span class="string">"C"</span></div><div class="line">&#123;</div><div class="line"><span class="meta"># <span class="meta-keyword">include</span> <span class="meta-string">"libavcodec/avcodec.h"</span></span></div><div class="line"><span class="meta"># <span class="meta-keyword">include</span> <span class="meta-string">"libavformat/avformat.h"</span></span></div><div class="line"><span class="comment">//图像转换结构需要引入的头文件</span></div><div class="line"><span class="meta"># <span class="meta-keyword">include</span> <span class="meta-string">"libswscale/swscale.h"</span></span></div><div class="line">&#125;;</div><div class="line"></div><div class="line"></div><div class="line"><span class="meta"># <span class="meta-keyword">pragma</span> comment(lib, <span class="meta-string">"avcodec.lib"</span>)</span></div><div class="line"><span class="meta"># <span class="meta-keyword">pragma</span> comment(lib, <span class="meta-string">"avformat.lib  "</span>)</span></div><div class="line"><span class="meta"># <span class="meta-keyword">pragma</span> comment(lib, <span class="meta-string">"avutil.lib    "</span>)</span></div><div class="line"><span class="meta"># <span class="meta-keyword">pragma</span> comment(lib, <span class="meta-string">"avdevice.lib  "</span>)</span></div><div class="line"><span class="meta"># <span class="meta-keyword">pragma</span> comment(lib, <span class="meta-string">"avfilter.lib  "</span>)</span></div><div class="line"><span class="meta"># <span class="meta-keyword">pragma</span> comment(lib, <span class="meta-string">"postproc.lib  "</span>)</span></div><div class="line"><span class="meta"># <span class="meta-keyword">pragma</span> comment(lib, <span class="meta-string">"swresample.lib"</span>)</span></div><div class="line"><span class="meta"># <span class="meta-keyword">pragma</span> comment(lib, <span class="meta-string">"swscale.lib   "</span>)</span></div><div class="line"></div><div class="line"><span class="keyword">class</span> ffmpegDecode</div><div class="line">&#123;</div><div class="line"><span class="keyword">public</span>:</div><div class="line">	ffmpegDecode(<span class="keyword">char</span> * file = <span class="literal">NULL</span>);</div><div class="line">	~ffmpegDecode();</div><div class="line"></div><div class="line">	cv::<span class="function">Mat <span class="title">getDecodedFrame</span><span class="params">()</span></span>;</div><div class="line">	cv::<span class="function">Mat <span class="title">getLastFrame</span><span class="params">()</span></span>;</div><div class="line">	<span class="function"><span class="keyword">int</span> <span class="title">readOneFrame</span><span class="params">()</span></span>;</div><div class="line">	<span class="function"><span class="keyword">int</span> <span class="title">getFrameInterval</span><span class="params">()</span></span>;</div><div class="line"></div><div class="line"><span class="keyword">private</span>:</div><div class="line">	AVFrame	*pAvFrame;</div><div class="line">	AVFormatContext	*pFormatCtx;</div><div class="line">	AVCodecContext	*pCodecCtx;</div><div class="line">	AVCodec			*pCodec;</div><div class="line"></div><div class="line">	<span class="keyword">int</span>	i; </div><div class="line">	<span class="keyword">int</span> videoindex;</div><div class="line">	</div><div class="line">	<span class="keyword">char</span> *filepath;</div><div class="line">	<span class="keyword">int</span> ret, got_picture;</div><div class="line">	SwsContext *img_convert_ctx;</div><div class="line">	<span class="keyword">int</span> y_size;</div><div class="line">	AVPacket *packet;</div><div class="line"></div><div class="line">	cv::Mat *pCvMat;</div><div class="line"></div><div class="line">	<span class="function"><span class="keyword">void</span> <span class="title">init</span><span class="params">()</span></span>;</div><div class="line">	<span class="function"><span class="keyword">void</span> <span class="title">openDecode</span><span class="params">()</span></span>;</div><div class="line">	<span class="function"><span class="keyword">void</span> <span class="title">prepare</span><span class="params">()</span></span>;</div><div class="line">	<span class="function"><span class="keyword">void</span> <span class="title">get</span><span class="params">(AVCodecContext *pCodecCtx, SwsContext *img_convert_ctx,AVFrame	*pFrame)</span></span>;</div><div class="line">&#125;;</div><div class="line"></div><div class="line"><span class="meta"># <span class="meta-keyword">endif</span></span></div></pre></td></tr></table></figure>
+<h3 id="ffmpegDecode-cpp文件"><a href="#ffmpegDecode-cpp文件" class="headerlink" title="ffmpegDecode.cpp文件"></a>ffmpegDecode.cpp文件</h3><figure class="highlight zephir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div><div class="line">158</div><div class="line">159</div><div class="line">160</div><div class="line">161</div><div class="line">162</div><div class="line">163</div><div class="line">164</div><div class="line">165</div><div class="line">166</div><div class="line">167</div><div class="line">168</div><div class="line">169</div><div class="line">170</div><div class="line">171</div><div class="line">172</div><div class="line">173</div><div class="line">174</div><div class="line">175</div><div class="line">176</div><div class="line">177</div><div class="line">178</div><div class="line">179</div><div class="line">180</div><div class="line">181</div><div class="line">182</div><div class="line">183</div><div class="line">184</div><div class="line">185</div><div class="line">186</div><div class="line">187</div><div class="line">188</div><div class="line">189</div><div class="line">190</div><div class="line">191</div><div class="line">192</div><div class="line">193</div><div class="line">194</div><div class="line">195</div><div class="line">196</div><div class="line">197</div><div class="line">198</div><div class="line">199</div><div class="line">200</div><div class="line">201</div><div class="line">202</div><div class="line">203</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># include "ffmpegDecode.h"</span></div><div class="line"></div><div class="line">ffmpegDecode :: ~ffmpegDecode()</div><div class="line">&#123;</div><div class="line">	pCvMat-&gt;release();</div><div class="line">	<span class="comment">//释放本次读取的帧内存</span></div><div class="line">	av_free_packet(packet);</div><div class="line">	avcodec_close(pCodecCtx);</div><div class="line">	avformat_close_input(&amp;pFormatCtx);</div><div class="line">&#125;</div><div class="line"></div><div class="line">ffmpegDecode :: ffmpegDecode(<span class="keyword">char</span> * file)</div><div class="line">&#123;</div><div class="line">	pAvFrame = <span class="keyword">NULL</span><span class="comment">/**pFrameRGB = NULL*/</span>;</div><div class="line">	pFormatCtx  = <span class="keyword">NULL</span>;</div><div class="line">	pCodecCtx   = <span class="keyword">NULL</span>;</div><div class="line">	pCodec      = <span class="keyword">NULL</span>;</div><div class="line"></div><div class="line">	pCvMat = <span class="keyword">new</span> cv::Mat();</div><div class="line">	i=<span class="number">0</span>;</div><div class="line">	videoindex=<span class="number">0</span>;</div><div class="line"></div><div class="line">	ret = <span class="number">0</span>;</div><div class="line">	got_picture = <span class="number">0</span>;</div><div class="line">	img_convert_ctx = <span class="keyword">NULL</span>;</div><div class="line">	y_size = <span class="number">0</span>;</div><div class="line">	packet = <span class="keyword">NULL</span>;</div><div class="line"></div><div class="line">	<span class="keyword">if</span> (<span class="keyword">NULL</span> == file)</div><div class="line">	&#123;</div><div class="line">		filepath =  <span class="string">"opencv.h264"</span>;</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">else</span></div><div class="line">	&#123;</div><div class="line">		filepath = file;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	init();</div><div class="line">	openDecode();</div><div class="line">	prepare();</div><div class="line"></div><div class="line">	<span class="keyword">return</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line">void ffmpegDecode :: init()</div><div class="line">&#123;</div><div class="line">	<span class="comment">//ffmpeg注册复用器，编码器等的函数av_register_all()。</span></div><div class="line">	<span class="comment">//该函数在所有基于ffmpeg的应用程序中几乎都是第一个被调用的。只有调用了该函数，才能使用复用器，编码器等。</span></div><div class="line">	<span class="comment">//这里注册了所有的文件格式和编解码器的库，所以它们将被自动的使用在被打开的合适格式的文件上。注意你只需要调用 av_register_all()一次，因此我们在主函数main()中来调用它。如果你喜欢，也可以只注册特定的格式和编解码器，但是通常你没有必要这样做。</span></div><div class="line">	av_register_all();</div><div class="line"></div><div class="line">	<span class="comment">//pFormatCtx = avformat_alloc_context();</span></div><div class="line">	<span class="comment">//打开视频文件,通过参数filepath来获得文件名。这个函数读取文件的头部并且把信息保存到我们给的AVFormatContext结构体中。</span></div><div class="line">	<span class="comment">//最后2个参数用来指定特殊的文件格式，缓冲大小和格式参数，但如果把它们设置为空NULL或者0，libavformat将自动检测这些参数。</span></div><div class="line">	<span class="keyword">if</span>(avformat_open_input(&amp;pFormatCtx,filepath,<span class="keyword">NULL</span>,<span class="keyword">NULL</span>)!=<span class="number">0</span>)</div><div class="line">	&#123;</div><div class="line">		printf(<span class="string">"无法打开文件\n"</span>);</div><div class="line">		<span class="keyword">return</span>;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="comment">//查找文件的流信息,avformat_open_input函数只是检测了文件的头部，接着要检查在文件中的流的信息</span></div><div class="line">	<span class="keyword">if</span>(av_find_stream_info(pFormatCtx)&lt;<span class="number">0</span>)</div><div class="line">	&#123;</div><div class="line">		printf(<span class="string">"Couldn't find stream information.\n"</span>);</div><div class="line">		<span class="keyword">return</span>;</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">return</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line">void ffmpegDecode :: openDecode()</div><div class="line">&#123;</div><div class="line">	<span class="comment">//遍历文件的各个流，找到第一个视频流，并记录该流的编码信息</span></div><div class="line">	videoindex = <span class="number">-1</span>;</div><div class="line">	<span class="keyword">for</span>(i=<span class="number">0</span>; i&lt;pFormatCtx-&gt;nb_streams; i++) </div><div class="line">	&#123;</div><div class="line">		<span class="keyword">if</span>(pFormatCtx-&gt;streams[i]-&gt;codec-&gt;codec_type==AVMEDIA_TYPE_VIDEO)</div><div class="line">		&#123;</div><div class="line">			videoindex=i;</div><div class="line">			<span class="keyword">break</span>;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">if</span>(videoindex==<span class="number">-1</span>)</div><div class="line">	&#123;</div><div class="line">		printf(<span class="string">"Didn't find a video stream.\n"</span>);</div><div class="line">		<span class="keyword">return</span>;</div><div class="line">	&#125;</div><div class="line">	pCodecCtx=pFormatCtx-&gt;streams[videoindex]-&gt;codec;</div><div class="line"></div><div class="line">	<span class="comment">//在库里面查找支持该格式的解码器</span></div><div class="line">	pCodec=avcodec_find_decoder(pCodecCtx-&gt;codec_id);</div><div class="line">	<span class="keyword">if</span>(pCodec==<span class="keyword">NULL</span>)</div><div class="line">	&#123;</div><div class="line">		printf(<span class="string">"Codec not found.\n"</span>);</div><div class="line">		<span class="keyword">return</span>;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="comment">//打开解码器</span></div><div class="line">	<span class="keyword">if</span>(avcodec_open2(pCodecCtx, pCodec,<span class="keyword">NULL</span>) &lt; <span class="number">0</span>)</div><div class="line">	&#123;</div><div class="line">		printf(<span class="string">"Could not open codec.\n"</span>);</div><div class="line">		<span class="keyword">return</span>;</div><div class="line">	&#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">void ffmpegDecode :: prepare()</div><div class="line">&#123;</div><div class="line">	<span class="comment">//分配一个帧指针，指向解码后的原始帧</span></div><div class="line">	pAvFrame=avcodec_alloc_frame();</div><div class="line">	y_size = pCodecCtx-&gt;width * pCodecCtx-&gt;height;</div><div class="line">	<span class="comment">//分配帧内存</span></div><div class="line">	packet=(AVPacket *)av_malloc(sizeof(AVPacket));</div><div class="line">	av_new_packet(packet, y_size);</div><div class="line"></div><div class="line">	<span class="comment">//输出一下信息-----------------------------</span></div><div class="line">	printf(<span class="string">"文件信息-----------------------------------------\n"</span>);</div><div class="line">	av_dump_format(pFormatCtx,<span class="number">0</span>,filepath,<span class="number">0</span>);</div><div class="line">	<span class="comment">//av_dump_format只是个调试函数，输出文件的音、视频流的基本信息了，帧率、分辨率、音频采样等等</span></div><div class="line">	printf(<span class="string">"-------------------------------------------------\n"</span>);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">int</span> ffmpegDecode :: readOneFrame()</div><div class="line">&#123;</div><div class="line">	<span class="keyword">int</span> result = <span class="number">0</span>;</div><div class="line">	result = av_read_frame(pFormatCtx, packet);</div><div class="line">	<span class="keyword">return</span> result;</div><div class="line">&#125;</div><div class="line"></div><div class="line">cv::Mat ffmpegDecode :: getDecodedFrame()</div><div class="line">&#123;</div><div class="line">	<span class="keyword">if</span>(packet-&gt;stream_index==videoindex)</div><div class="line">	&#123;</div><div class="line">		<span class="comment">//解码一个帧</span></div><div class="line">		ret = avcodec_decode_video2(pCodecCtx, pAvFrame, &amp;got_picture, packet);</div><div class="line">		<span class="keyword">if</span>(ret &lt; <span class="number">0</span>)</div><div class="line">		&#123;</div><div class="line">			printf(<span class="string">"解码错误\n"</span>);</div><div class="line">			<span class="keyword">return</span> cv::Mat();</div><div class="line">		&#125;</div><div class="line">		<span class="keyword">if</span>(got_picture)</div><div class="line">		&#123;</div><div class="line">			<span class="comment">//根据编码信息设置渲染格式</span></div><div class="line">			<span class="keyword">if</span>(img_convert_ctx == <span class="keyword">NULL</span>)&#123;</div><div class="line">				img_convert_ctx = sws_getContext(pCodecCtx-&gt;width, pCodecCtx-&gt;height,</div><div class="line">					pCodecCtx-&gt;pix_fmt, pCodecCtx-&gt;width, pCodecCtx-&gt;height,</div><div class="line">					AV_PIX_FMT_BGR24, SWS_BICUBIC, <span class="keyword">NULL</span>, <span class="keyword">NULL</span>, <span class="keyword">NULL</span>); </div><div class="line">			&#125;	</div><div class="line">			<span class="comment">//----------------------opencv</span></div><div class="line">			<span class="keyword">if</span> (pCvMat-&gt;empty())</div><div class="line">			&#123;</div><div class="line">				pCvMat-&gt;create(cv::Size(pCodecCtx-&gt;width, pCodecCtx-&gt;height),CV_8UC3);</div><div class="line">			&#125;</div><div class="line"></div><div class="line">			<span class="keyword">if</span>(img_convert_ctx != <span class="keyword">NULL</span>)  </div><div class="line">			&#123;  </div><div class="line">				get(pCodecCtx, img_convert_ctx, pAvFrame);</div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">	av_free_packet(packet);</div><div class="line"></div><div class="line">	<span class="keyword">return</span> *pCvMat;</div><div class="line">&#125;</div><div class="line"></div><div class="line">cv::Mat ffmpegDecode :: getLastFrame()</div><div class="line">&#123;</div><div class="line">	ret = avcodec_decode_video2(pCodecCtx, pAvFrame, &amp;got_picture, packet);</div><div class="line">	<span class="keyword">if</span>(got_picture) </div><div class="line">	&#123;  </div><div class="line">		<span class="comment">//根据编码信息设置渲染格式</span></div><div class="line">		img_convert_ctx = sws_getContext(pCodecCtx-&gt;width, pCodecCtx-&gt;height, pCodecCtx-&gt;pix_fmt, pCodecCtx-&gt;width, pCodecCtx-&gt;height, PIX_FMT_RGB24, SWS_BICUBIC, <span class="keyword">NULL</span>, <span class="keyword">NULL</span>, <span class="keyword">NULL</span>); </div><div class="line"></div><div class="line">		<span class="keyword">if</span>(img_convert_ctx != <span class="keyword">NULL</span>)  </div><div class="line">		&#123;  </div><div class="line">			get(pCodecCtx, img_convert_ctx,pAvFrame);</div><div class="line">		&#125;  </div><div class="line">	&#125; </div><div class="line">	<span class="keyword">return</span> *pCvMat;</div><div class="line">&#125;</div><div class="line"></div><div class="line">void ffmpegDecode :: get(AVCodecContext	* pCodecCtx, SwsContext * img_convert_ctx, AVFrame * pFrame)</div><div class="line">&#123;</div><div class="line">	<span class="keyword">if</span> (pCvMat-&gt;empty())</div><div class="line">	&#123;</div><div class="line">		pCvMat-&gt;create(cv::Size(pCodecCtx-&gt;width, pCodecCtx-&gt;height),CV_8UC3);</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	AVFrame	*pFrameRGB = <span class="keyword">NULL</span>;</div><div class="line">	uint8_t  *out_bufferRGB = <span class="keyword">NULL</span>;</div><div class="line">	pFrameRGB = avcodec_alloc_frame();</div><div class="line"></div><div class="line">	<span class="comment">//给pFrameRGB帧加上分配的内存;</span></div><div class="line">	<span class="keyword">int</span> size = avpicture_get_size(AV_PIX_FMT_BGR24, pCodecCtx-&gt;width, pCodecCtx-&gt;height);</div><div class="line">	out_bufferRGB = <span class="keyword">new</span> uint8_t[size];</div><div class="line">	avpicture_fill((AVPicture *)pFrameRGB, out_bufferRGB, AV_PIX_FMT_BGR24, pCodecCtx-&gt;width, pCodecCtx-&gt;height);</div><div class="line"></div><div class="line">	<span class="comment">//YUV to RGB</span></div><div class="line">	sws_scale(img_convert_ctx, pFrame-&gt;data, pFrame-&gt;linesize, <span class="number">0</span>, pCodecCtx-&gt;height, pFrameRGB-&gt;data, pFrameRGB-&gt;linesize);</div><div class="line">	</div><div class="line">	memcpy(pCvMat-&gt;data,out_bufferRGB,size);</div><div class="line"></div><div class="line">	delete[] out_bufferRGB;</div><div class="line">	av_free(pFrameRGB);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><strong>转载请注明作者Jason Ding及其出处</strong><br><a href="http://jasonding1354.github.io/" target="_blank" rel="external">Github主页(http://jasonding1354.github.io/)</a><br><a href="http://blog.csdn.net/jasonding1354" target="_blank" rel="external">CSDN博客(http://blog.csdn.net/jasonding1354)</a><br><a href="http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles" target="_blank" rel="external">简书主页(http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles)</a></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/opencv/">opencv</a>
+  </div>
+
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Programming/">Programming</a>
+</div>
+
+
+
+<div class="article-share" id="share">
+
+  
+<div class="jiathis_style">
+    <span class="jiathis_txt">分享到：</span>
+    <a class="jiathis_button_tsina">新浪微博</a>
+    <a class="jiathis_button_weixin">微信</a>
+    <a class="jiathis_button_twitter">Twitter</a>
+    <a class="jiathis_button_evernote">EverNote</a>
+    <a href="http://www.jiathis.com/share?uid=1501277" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript" >
+    var jiathis_config={
+    data_track_clickback:true,
+    sm:"copy,renren,cqq",
+    pic:"",
+    summary:"",
+    
+  </script> 
+<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=
+1394018007141544" charset="utf-8"></script>      
+
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2014/11/18/Developer Kits/【项目工具】接触Maven/" title="【项目工具】接触Maven">
+  <strong>之后的一篇</strong><br/>
+  <span>
+  【项目工具】接触Maven</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2014/11/13/Programming/extern c用法解析/"  title="extern &quot;c&quot;用法解析">
+ <strong>之前的一篇</strong><br/> 
+ <span>extern &quot;c&quot;用法解析
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section class="comment">
+	<div class="ds-thread"></div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#引子"><span class="toc-number">1.</span> <span class="toc-text">引子</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ffmpeg介绍"><span class="toc-number">2.</span> <span class="toc-text">ffmpeg介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#FFmpeg的组成结构"><span class="toc-number">3.</span> <span class="toc-text">FFmpeg的组成结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ffmpeg使用说明"><span class="toc-number">4.</span> <span class="toc-text">ffmpeg使用说明</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用ffmpeg-SDK解码流数据过程"><span class="toc-number">5.</span> <span class="toc-text">使用ffmpeg SDK解码流数据过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#准备变量"><span class="toc-number">5.1.</span> <span class="toc-text">准备变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#初始化解码器"><span class="toc-number">5.2.</span> <span class="toc-text">初始化解码器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#打开视频文件，取出包含在文件中的流信息"><span class="toc-number">5.3.</span> <span class="toc-text">打开视频文件，取出包含在文件中的流信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#寻找视频流的解码器"><span class="toc-number">5.4.</span> <span class="toc-text">寻找视频流的解码器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#打开解码器"><span class="toc-number">5.5.</span> <span class="toc-text">打开解码器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#给视频帧分配空间，以便存储解码后的图片数据"><span class="toc-number">5.6.</span> <span class="toc-text">给视频帧分配空间，以便存储解码后的图片数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#进行解码"><span class="toc-number">5.7.</span> <span class="toc-text">进行解码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#将YUV420p颜色编码转换成BGR颜色编码"><span class="toc-number">5.8.</span> <span class="toc-text">将YUV420p颜色编码转换成BGR颜色编码</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#OpenCV-Mat数据复制"><span class="toc-number">6.</span> <span class="toc-text">OpenCV Mat数据复制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码示例"><span class="toc-number">7.</span> <span class="toc-text">代码示例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ffmpegDecode-h文件"><span class="toc-number">7.1.</span> <span class="toc-text">ffmpegDecode.h文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ffmpegDecode-cpp文件"><span class="toc-number">7.2.</span> <span class="toc-text">ffmpegDecode.cpp文件</span></a></li></ol></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+<div class="maps">
+    <p class="asidetitle">访问统计</p>
+    <br>
+    <script type="text/javascript" src="//ra.revolvermaps.com/0/0/6.js?i=0leibswamim&amp;m=0&amp;s=210&amp;c=ff0000&amp;cr1=ffffff&amp;f=arial&amp;l=0" async="async"></script>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">Categories</p>
+		<ul>
+		
+			<li><a href="/categories/Algorithm-Problem/" title="Algorithm Problem">Algorithm Problem<sup>1</sup></a></li>
+		
+			<li><a href="/categories/C/" title="C++">C++<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Classic-Algorithm/" title="Classic Algorithm">Classic Algorithm<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Cluster-Analysis/" title="Cluster Analysis">Cluster Analysis<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Design-Pattern/" title="Design Pattern">Design Pattern<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Developer-Kits/" title="Developer Kits">Developer Kits<sup>5</sup></a></li>
+		
+			<li><a href="/categories/Energy-Big-Data/" title="Energy Big Data">Energy Big Data<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Feature-Engineering/" title="Feature Engineering">Feature Engineering<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Functional/" title="Functional">Functional<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Functional-Programming/" title="Functional Programming">Functional Programming<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Git/" title="Git">Git<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Jobs/" title="Jobs">Jobs<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>4</sup></a></li>
+		
+			<li><a href="/categories/ML-Experiments/" title="ML Experiments">ML Experiments<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Machine-Learning/" title="Machine Learning">Machine Learning<sup>50</sup></a></li>
+		
+			<li><a href="/categories/Math/" title="Math">Math<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Programming/" title="Programming">Programming<sup>11</sup></a></li>
+		
+			<li><a href="/categories/Python/" title="Python">Python<sup>10</sup></a></li>
+		
+			<li><a href="/categories/Scala/" title="Scala">Scala<sup>27</sup></a></li>
+		
+			<li><a href="/categories/Scala-ML/" title="Scala-ML">Scala-ML<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Similarity-Search/" title="Similarity Search">Similarity Search<sup>4</sup></a></li>
+		
+			<li><a href="/categories/Small-Problems/" title="Small Problems">Small Problems<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Spark/" title="Spark">Spark<sup>23</sup></a></li>
+		
+			<li><a href="/categories/Thoughts/" title="Thoughts">Thoughts<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">Tag Cloud</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/Actor/" style="font-size: 10px;">Actor</a> <a href="/tags/Akka/" style="font-size: 14.55px;">Akka</a> <a href="/tags/Algorithm/" style="font-size: 10px;">Algorithm</a> <a href="/tags/Approximate-Nearest-Neighbor-Search/" style="font-size: 10px;">Approximate Nearest Neighbor Search</a> <a href="/tags/Bayesian-Analysis/" style="font-size: 10.91px;">Bayesian Analysis</a> <a href="/tags/Big-Data/" style="font-size: 10px;">Big Data</a> <a href="/tags/C/" style="font-size: 12.73px;">C++</a> <a href="/tags/Classification/" style="font-size: 11.82px;">Classification</a> <a href="/tags/Cluster-Analysis/" style="font-size: 10px;">Cluster Analysis</a> <a href="/tags/Computer-Vision/" style="font-size: 14.55px;">Computer Vision</a> <a href="/tags/Eclipse/" style="font-size: 10px;">Eclipse</a> <a href="/tags/Energy-Forecasting/" style="font-size: 10px;">Energy Forecasting</a> <a href="/tags/Feature-Engineering/" style="font-size: 10.91px;">Feature Engineering</a> <a href="/tags/Functional-Programming/" style="font-size: 16.36px;">Functional Programming</a> <a href="/tags/Gaussian-Process/" style="font-size: 10px;">Gaussian Process</a> <a href="/tags/Git/" style="font-size: 10.91px;">Git</a> <a href="/tags/GraphLab/" style="font-size: 10px;">GraphLab</a> <a href="/tags/IPython/" style="font-size: 10px;">IPython</a> <a href="/tags/Internet-of-Energy/" style="font-size: 10px;">Internet of Energy</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/Kaggle/" style="font-size: 10px;">Kaggle</a> <a href="/tags/Kernel-Method/" style="font-size: 10px;">Kernel Method</a> <a href="/tags/LSH/" style="font-size: 12.73px;">LSH</a> <a href="/tags/LaTex/" style="font-size: 10px;">LaTex</a> <a href="/tags/Linux/" style="font-size: 11.82px;">Linux</a> <a href="/tags/Machine-Learning/" style="font-size: 20px;">Machine Learning</a> <a href="/tags/Math/" style="font-size: 11.82px;">Math</a> <a href="/tags/Mathematics/" style="font-size: 13.64px;">Mathematics</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MeanShift/" style="font-size: 10px;">MeanShift</a> <a href="/tags/Mint/" style="font-size: 10px;">Mint</a> <a href="/tags/OpenCV/" style="font-size: 15.45px;">OpenCV</a> <a href="/tags/Probabilistic-Programming/" style="font-size: 10px;">Probabilistic Programming</a> <a href="/tags/Probability-Distributions/" style="font-size: 10px;">Probability Distributions</a> <a href="/tags/Programming/" style="font-size: 14.55px;">Programming</a> <a href="/tags/Python/" style="font-size: 17.27px;">Python</a> <a href="/tags/Regression/" style="font-size: 11.82px;">Regression</a> <a href="/tags/Resume/" style="font-size: 10px;">Resume</a> <a href="/tags/SVM/" style="font-size: 12.73px;">SVM</a> <a href="/tags/Scala/" style="font-size: 19.09px;">Scala</a> <a href="/tags/Similarity-Search/" style="font-size: 10.91px;">Similarity Search</a> <a href="/tags/Source-code/" style="font-size: 10px;">Source code</a> <a href="/tags/Spark/" style="font-size: 18.18px;">Spark</a> <a href="/tags/Summary/" style="font-size: 10px;">Summary</a> <a href="/tags/Thoughts/" style="font-size: 10.91px;">Thoughts</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/Vim/" style="font-size: 11.82px;">Vim</a> <a href="/tags/Written-Test/" style="font-size: 10px;">Written Test</a> <a href="/tags/Zeppelin/" style="font-size: 10px;">Zeppelin</a> <a href="/tags/boost/" style="font-size: 10px;">boost</a> <a href="/tags/cpp/" style="font-size: 13.64px;">cpp</a> <a href="/tags/opencv/" style="font-size: 10.91px;">opencv</a> <a href="/tags/p-Stable-LSH/" style="font-size: 10px;">p-Stable LSH</a> <a href="/tags/scikit-learn/" style="font-size: 10px;">scikit-learn</a> <a href="/tags/sklearn/" style="font-size: 10.91px;">sklearn</a> <a href="/tags/互联网时代/" style="font-size: 10px;">互联网时代</a> <a href="/tags/位置敏感哈希/" style="font-size: 10.91px;">位置敏感哈希</a> <a href="/tags/分治/" style="font-size: 10px;">分治</a> <a href="/tags/单元测试/" style="font-size: 10px;">单元测试</a> <a href="/tags/反思/" style="font-size: 10px;">反思</a> <a href="/tags/效率/" style="font-size: 10px;">效率</a> <a href="/tags/核方法/" style="font-size: 10px;">核方法</a> <a href="/tags/算法框架/" style="font-size: 10px;">算法框架</a> <a href="/tags/设计模式/" style="font-size: 11.82px;">设计模式</a>
+    </div>
+  </div>
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle"><a href="/archives">Archives</a></p>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">February 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">November 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">29</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a><span class="archive-list-count">16</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">10</span></li></ul>
+  </div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
+</div>
+
+</aside>
+
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Jason Ding in HUST <br/>
+			I would share moments of life here! </p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/1698420390" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/jasonding1354" target="_blank" title="github"></a>
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2016 
+		
+		<a href="http://blog.jasonding.top" target="_blank" title="Jason Ding">Jason Ding</a>
+		
+		</p>
+		<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+  
+  _st('install','uYyEuxJdzzAGXTax33mt','2.0.0');
+</script>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"jasonding"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,460 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>【机器学习基础】正则化 | Jason&#39;s Techblog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Jason Ding">
+    
+    <meta name="description" content="引言上一小节中，我们介绍了过拟合的概念，在机器学习中最大的危险就是过拟合，为了解决过拟合问题，通常有两种办法，第一是减少样本的特征（即维度），第二就是我们这里要说的“正则化”（又称为“惩罚”,penalty）。
+从多项式变换和线性回归说起在非线性变换小节中，我们有讨论Q次多项式变换的定义和其包含关系">
+    
+    
+    
+    
+    <link rel="alternate" href="/atom.xml" title="Jason&#39;s Techblog" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/author.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/author.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F3cc71cd5738b99a1db174951e194ba55' type='text/javascript'%3E%3C/script%3E"));
+
+
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F1dcf1fa58b0eca1ac5bd089ee6a6e78c' type='text/javascript'%3E%3C/script%3E"));
+
+
+</script>
+
+
+    <!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Jason&#39;s Techblog" title="Jason&#39;s Techblog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Jason&#39;s Techblog">Jason&#39;s Techblog</a></h1>
+				<h2 class="blog-motto">Technician =&gt; Scientist =&gt; Philosopher =&gt; Artists</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="http://jasonding.top">Main</a></li>
+					
+					<li>
+					
+						<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" class="st-default-search-input" maxlength="20" placeholder="Search" />
+						</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody">
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/02/10/Machine Learning/【机器学习基础】正则化/" title="【机器学习基础】正则化" itemprop="url">【机器学习基础】正则化</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://blog.jasonding.top" title="Jason Ding">Jason Ding</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2015-02-10T08:48:59.000Z" itemprop="datePublished">2015-02-10</time>
+    Updated:<time datetime="2016-03-16T06:24:42.000Z" itemprop="dateModified">2016-03-16</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#引言"><span class="toc-number">1.</span> <span class="toc-text">引言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#从多项式变换和线性回归说起"><span class="toc-number">2.</span> <span class="toc-text">从多项式变换和线性回归说起</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#正则化的回归问题的矩阵形式"><span class="toc-number">2.1.</span> <span class="toc-text">正则化的回归问题的矩阵形式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Ridge-Regression"><span class="toc-number">2.2.</span> <span class="toc-text">Ridge Regression</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Augmented-Error"><span class="toc-number">2.3.</span> <span class="toc-text">Augmented Error</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#不同的λ造成的结果"><span class="toc-number">2.4.</span> <span class="toc-text">不同的λ造成的结果</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正则化和VC理论"><span class="toc-number">3.</span> <span class="toc-text">正则化和VC理论</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#一般性的正则项"><span class="toc-number">4.</span> <span class="toc-text">一般性的正则项</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#L1-Regularizer"><span class="toc-number">4.1.</span> <span class="toc-text">L1 Regularizer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#L2-Regularizer"><span class="toc-number">4.2.</span> <span class="toc-text">L2 Regularizer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#最优的λ"><span class="toc-number">4.3.</span> <span class="toc-text">最优的λ</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">6.</span> <span class="toc-text">参考资料</span></a></li></ol>
+		</div>
+		
+		<h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>上一小节中，我们介绍了过拟合的概念，在机器学习中最大的危险就是过拟合，为了解决过拟合问题，通常有两种办法，第一是减少样本的特征（即维度），第二就是我们这里要说的“正则化”（又称为“惩罚”,penalty）。</p>
+<h2 id="从多项式变换和线性回归说起"><a href="#从多项式变换和线性回归说起" class="headerlink" title="从多项式变换和线性回归说起"></a>从多项式变换和线性回归说起</h2><p>在非线性变换小节中，我们有讨论Q次多项式变换的定义和其包含关系，这里如果是10次多项式变换，那么系数的个数是11个，而2次多项式的系数个数是3。从中我们可以看出，所有的2次多项式其实是10次多项式加上一些限制，即w3=w4=…=w10=0。<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/regularization/regularization1.jpg" alt=""></p>
+<p>基于上面的讨论，我们希望能将二次多项式表示成十次多项式再加上一些约束条件，这一步的目的是希望能拓宽一下视野，在推导后面的问题的时候能容易一些。<br>这个过程，我们首先要将二次多项式的系数w拓展到11维空间，加上w3=w4=…=w10=0这个条件得到假设集合H2；然后为了进一步化简，我们可以将这个条件设置的宽松一点，即任意的8个wi为0，只要其中有三个系数不为0就行，得到一组新的假设空间H2’，但这个问题的求解是一个NP-hard的问题，还需要我们修正一下；最后，我们还需要将这个约束条件进一步修正一下得到假设集合H(C)，给系数的平方的加和指定一个上限，这个假设集合H(C)和H2’是有重合部分的，但不相等。<br>最后，我们把H(C)所代表的假设集合称为正则化的假设集合。<br>下图表示了这个约束条件的变化：<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/regularization/regularization2.jpg" alt=""></p>
+<h3 id="正则化的回归问题的矩阵形式"><a href="#正则化的回归问题的矩阵形式" class="headerlink" title="正则化的回归问题的矩阵形式"></a>正则化的回归问题的矩阵形式</h3><p><img src="http://jason-images.qiniudn.com/@/ML/foundation/regularization/regularization3.jpg" alt=""><br>由上图所示，我们现在要求解的是在一定约束条件下求解最佳化问题，求解这个问题可以用下面的图形来描述。<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/regularization/regularization4.jpg" alt=""><br>本来要求解Ein的梯度，相当于在一个椭圆蓝色圈中求解梯度为零的点，而下面这个图表示，系数w在半径是根号C的红色球里面（w需要满足的约束条件），求解蓝色区域使得梯度最小的点。<br>那么，最优解发生在梯度的反方向和w的法向量是平行的，即梯度在限制条件下不能再减小。我们可以用拉格朗日乘数的方法来求解这个w。<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/regularization/regularization5.jpg" alt=""><br><img src="http://jason-images.qiniudn.com/@/ML/foundation/regularization/regularization6.jpg" alt=""></p>
+<h3 id="Ridge-Regression"><a href="#Ridge-Regression" class="headerlink" title="Ridge Regression"></a>Ridge Regression</h3><p>Ridge Regression是利用线性回归的矩阵形式来求解方程，得到最佳解。<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/regularization/ridge_regression.jpg" alt=""></p>
+<h3 id="Augmented-Error"><a href="#Augmented-Error" class="headerlink" title="Augmented Error"></a>Augmented Error</h3><p>我们要求解这个梯度加上w等于0的问题，等同于求解最小的Augmented Error，其中wTw这项被称为regularizer(正则项)。我们通过求解Augmented Error，Eaug(w)来得到回归的系数Wreg。这其实就是说，如果没有正则项的时候(λ=0)，我们是求解最小的Ein问题，而现在有了一个正则项(λ&gt;0)，那么就是求解最小的Eaug的问题了。<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/regularization/augmented_error.jpg" alt=""></p>
+<h3 id="不同的λ造成的结果"><a href="#不同的λ造成的结果" class="headerlink" title="不同的λ造成的结果"></a>不同的λ造成的结果</h3><p><img src="http://jason-images.qiniudn.com/@/ML/foundation/regularization/result.jpg" alt=""><br>从上图可以看出，当λ=0的时候就会发生过拟合的问题，当λ很小时(λ=0.0001)，结果很接近理想的情况，如果λ很大(λ=1),会发生欠拟合的现象。所以加一点正则化(λ很小)就可以做到效果很好。</p>
+<h2 id="正则化和VC理论"><a href="#正则化和VC理论" class="headerlink" title="正则化和VC理论"></a>正则化和VC理论</h2><p>我们要解一个受限的训练误差Ein的问题，我们将这个问题简化成Augmented Error的问题来求解最小的Eaug。<br>原始的问题对应的是VC的保证是Eout要比Ein加上复杂度的惩罚项(penalty of complexity)要小。而求解Eaug是间接地做到VC Bound，并没有真正的限制在H(C)中。<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/regularization/vc_guarantee.jpg" alt=""></p>
+<p>wTw可以看成是一个假设的复杂度，而VC Bound的Ω(H)代表的是整个假设集合有多么的复杂（或者说有多少种选择）。<br>这两个问题都好像是计算一个问题的复杂度，我们该怎么联系着两种复杂度的表示方式呢？其理解是，一个单独的很复杂的多项式可以看做在一类很复杂的假设集合中，所以Eaug可以看做是Eout的一个代理人(proxy)，这其实是我们运用一个比原来的Ein更好一点点代理人Eaug来贴近好的Eout。<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/regularization/augmented_error_vc.jpg" alt=""></p>
+<h2 id="一般性的正则项"><a href="#一般性的正则项" class="headerlink" title="一般性的正则项"></a>一般性的正则项</h2><h3 id="L1-Regularizer"><a href="#L1-Regularizer" class="headerlink" title="L1 Regularizer"></a>L1 Regularizer</h3><p>L1 Regularizer是用w的一范数来算，该形式是凸函数，但不是处处可微分的，所以它的最佳化问题会相对难解一些。<br>L1 Regularizer的最佳解常常出现在顶点上（顶点上的w只有很少的元素是非零的，所以也被称为稀疏解sparse solution），这样在计算过程中会比较快。<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/regularization/l1_regularizer.jpg" alt=""></p>
+<h3 id="L2-Regularizer"><a href="#L2-Regularizer" class="headerlink" title="L2 Regularizer"></a>L2 Regularizer</h3><p>L2 Regularizer是凸函数，平滑可微分，所以其最佳化问题是好求解的。<br><img src="http://jason-images.qiniudn.com/@/ML/foundation/regularization/l2_regularizer.jpg" alt=""></p>
+<h3 id="最优的λ"><a href="#最优的λ" class="headerlink" title="最优的λ"></a>最优的λ</h3><p>噪声越多，λ应该越大。由于噪声是未知的，所以做选择很重要，我将在下一小节中继续接受有关参数λ选择的问题。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>过拟合表现在训练数据上的误差非常小，而在测试数据上误差反而增大。其原因一般是模型过于复杂，过分得去拟合数据的噪声和异常点。正则化则是对模型参数添加先验，使得模型复杂度较小，对于噪声以及outliers的输入扰动相对较小。<br>正则化符合奥卡姆剃刀原理，在所有可能选择的模型，能够很好的解释已知数据并且十分简单才是最好的模型，也就是应该选择的模型。从贝叶斯估计的角度看，正则化项对应于模型的先验概率，可以假设复杂的模型有较小的先验概率，简单的模型有较大的先验概率。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>机器学习基石课程，林轩田，台湾大学<br><a href="http://blog.csdn.net/zouxy09/article/details/24971995" target="_blank" rel="external">机器学习中的范数规则化之（一）L0、L1与L2范数</a><br><a href="http://blog.csdn.net/zouxy09/article/details/24972869" target="_blank" rel="external">机器学习中的范数规则化之（二）核范数与规则项参数选择</a></p>
+<p><strong>转载请注明作者Jason Ding及其出处</strong><br><a href="http://jasonding1354.github.io/" target="_blank" rel="external">Github博客主页(http://jasonding1354.github.io/)</a><br><a href="http://blog.csdn.net/jasonding1354" target="_blank" rel="external">CSDN博客(http://blog.csdn.net/jasonding1354)</a><br><a href="http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles" target="_blank" rel="external">简书主页(http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles)</a></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Machine-Learning/">Machine Learning</a>
+  </div>
+
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Machine-Learning/">Machine Learning</a>
+</div>
+
+
+
+<div class="article-share" id="share">
+
+  
+<div class="jiathis_style">
+    <span class="jiathis_txt">分享到：</span>
+    <a class="jiathis_button_tsina">新浪微博</a>
+    <a class="jiathis_button_weixin">微信</a>
+    <a class="jiathis_button_twitter">Twitter</a>
+    <a class="jiathis_button_evernote">EverNote</a>
+    <a href="http://www.jiathis.com/share?uid=1501277" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript" >
+    var jiathis_config={
+    data_track_clickback:true,
+    sm:"copy,renren,cqq",
+    pic:"",
+    summary:"",
+    
+  </script> 
+<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=
+1394018007141544" charset="utf-8"></script>      
+
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2015/03/02/Machine Learning/【计算机视觉】OpenCV的最近邻开源库FLANN/" title="【计算机视觉】OpenCV的最近邻开源库FLANN">
+  <strong>之后的一篇</strong><br/>
+  <span>
+  【计算机视觉】OpenCV的最近邻开源库FLANN</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2015/02/10/Machine Learning/【机器学习中的数学】比例混合分布/"  title="【机器学习中的数学】比例混合分布">
+ <strong>之前的一篇</strong><br/> 
+ <span>【机器学习中的数学】比例混合分布
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section class="comment">
+	<div class="ds-thread"></div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#引言"><span class="toc-number">1.</span> <span class="toc-text">引言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#从多项式变换和线性回归说起"><span class="toc-number">2.</span> <span class="toc-text">从多项式变换和线性回归说起</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#正则化的回归问题的矩阵形式"><span class="toc-number">2.1.</span> <span class="toc-text">正则化的回归问题的矩阵形式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Ridge-Regression"><span class="toc-number">2.2.</span> <span class="toc-text">Ridge Regression</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Augmented-Error"><span class="toc-number">2.3.</span> <span class="toc-text">Augmented Error</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#不同的λ造成的结果"><span class="toc-number">2.4.</span> <span class="toc-text">不同的λ造成的结果</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正则化和VC理论"><span class="toc-number">3.</span> <span class="toc-text">正则化和VC理论</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#一般性的正则项"><span class="toc-number">4.</span> <span class="toc-text">一般性的正则项</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#L1-Regularizer"><span class="toc-number">4.1.</span> <span class="toc-text">L1 Regularizer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#L2-Regularizer"><span class="toc-number">4.2.</span> <span class="toc-text">L2 Regularizer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#最优的λ"><span class="toc-number">4.3.</span> <span class="toc-text">最优的λ</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">6.</span> <span class="toc-text">参考资料</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+<div class="maps">
+    <p class="asidetitle">访问统计</p>
+    <br>
+    <script type="text/javascript" src="//ra.revolvermaps.com/0/0/6.js?i=0leibswamim&amp;m=0&amp;s=210&amp;c=ff0000&amp;cr1=ffffff&amp;f=arial&amp;l=0" async="async"></script>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">Categories</p>
+		<ul>
+		
+			<li><a href="/categories/Algorithm-Problem/" title="Algorithm Problem">Algorithm Problem<sup>1</sup></a></li>
+		
+			<li><a href="/categories/C/" title="C++">C++<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Classic-Algorithm/" title="Classic Algorithm">Classic Algorithm<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Cluster-Analysis/" title="Cluster Analysis">Cluster Analysis<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Design-Pattern/" title="Design Pattern">Design Pattern<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Developer-Kits/" title="Developer Kits">Developer Kits<sup>5</sup></a></li>
+		
+			<li><a href="/categories/Energy-Big-Data/" title="Energy Big Data">Energy Big Data<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Feature-Engineering/" title="Feature Engineering">Feature Engineering<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Functional/" title="Functional">Functional<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Functional-Programming/" title="Functional Programming">Functional Programming<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Git/" title="Git">Git<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Jobs/" title="Jobs">Jobs<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>4</sup></a></li>
+		
+			<li><a href="/categories/ML-Experiments/" title="ML Experiments">ML Experiments<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Machine-Learning/" title="Machine Learning">Machine Learning<sup>50</sup></a></li>
+		
+			<li><a href="/categories/Math/" title="Math">Math<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Programming/" title="Programming">Programming<sup>11</sup></a></li>
+		
+			<li><a href="/categories/Python/" title="Python">Python<sup>10</sup></a></li>
+		
+			<li><a href="/categories/Scala/" title="Scala">Scala<sup>27</sup></a></li>
+		
+			<li><a href="/categories/Scala-ML/" title="Scala-ML">Scala-ML<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Similarity-Search/" title="Similarity Search">Similarity Search<sup>4</sup></a></li>
+		
+			<li><a href="/categories/Small-Problems/" title="Small Problems">Small Problems<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Spark/" title="Spark">Spark<sup>23</sup></a></li>
+		
+			<li><a href="/categories/Thoughts/" title="Thoughts">Thoughts<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">Tag Cloud</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/Actor/" style="font-size: 10px;">Actor</a> <a href="/tags/Akka/" style="font-size: 14.55px;">Akka</a> <a href="/tags/Algorithm/" style="font-size: 10px;">Algorithm</a> <a href="/tags/Approximate-Nearest-Neighbor-Search/" style="font-size: 10px;">Approximate Nearest Neighbor Search</a> <a href="/tags/Bayesian-Analysis/" style="font-size: 10.91px;">Bayesian Analysis</a> <a href="/tags/Big-Data/" style="font-size: 10px;">Big Data</a> <a href="/tags/C/" style="font-size: 12.73px;">C++</a> <a href="/tags/Classification/" style="font-size: 11.82px;">Classification</a> <a href="/tags/Cluster-Analysis/" style="font-size: 10px;">Cluster Analysis</a> <a href="/tags/Computer-Vision/" style="font-size: 14.55px;">Computer Vision</a> <a href="/tags/Eclipse/" style="font-size: 10px;">Eclipse</a> <a href="/tags/Energy-Forecasting/" style="font-size: 10px;">Energy Forecasting</a> <a href="/tags/Feature-Engineering/" style="font-size: 10.91px;">Feature Engineering</a> <a href="/tags/Functional-Programming/" style="font-size: 16.36px;">Functional Programming</a> <a href="/tags/Gaussian-Process/" style="font-size: 10px;">Gaussian Process</a> <a href="/tags/Git/" style="font-size: 10.91px;">Git</a> <a href="/tags/GraphLab/" style="font-size: 10px;">GraphLab</a> <a href="/tags/IPython/" style="font-size: 10px;">IPython</a> <a href="/tags/Internet-of-Energy/" style="font-size: 10px;">Internet of Energy</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/Kaggle/" style="font-size: 10px;">Kaggle</a> <a href="/tags/Kernel-Method/" style="font-size: 10px;">Kernel Method</a> <a href="/tags/LSH/" style="font-size: 12.73px;">LSH</a> <a href="/tags/LaTex/" style="font-size: 10px;">LaTex</a> <a href="/tags/Linux/" style="font-size: 11.82px;">Linux</a> <a href="/tags/Machine-Learning/" style="font-size: 20px;">Machine Learning</a> <a href="/tags/Math/" style="font-size: 11.82px;">Math</a> <a href="/tags/Mathematics/" style="font-size: 13.64px;">Mathematics</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MeanShift/" style="font-size: 10px;">MeanShift</a> <a href="/tags/Mint/" style="font-size: 10px;">Mint</a> <a href="/tags/OpenCV/" style="font-size: 15.45px;">OpenCV</a> <a href="/tags/Probabilistic-Programming/" style="font-size: 10px;">Probabilistic Programming</a> <a href="/tags/Probability-Distributions/" style="font-size: 10px;">Probability Distributions</a> <a href="/tags/Programming/" style="font-size: 14.55px;">Programming</a> <a href="/tags/Python/" style="font-size: 17.27px;">Python</a> <a href="/tags/Regression/" style="font-size: 11.82px;">Regression</a> <a href="/tags/Resume/" style="font-size: 10px;">Resume</a> <a href="/tags/SVM/" style="font-size: 12.73px;">SVM</a> <a href="/tags/Scala/" style="font-size: 19.09px;">Scala</a> <a href="/tags/Similarity-Search/" style="font-size: 10.91px;">Similarity Search</a> <a href="/tags/Source-code/" style="font-size: 10px;">Source code</a> <a href="/tags/Spark/" style="font-size: 18.18px;">Spark</a> <a href="/tags/Summary/" style="font-size: 10px;">Summary</a> <a href="/tags/Thoughts/" style="font-size: 10.91px;">Thoughts</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/Vim/" style="font-size: 11.82px;">Vim</a> <a href="/tags/Written-Test/" style="font-size: 10px;">Written Test</a> <a href="/tags/Zeppelin/" style="font-size: 10px;">Zeppelin</a> <a href="/tags/boost/" style="font-size: 10px;">boost</a> <a href="/tags/cpp/" style="font-size: 13.64px;">cpp</a> <a href="/tags/opencv/" style="font-size: 10.91px;">opencv</a> <a href="/tags/p-Stable-LSH/" style="font-size: 10px;">p-Stable LSH</a> <a href="/tags/scikit-learn/" style="font-size: 10px;">scikit-learn</a> <a href="/tags/sklearn/" style="font-size: 10.91px;">sklearn</a> <a href="/tags/互联网时代/" style="font-size: 10px;">互联网时代</a> <a href="/tags/位置敏感哈希/" style="font-size: 10.91px;">位置敏感哈希</a> <a href="/tags/分治/" style="font-size: 10px;">分治</a> <a href="/tags/单元测试/" style="font-size: 10px;">单元测试</a> <a href="/tags/反思/" style="font-size: 10px;">反思</a> <a href="/tags/效率/" style="font-size: 10px;">效率</a> <a href="/tags/核方法/" style="font-size: 10px;">核方法</a> <a href="/tags/算法框架/" style="font-size: 10px;">算法框架</a> <a href="/tags/设计模式/" style="font-size: 11.82px;">设计模式</a>
+    </div>
+  </div>
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle"><a href="/archives">Archives</a></p>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">February 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">November 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">29</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a><span class="archive-list-count">16</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">10</span></li></ul>
+  </div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
+</div>
+
+</aside>
+
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Jason Ding in HUST <br/>
+			I would share moments of life here! </p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/1698420390" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/jasonding1354" target="_blank" title="github"></a>
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2016 
+		
+		<a href="http://blog.jasonding.top" target="_blank" title="Jason Ding">Jason Ding</a>
+		
+		</p>
+		<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+  
+  _st('install','uYyEuxJdzzAGXTax33mt','2.0.0');
+</script>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"jasonding"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+  </body>
+</html>

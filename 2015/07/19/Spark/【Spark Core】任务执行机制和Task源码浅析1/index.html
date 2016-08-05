@@ -1,0 +1,489 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>【Spark Core】任务执行机制和Task源码浅析1 | Jason&#39;s Techblog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Jason Ding">
+    
+    <meta name="description" content="引言上一小节《TaskScheduler源码与任务提交原理浅析2》介绍了Driver侧将Stage进行划分，根据Executor闲置情况分发任务，最终通过DriverActor向executorActor发送任务消息。我们要了解Executor的执行机制首先要了解Executor在Driver侧的注">
+    
+    
+    
+    
+    <link rel="alternate" href="/atom.xml" title="Jason&#39;s Techblog" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/author.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/author.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F3cc71cd5738b99a1db174951e194ba55' type='text/javascript'%3E%3C/script%3E"));
+
+
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F1dcf1fa58b0eca1ac5bd089ee6a6e78c' type='text/javascript'%3E%3C/script%3E"));
+
+
+</script>
+
+
+    <!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Jason&#39;s Techblog" title="Jason&#39;s Techblog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Jason&#39;s Techblog">Jason&#39;s Techblog</a></h1>
+				<h2 class="blog-motto">Technician =&gt; Scientist =&gt; Philosopher =&gt; Artists</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="http://jasonding.top">Main</a></li>
+					
+					<li>
+					
+						<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" class="st-default-search-input" maxlength="20" placeholder="Search" />
+						</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody">
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/07/19/Spark/【Spark Core】任务执行机制和Task源码浅析1/" title="【Spark Core】任务执行机制和Task源码浅析1" itemprop="url">【Spark Core】任务执行机制和Task源码浅析1</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://blog.jasonding.top" title="Jason Ding">Jason Ding</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2015-07-19T07:49:53.000Z" itemprop="datePublished">2015-07-19</time>
+    Updated:<time datetime="2016-03-16T06:24:42.000Z" itemprop="dateModified">2016-03-16</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#引言"><span class="toc-number">1.</span> <span class="toc-text">引言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Task类及其相关"><span class="toc-number">2.</span> <span class="toc-text">1. Task类及其相关</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-Task类"><span class="toc-number">2.1.</span> <span class="toc-text">1.1 Task类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-ShuffleMapTask"><span class="toc-number">2.2.</span> <span class="toc-text">1.2 ShuffleMapTask</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-ResultTask"><span class="toc-number">2.3.</span> <span class="toc-text">1.3 ResultTask</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-4-TaskSet"><span class="toc-number">2.4.</span> <span class="toc-text">1.4 TaskSet</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Executor注册到Driver"><span class="toc-number">3.</span> <span class="toc-text">2. Executor注册到Driver</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-Application注册"><span class="toc-number">3.1.</span> <span class="toc-text">2.1 Application注册</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-Master中的schedule函数"><span class="toc-number">3.2.</span> <span class="toc-text">2.2 Master中的schedule函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-launchExecutor函数"><span class="toc-number">3.3.</span> <span class="toc-text">2.3 launchExecutor函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-Executor的创建"><span class="toc-number">3.4.</span> <span class="toc-text">2.4 Executor的创建</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">4.</span> <span class="toc-text">参考资料</span></a></li></ol>
+		</div>
+		
+		<h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>上一小节<a href="http://jasonding1354.github.io/2015/07/16/Spark/%E3%80%90Spark%20Core%E3%80%91TaskScheduler%E6%BA%90%E7%A0%81%E4%B8%8E%E4%BB%BB%E5%8A%A1%E6%8F%90%E4%BA%A4%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%902/" target="_blank" rel="external">《TaskScheduler源码与任务提交原理浅析2》</a>介绍了Driver侧将Stage进行划分，根据Executor闲置情况分发任务，最终通过DriverActor向executorActor发送任务消息。<br>我们要了解Executor的执行机制首先要了解Executor在Driver侧的注册过程，这篇文章先了解一下Application和Executor的注册过程。</p>
+<h2 id="1-Task类及其相关"><a href="#1-Task类及其相关" class="headerlink" title="1. Task类及其相关"></a>1. Task类及其相关</h2><h3 id="1-1-Task类"><a href="#1-1-Task类" class="headerlink" title="1.1 Task类"></a>1.1 Task类</h3><p>Spark将由Executor执行的Task分为ShuffleMapTask和ResultTask两种，其源码存在scheduler package中。<br><strong>Task是介于DAGScheduler和TaskScheduler中间的接口，在DAGScheduler，需要把DAG中的每个stage的每个partitions封装成task，最终把taskset提交给TaskScheduler。</strong></p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * A unit of execution. We have two kinds of Task's in Spark:</div><div class="line"> * - [[org.apache.spark.scheduler.ShuffleMapTask]]</div><div class="line"> * - [[org.apache.spark.scheduler.ResultTask]]</div><div class="line"> *</div><div class="line"> * A Spark job consists of one or more stages. The very last stage in a job consists of multiple</div><div class="line"> * ResultTasks, while earlier stages consist of ShuffleMapTasks. A ResultTask executes the task</div><div class="line"> * and sends the task output back to the driver application. A ShuffleMapTask executes the task</div><div class="line"> * and divides the task output to multiple buckets (based on the task's partitioner).</div><div class="line"> *</div><div class="line"> * @param stageId id of the stage this task belongs to</div><div class="line"> * @param partitionId index of the number in the RDD</div><div class="line"> */</div><div class="line"><span class="keyword">private</span>[spark] <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Task</span>[<span class="type">T</span>](<span class="params">val stageId: <span class="type">Int</span>, var partitionId: <span class="type">Int</span></span>) <span class="keyword">extends</span> <span class="title">Serializable</span></span></div></pre></td></tr></table></figure>
+<p>Task对应一个stageId和partitionId。<br>提供runTask()接口、kill()接口等。<br>提供killed变量、TaskMetrics变量、TaskContext变量等。</p>
+<p>除了上述基本接口和变量，Task的伴生对象提供了序列化和反序列化应用依赖的jar包的方法。原因是Task需要保证工作节点具备本次Task需要的其他依赖，注册到SparkContext下，所以提供了把依赖转成流写入写出的方法。</p>
+<h3 id="1-2-ShuffleMapTask"><a href="#1-2-ShuffleMapTask" class="headerlink" title="1.2 ShuffleMapTask"></a>1.2 ShuffleMapTask</h3><p>对应于ShuffleMap Stage, 产生的结果作为其他stage的输入。<br>ShuffleMapTask复写了MapStatus向外读写的方法，因为向外读写的内容包括：stageId，rdd，dep，partitionId，epoch和split(某个partition)。对于其中的stageId，rdd，dep有统一的序列化和反序列化操作并会cache在内存里，再放到ObjectOutput里写出去。序列化操作使用的是Gzip，序列化信息会维护在serializedInfoCache = newHashMap[Int, Array[Byte]]。这部分需要序列化并保存的原因是：stageId，rdd，dep真正代表了本次Shuffle Task的信息，为了减轻master节点负担，把这部分序列化结果cache了起来。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line">* A ShuffleMapTask divides the elements of an RDD into multiple buckets (based on a partitioner</div><div class="line">* specified in the ShuffleDependency).</div><div class="line">*</div><div class="line">* See [[org.apache.spark.scheduler.Task]] for more information.</div><div class="line">*</div><div class="line"> * @param stageId id of the stage this task belongs to</div><div class="line"> * @param taskBinary broadcast version of of the RDD and the ShuffleDependency. Once deserialized,</div><div class="line"> *                   the type should be (RDD[_], ShuffleDependency[_, _, _]).</div><div class="line"> * @param partition partition of the RDD this task is associated with</div><div class="line"> * @param locs preferred task execution locations for locality scheduling</div><div class="line"> */</div><div class="line"><span class="keyword">private</span>[spark] <span class="class"><span class="keyword">class</span> <span class="title">ShuffleMapTask</span>(<span class="params"></span></span></div><div class="line">    stageId: <span class="type">Int</span>,</div><div class="line">    taskBinary: <span class="type">Broadcast</span>[<span class="type">Array</span>[<span class="type">Byte</span>]],</div><div class="line">    partition: <span class="type">Partition</span>,</div><div class="line">    @transient private var locs: <span class="type">Seq</span>[<span class="type">TaskLocation</span>])</div><div class="line">  <span class="keyword">extends</span> <span class="type">Task</span>[<span class="type">MapStatus</span>](stageId, partition.index) <span class="keyword">with</span> <span class="type">Logging</span> &#123;</div></pre></td></tr></table></figure>
+<h3 id="1-3-ResultTask"><a href="#1-3-ResultTask" class="headerlink" title="1.3 ResultTask"></a>1.3 ResultTask</h3><p>对应于Result Stage直接产生结果。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * A task that sends back the output to the driver application.</div><div class="line"> *</div><div class="line"> * See [[Task]] for more information.</div><div class="line"> *</div><div class="line"> * @param stageId id of the stage this task belongs to</div><div class="line"> * @param taskBinary broadcasted version of the serialized RDD and the function to apply on each</div><div class="line"> *                   partition of the given RDD. Once deserialized, the type should be</div><div class="line"> *                   (RDD[T], (TaskContext, Iterator[T]) =&gt; U).</div><div class="line"> * @param partition partition of the RDD this task is associated with</div><div class="line"> * @param locs preferred task execution locations for locality scheduling</div><div class="line"> * @param outputId index of the task in this job (a job can launch tasks on only a subset of the</div><div class="line"> *                 input RDD's partitions).</div><div class="line"> */</div><div class="line"><span class="keyword">private</span>[spark] <span class="class"><span class="keyword">class</span> <span class="title">ResultTask</span>[<span class="type">T</span>, <span class="type">U</span>](<span class="params"></span></span></div><div class="line">    stageId: <span class="type">Int</span>,</div><div class="line">    taskBinary: <span class="type">Broadcast</span>[<span class="type">Array</span>[<span class="type">Byte</span>]],</div><div class="line">    partition: <span class="type">Partition</span>,</div><div class="line">    @transient locs: <span class="type">Seq</span>[<span class="type">TaskLocation</span>],</div><div class="line">    val outputId: <span class="type">Int</span>)</div><div class="line">  <span class="keyword">extends</span> <span class="type">Task</span>[<span class="type">U</span>](stageId, partition.index) <span class="keyword">with</span> <span class="type">Serializable</span> &#123;</div></pre></td></tr></table></figure>
+<h3 id="1-4-TaskSet"><a href="#1-4-TaskSet" class="headerlink" title="1.4 TaskSet"></a>1.4 TaskSet</h3><p>TaskSet是一个数据结构，用于封装一个stage的所有的tasks, 以提交给TaskScheduler。<br>TaskSet就是可以做pipeline的一组完全相同的task，每个task的处理逻辑完全相同，不同的是处理数据，每个task负责处理一个partition。pipeline，可以称为大数据处理的基石，只有数据进行pipeline处理，才能将其放到集群中去运行。对于一个task来说，它从数据源获得逻辑，然后按照拓扑顺序，顺序执行（实际上是调用rdd的compute）。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * A set of tasks submitted together to the low-level TaskScheduler, usually representing</div><div class="line"> * missing partitions of a particular stage.</div><div class="line"> */</div><div class="line"><span class="keyword">private</span>[spark] <span class="class"><span class="keyword">class</span> <span class="title">TaskSet</span>(<span class="params"></span></span></div><div class="line">    val tasks: <span class="type">Array</span>[<span class="type">Task</span>[_]],</div><div class="line">    val stageId: <span class="type">Int</span>,</div><div class="line">    val attempt: <span class="type">Int</span>,</div><div class="line">    val priority: <span class="type">Int</span>,</div><div class="line">    val properties: <span class="type">Properties</span>) &#123;</div><div class="line">    <span class="keyword">val</span> id: <span class="type">String</span> = stageId + <span class="string">"."</span> + attempt</div><div class="line"></div><div class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">toString</span></span>: <span class="type">String</span> = <span class="string">"TaskSet "</span> + id</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="2-Executor注册到Driver"><a href="#2-Executor注册到Driver" class="headerlink" title="2. Executor注册到Driver"></a>2. Executor注册到Driver</h2><p>Driver发送LaunchTask消息被Executor接收，Executor会使用launchTask对消息进行处理。<br>不过在这个过程之前，我们要知道，如果Executor没有注册到Driver，即便接收到LaunchTask指令，也不会做任务处理。所以我们要先搞清楚，Executor是如何在Driver侧进行注册的。</p>
+<h3 id="2-1-Application注册"><a href="#2-1-Application注册" class="headerlink" title="2.1 Application注册"></a>2.1 Application注册</h3><p>Executor的注册是发生在Application的注册过程中的，我们以Standalone模式为例：</p>
+<blockquote>
+<p>SparkContext创建schedulerBackend和taskScheduler，schedulerBackend作为TaskScheduler对象的一个成员存在 –&gt; 在TaskScheduler对象调用start函数时，其实调用了backend.start()函数 –&gt;  backend.start()函数中启动了AppClient，AppClient的其中一个参数ApplicationDescription就是封装的运行<code>CoarseGrainedExecutorBackend的命令</code>  –&gt;  AppClient内部启动了一个ClientActor，这个ClientActor启动之后，会尝试向Master发送一个指令<code>actor ! RegisterApplication(appDescription)</code> 注册一个Application </p>
+</blockquote>
+<p>下面是SparkDeploySchedulerBackend的start函数中的部分注册Application的代码：<br><figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// Start executors with a few necessary configs for registering with the scheduler</span></div><div class="line"><span class="keyword">val</span> sparkJavaOpts = <span class="type">Utils</span>.sparkJavaOpts(conf, <span class="type">SparkConf</span>.isExecutorStartupConf)</div><div class="line"><span class="keyword">val</span> javaOpts = sparkJavaOpts ++ extraJavaOpts</div><div class="line"><span class="keyword">val</span> command = <span class="type">Command</span>(<span class="string">"org.apache.spark.executor.CoarseGrainedExecutorBackend"</span>,</div><div class="line">  args, sc.executorEnvs, classPathEntries ++ testingClassPath, libraryPathEntries, javaOpts)</div><div class="line"><span class="keyword">val</span> appUIAddress = sc.ui.map(_.appUIAddress).getOrElse(<span class="string">""</span>)</div><div class="line"><span class="keyword">val</span> appDesc = <span class="keyword">new</span> <span class="type">ApplicationDescription</span>(sc.appName, maxCores, sc.executorMemory, command,</div><div class="line">  appUIAddress, sc.eventLogDir, sc.eventLogCodec)</div><div class="line"></div><div class="line">client = <span class="keyword">new</span> <span class="type">AppClient</span>(sc.env.actorSystem, masters, appDesc, <span class="keyword">this</span>, conf)</div><div class="line">client.start()</div></pre></td></tr></table></figure></p>
+<p><strong>AppClient向Master提交Application</strong><br>AppClient是Application和Master交互的接口。它的包含一个类型为<code>org.apache.spark.deploy.client.AppClient.ClientActor</code>的成员变量actor。它负责了所有的与Master的交互。其中提交Application过程涉及的函数调用为：<br>ClientActor的<code>preStart()</code> –&gt; 调用<code>registerWithMaster()</code> –&gt; 调用<code>tryRegisterAllMasters</code> –&gt; <code>actor ! RegisterApplication(appDescription)</code> –&gt; Master的receiveWithLogging函数处理RegisterApplication消息。</p>
+<p>下面是RegisterApplication(appDescription)消息的相关处理代码（在Master.scala中的receiveWithLogging部分代码）：<br><figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">case</span> <span class="type">RegisterApplication</span>(description) =&gt; &#123;</div><div class="line">  <span class="keyword">if</span> (state == <span class="type">RecoveryState</span>.<span class="type">STANDBY</span>) &#123;</div><div class="line">    <span class="comment">// ignore, don't send response</span></div><div class="line">  &#125; <span class="keyword">else</span> &#123;</div><div class="line">    logInfo(<span class="string">"Registering app "</span> + description.name)</div><div class="line">    <span class="keyword">val</span> app = createApplication(description, sender)</div><div class="line">    registerApplication(app)</div><div class="line">    logInfo(<span class="string">"Registered app "</span> + description.name + <span class="string">" with ID "</span> + app.id)</div><div class="line">    persistenceEngine.addApplication(app)</div><div class="line">    sender ! <span class="type">RegisteredApplication</span>(app.id, masterUrl)</div><div class="line">    schedule()<span class="comment">//为处于待分配资源的Application分配资源。在每次有新的Application加入或者新的资源加入时都会调用schedule进行调度  </span></div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>这段代码做了以下几件事：</p>
+<blockquote>
+<ol>
+<li>createApplication为这个app构建一个描述App数据结构的ApplicationInfo</li>
+<li>注册该Application，更新相应的映射关系，添加到等待队列里面</li>
+<li>用persistenceEngine持久化Application信息，默认是不保存的，另外还有两种方式，保存在文件或者Zookeeper当中</li>
+<li>通过发送方注册成功</li>
+<li>开始作业调度（为处于待分配资源的Application分配资源。在每次有新的Application加入或者新的资源加入时都会调用schedule进行调度）</li>
+</ol>
+</blockquote>
+<h3 id="2-2-Master中的schedule函数"><a href="#2-2-Master中的schedule函数" class="headerlink" title="2.2 Master中的schedule函数"></a>2.2 Master中的schedule函数</h3><p>schedule()为处于待分配资源的Application分配资源。在每次有新的Application加入或者新的资源加入时都会调用schedule进行调度。为Application分配资源选择worker（executor），现在有两种策略：</p>
+<blockquote>
+<ol>
+<li>尽量的打散，即一个Application尽可能多的分配到不同的节点。这个可以通过设置spark.deploy.spreadOut来实现。默认值为true，即尽量的打散。</li>
+<li>尽量的集中，即一个Application尽量分配到尽可能少的节点。</li>
+</ol>
+</blockquote>
+<p>对于同一个Application，它在一个worker上只能拥有一个executor；当然了，这个executor可能拥有多于1个core。对于策略1，任务的部署会慢于策略2，但是GC的时间会更快。</p>
+<p>schedule函数的源码，解释在中文注释中：<br><figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/*</span></div><div class="line"> * Schedule the currently available resources among waiting apps. This method will be called</div><div class="line"> * every time a new app joins or resource availability changes.</div><div class="line"> */</div><div class="line"><span class="keyword">private</span> <span class="function"><span class="keyword">def</span> <span class="title">schedule</span></span>() &#123;</div><div class="line">  <span class="keyword">if</span> (state != <span class="type">RecoveryState</span>.<span class="type">ALIVE</span>) &#123; <span class="keyword">return</span> &#125;</div><div class="line"></div><div class="line">  <span class="comment">// First schedule drivers, they take strict precedence over applications</span></div><div class="line">  <span class="comment">// Randomization helps balance drivers</span></div><div class="line">  <span class="keyword">val</span> shuffledAliveWorkers = <span class="type">Random</span>.shuffle(workers.toSeq.filter(_.state == <span class="type">WorkerState</span>.<span class="type">ALIVE</span>))</div><div class="line">  <span class="keyword">val</span> numWorkersAlive = shuffledAliveWorkers.size</div><div class="line">  <span class="keyword">var</span> curPos = <span class="number">0</span></div><div class="line"></div><div class="line">  <span class="keyword">for</span> (driver &lt;- waitingDrivers.toList) &#123; <span class="comment">// iterate over a copy of waitingDrivers</span></div><div class="line">    <span class="comment">// We assign workers to each waiting driver in a round-robin fashion. For each driver, we</span></div><div class="line">    <span class="comment">// start from the last worker that was assigned a driver, and continue onwards until we have</span></div><div class="line">    <span class="comment">// explored all alive workers.</span></div><div class="line">    <span class="keyword">var</span> launched = <span class="literal">false</span></div><div class="line">    <span class="keyword">var</span> numWorkersVisited = <span class="number">0</span></div><div class="line">    <span class="keyword">while</span> (numWorkersVisited &lt; numWorkersAlive &amp;&amp; !launched) &#123;</div><div class="line">      <span class="keyword">val</span> worker = shuffledAliveWorkers(curPos)</div><div class="line">      numWorkersVisited += <span class="number">1</span></div><div class="line">      <span class="keyword">if</span> (worker.memoryFree &gt;= driver.desc.mem &amp;&amp; worker.coresFree &gt;= driver.desc.cores) &#123;</div><div class="line">        launchDriver(worker, driver)</div><div class="line">        waitingDrivers -= driver</div><div class="line">        launched = <span class="literal">true</span></div><div class="line">      &#125;</div><div class="line">      curPos = (curPos + <span class="number">1</span>) % numWorkersAlive</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="comment">// Right now this is a very simple FIFO scheduler. We keep trying to fit in the first app</span></div><div class="line">  <span class="comment">// in the queue, then the second app, etc.</span></div><div class="line">  <span class="keyword">if</span> (spreadOutApps) &#123;<span class="comment">//尽量的打散负载，如有可能，每个executor分配一个core  </span></div><div class="line">    <span class="comment">// Try to spread out each app among all the nodes, until it has all its cores</span></div><div class="line">    <span class="keyword">for</span> (app &lt;- waitingApps <span class="keyword">if</span> app.coresLeft &gt; <span class="number">0</span>) &#123;</div><div class="line">    	<span class="comment">// 可用的worker的标准：State是Alive，其上并没有该Application的executor，可用内存满足要求。  </span></div><div class="line">      <span class="comment">// 在可用的worker中，优先选择可用core数多的。  </span></div><div class="line">      <span class="keyword">val</span> usableWorkers = workers.toArray.filter(_.state == <span class="type">WorkerState</span>.<span class="type">ALIVE</span>)</div><div class="line">        .filter(canUse(app, _)).sortBy(_.coresFree).reverse</div><div class="line">      <span class="keyword">val</span> numUsable = usableWorkers.length</div><div class="line">      <span class="keyword">val</span> assigned = <span class="keyword">new</span> <span class="type">Array</span>[<span class="type">Int</span>](numUsable) <span class="comment">// Number of cores to give on each node</span></div><div class="line">      <span class="keyword">var</span> toAssign = math.min(app.coresLeft, usableWorkers.map(_.coresFree).sum)</div><div class="line">      <span class="keyword">var</span> pos = <span class="number">0</span></div><div class="line">      <span class="keyword">while</span> (toAssign &gt; <span class="number">0</span>) &#123;</div><div class="line">        <span class="keyword">if</span> (usableWorkers(pos).coresFree - assigned(pos) &gt; <span class="number">0</span>) &#123;</div><div class="line">          toAssign -= <span class="number">1</span></div><div class="line">          assigned(pos) += <span class="number">1</span></div><div class="line">        &#125;</div><div class="line">        pos = (pos + <span class="number">1</span>) % numUsable</div><div class="line">      &#125;</div><div class="line">      <span class="comment">// Now that we've decided how many cores to give on each node, let's actually give them</span></div><div class="line">      <span class="keyword">for</span> (pos &lt;- <span class="number">0</span> until numUsable) &#123;</div><div class="line">        <span class="keyword">if</span> (assigned(pos) &gt; <span class="number">0</span>) &#123;</div><div class="line">          <span class="keyword">val</span> exec = app.addExecutor(usableWorkers(pos), assigned(pos))</div><div class="line">          launchExecutor(usableWorkers(pos), exec)</div><div class="line">          app.state = <span class="type">ApplicationState</span>.<span class="type">RUNNING</span></div><div class="line">        &#125;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125; <span class="keyword">else</span> &#123; <span class="comment">//尽可能多的利用worker的core</span></div><div class="line">    <span class="comment">// Pack each app into as few nodes as possible until we've assigned all its cores</span></div><div class="line">    <span class="keyword">for</span> (worker &lt;- workers <span class="keyword">if</span> worker.coresFree &gt; <span class="number">0</span> &amp;&amp; worker.state == <span class="type">WorkerState</span>.<span class="type">ALIVE</span>) &#123;</div><div class="line">      <span class="keyword">for</span> (app &lt;- waitingApps <span class="keyword">if</span> app.coresLeft &gt; <span class="number">0</span>) &#123;</div><div class="line">        <span class="keyword">if</span> (canUse(app, worker)) &#123;</div><div class="line">          <span class="keyword">val</span> coresToUse = math.min(worker.coresFree, app.coresLeft)</div><div class="line">          <span class="keyword">if</span> (coresToUse &gt; <span class="number">0</span>) &#123;</div><div class="line">            <span class="keyword">val</span> exec = app.addExecutor(worker, coresToUse)</div><div class="line">            launchExecutor(worker, exec)</div><div class="line">            app.state = <span class="type">ApplicationState</span>.<span class="type">RUNNING</span></div><div class="line">          &#125;</div><div class="line">        &#125;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="2-3-launchExecutor函数"><a href="#2-3-launchExecutor函数" class="headerlink" title="2.3 launchExecutor函数"></a>2.3 launchExecutor函数</h3><p>在选择了worker和确定了worker上得executor需要的CPU core数后，Master会调用 launchExecutor(worker: WorkerInfo, exec: ExecutorInfo)向Worker发送请求，向AppClient发送executor已经添加的消息。同时会更新master保存的worker的信息，包括增加executor，减少可用的CPU core数和memory数。Master不会等到真正在worker上成功启动executor后再更新worker的信息。如果worker启动executor失败，那么它会发送FAILED的消息给Master，Master收到该消息时再次更新worker的信息即可。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">launchExecutor</span></span>(worker: <span class="type">WorkerInfo</span>, exec: <span class="type">ExecutorDesc</span>) &#123;</div><div class="line">  logInfo(<span class="string">"Launching executor "</span> + exec.fullId + <span class="string">" on worker "</span> + worker.id)</div><div class="line">  worker.addExecutor(exec)</div><div class="line">  worker.actor ! <span class="type">LaunchExecutor</span>(masterUrl,</div><div class="line">    exec.application.id, exec.id, exec.application.desc, exec.cores, exec.memory)</div><div class="line">  exec.application.driver ! <span class="type">ExecutorAdded</span>(</div><div class="line">    exec.id, worker.id, worker.hostPort, exec.cores, exec.memory)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="2-4-Executor的创建"><a href="#2-4-Executor的创建" class="headerlink" title="2.4 Executor的创建"></a>2.4 Executor的创建</h3><p>下面的调用关系链是Worker接收到来自Master的<code>LaunchExecutor消息</code>后的调用过程：<br>LaunchExecutor的消息处理中创建<code>ExecutorRunner</code> –&gt;  ExecutorRunner会将在<code>SparkDeploySchedulerBackend</code>中准备好的<code>ApplicationDescription</code>以进程的形式启动起来  –&gt;  启动<code>ApplicationDescription</code>中携带的<code>CoarseGrainedExecutorBackend</code>  –&gt;  <code>CoarseGrainedExecutorBackend</code>启动后，会首先通过传入的driverUrl这个参数向在<code>CoarseGrainedSchedulerBackend::DriverActor</code>发送<code>RegisterExecutor消息</code>  –&gt;  DriverActor会回复<code>RegisteredExecutor</code>  –&gt;  <code>CoarseGrainedExecutorBackend</code>会创建一个<code>Executor</code>  –&gt;  Executor创建完毕。</p>
+<p>CoarseGrainedExecutorBackend启动后，preStart函数执行的相关操作：<br><figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">preStart</span></span>() &#123;</div><div class="line">  logInfo(<span class="string">"Connecting to driver: "</span> + driverUrl)</div><div class="line">  driver = context.actorSelection(driverUrl)</div><div class="line">  driver ! <span class="type">RegisterExecutor</span>(executorId, hostPort, cores, extractLogUrls)</div><div class="line">  context.system.eventStream.subscribe(self, classOf[<span class="type">RemotingLifecycleEvent</span>])</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>CoarseGrainedExecutorBackend接收RegisteredExecutor消息后，创建Executor的操作：<br><figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">receiveWithLogging</span> </span>= &#123;</div><div class="line">  <span class="keyword">case</span> <span class="type">RegisteredExecutor</span> =&gt;</div><div class="line">    logInfo(<span class="string">"Successfully registered with driver"</span>)</div><div class="line">    <span class="keyword">val</span> (hostname, _) = <span class="type">Utils</span>.parseHostPort(hostPort)</div><div class="line">    executor = <span class="keyword">new</span> <span class="type">Executor</span>(executorId, hostname, env, userClassPath, isLocal = <span class="literal">false</span>)</div><div class="line"></div><div class="line">  ......</div></pre></td></tr></table></figure></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="http://blog.csdn.net/pelick/article/details/24178997" target="_blank" rel="external">Spark Core源码分析: Spark任务模型</a><br><a href="http://blog.csdn.net/anzhsoft/article/details/39762587" target="_blank" rel="external">Spark技术内幕：Executor分配详解</a> —— 强烈推荐该博文，其中博主结合Spark源码对Executor的分配讲解的非常详细</p>
+<p><strong>转载请注明作者Jason Ding及其出处</strong><br><a href="http://jasonding1354.gitcafe.io/" target="_blank" rel="external">GitCafe博客主页(http://jasonding1354.gitcafe.io/)</a><br><a href="http://jasonding1354.github.io/" target="_blank" rel="external">Github博客主页(http://jasonding1354.github.io/)</a><br><a href="http://blog.csdn.net/jasonding1354" target="_blank" rel="external">CSDN博客(http://blog.csdn.net/jasonding1354)</a><br><a href="http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles" target="_blank" rel="external">简书主页(http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles)</a><br><strong>Google搜索jasonding1354进入我的博客主页</strong></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Spark/">Spark</a>
+  </div>
+
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Spark/">Spark</a>
+</div>
+
+
+
+<div class="article-share" id="share">
+
+  
+<div class="jiathis_style">
+    <span class="jiathis_txt">分享到：</span>
+    <a class="jiathis_button_tsina">新浪微博</a>
+    <a class="jiathis_button_weixin">微信</a>
+    <a class="jiathis_button_twitter">Twitter</a>
+    <a class="jiathis_button_evernote">EverNote</a>
+    <a href="http://www.jiathis.com/share?uid=1501277" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript" >
+    var jiathis_config={
+    data_track_clickback:true,
+    sm:"copy,renren,cqq",
+    pic:"",
+    summary:"",
+    
+  </script> 
+<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=
+1394018007141544" charset="utf-8"></script>      
+
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2015/07/20/Spark/【Spark Core】任务执行机制和Task源码浅析2/" title="【Spark Core】任务执行机制和Task源码浅析2">
+  <strong>之后的一篇</strong><br/>
+  <span>
+  【Spark Core】任务执行机制和Task源码浅析2</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2015/07/16/Spark/【Spark Core】TaskScheduler源码与任务提交原理浅析2/"  title="【Spark Core】TaskScheduler源码与任务提交原理浅析2">
+ <strong>之前的一篇</strong><br/> 
+ <span>【Spark Core】TaskScheduler源码与任务提交原理浅析2
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section class="comment">
+	<div class="ds-thread"></div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#引言"><span class="toc-number">1.</span> <span class="toc-text">引言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Task类及其相关"><span class="toc-number">2.</span> <span class="toc-text">1. Task类及其相关</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-Task类"><span class="toc-number">2.1.</span> <span class="toc-text">1.1 Task类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-ShuffleMapTask"><span class="toc-number">2.2.</span> <span class="toc-text">1.2 ShuffleMapTask</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-ResultTask"><span class="toc-number">2.3.</span> <span class="toc-text">1.3 ResultTask</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-4-TaskSet"><span class="toc-number">2.4.</span> <span class="toc-text">1.4 TaskSet</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Executor注册到Driver"><span class="toc-number">3.</span> <span class="toc-text">2. Executor注册到Driver</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-Application注册"><span class="toc-number">3.1.</span> <span class="toc-text">2.1 Application注册</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-Master中的schedule函数"><span class="toc-number">3.2.</span> <span class="toc-text">2.2 Master中的schedule函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-launchExecutor函数"><span class="toc-number">3.3.</span> <span class="toc-text">2.3 launchExecutor函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-Executor的创建"><span class="toc-number">3.4.</span> <span class="toc-text">2.4 Executor的创建</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">4.</span> <span class="toc-text">参考资料</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+<div class="maps">
+    <p class="asidetitle">访问统计</p>
+    <br>
+    <script type="text/javascript" src="//ra.revolvermaps.com/0/0/6.js?i=0leibswamim&amp;m=0&amp;s=210&amp;c=ff0000&amp;cr1=ffffff&amp;f=arial&amp;l=0" async="async"></script>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">Categories</p>
+		<ul>
+		
+			<li><a href="/categories/Algorithm-Problem/" title="Algorithm Problem">Algorithm Problem<sup>1</sup></a></li>
+		
+			<li><a href="/categories/C/" title="C++">C++<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Classic-Algorithm/" title="Classic Algorithm">Classic Algorithm<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Cluster-Analysis/" title="Cluster Analysis">Cluster Analysis<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Design-Pattern/" title="Design Pattern">Design Pattern<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Developer-Kits/" title="Developer Kits">Developer Kits<sup>5</sup></a></li>
+		
+			<li><a href="/categories/Energy-Big-Data/" title="Energy Big Data">Energy Big Data<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Feature-Engineering/" title="Feature Engineering">Feature Engineering<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Functional/" title="Functional">Functional<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Functional-Programming/" title="Functional Programming">Functional Programming<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Git/" title="Git">Git<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Jobs/" title="Jobs">Jobs<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>4</sup></a></li>
+		
+			<li><a href="/categories/ML-Experiments/" title="ML Experiments">ML Experiments<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Machine-Learning/" title="Machine Learning">Machine Learning<sup>50</sup></a></li>
+		
+			<li><a href="/categories/Math/" title="Math">Math<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Programming/" title="Programming">Programming<sup>11</sup></a></li>
+		
+			<li><a href="/categories/Python/" title="Python">Python<sup>10</sup></a></li>
+		
+			<li><a href="/categories/Scala/" title="Scala">Scala<sup>27</sup></a></li>
+		
+			<li><a href="/categories/Scala-ML/" title="Scala-ML">Scala-ML<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Similarity-Search/" title="Similarity Search">Similarity Search<sup>4</sup></a></li>
+		
+			<li><a href="/categories/Small-Problems/" title="Small Problems">Small Problems<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Spark/" title="Spark">Spark<sup>23</sup></a></li>
+		
+			<li><a href="/categories/Thoughts/" title="Thoughts">Thoughts<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">Tag Cloud</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/Actor/" style="font-size: 10px;">Actor</a> <a href="/tags/Akka/" style="font-size: 14.55px;">Akka</a> <a href="/tags/Algorithm/" style="font-size: 10px;">Algorithm</a> <a href="/tags/Approximate-Nearest-Neighbor-Search/" style="font-size: 10px;">Approximate Nearest Neighbor Search</a> <a href="/tags/Bayesian-Analysis/" style="font-size: 10.91px;">Bayesian Analysis</a> <a href="/tags/Big-Data/" style="font-size: 10px;">Big Data</a> <a href="/tags/C/" style="font-size: 12.73px;">C++</a> <a href="/tags/Classification/" style="font-size: 11.82px;">Classification</a> <a href="/tags/Cluster-Analysis/" style="font-size: 10px;">Cluster Analysis</a> <a href="/tags/Computer-Vision/" style="font-size: 14.55px;">Computer Vision</a> <a href="/tags/Eclipse/" style="font-size: 10px;">Eclipse</a> <a href="/tags/Energy-Forecasting/" style="font-size: 10px;">Energy Forecasting</a> <a href="/tags/Feature-Engineering/" style="font-size: 10.91px;">Feature Engineering</a> <a href="/tags/Functional-Programming/" style="font-size: 16.36px;">Functional Programming</a> <a href="/tags/Gaussian-Process/" style="font-size: 10px;">Gaussian Process</a> <a href="/tags/Git/" style="font-size: 10.91px;">Git</a> <a href="/tags/GraphLab/" style="font-size: 10px;">GraphLab</a> <a href="/tags/IPython/" style="font-size: 10px;">IPython</a> <a href="/tags/Internet-of-Energy/" style="font-size: 10px;">Internet of Energy</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/Kaggle/" style="font-size: 10px;">Kaggle</a> <a href="/tags/Kernel-Method/" style="font-size: 10px;">Kernel Method</a> <a href="/tags/LSH/" style="font-size: 12.73px;">LSH</a> <a href="/tags/LaTex/" style="font-size: 10px;">LaTex</a> <a href="/tags/Linux/" style="font-size: 11.82px;">Linux</a> <a href="/tags/Machine-Learning/" style="font-size: 20px;">Machine Learning</a> <a href="/tags/Math/" style="font-size: 11.82px;">Math</a> <a href="/tags/Mathematics/" style="font-size: 13.64px;">Mathematics</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MeanShift/" style="font-size: 10px;">MeanShift</a> <a href="/tags/Mint/" style="font-size: 10px;">Mint</a> <a href="/tags/OpenCV/" style="font-size: 15.45px;">OpenCV</a> <a href="/tags/Probabilistic-Programming/" style="font-size: 10px;">Probabilistic Programming</a> <a href="/tags/Probability-Distributions/" style="font-size: 10px;">Probability Distributions</a> <a href="/tags/Programming/" style="font-size: 14.55px;">Programming</a> <a href="/tags/Python/" style="font-size: 17.27px;">Python</a> <a href="/tags/Regression/" style="font-size: 11.82px;">Regression</a> <a href="/tags/Resume/" style="font-size: 10px;">Resume</a> <a href="/tags/SVM/" style="font-size: 12.73px;">SVM</a> <a href="/tags/Scala/" style="font-size: 19.09px;">Scala</a> <a href="/tags/Similarity-Search/" style="font-size: 10.91px;">Similarity Search</a> <a href="/tags/Source-code/" style="font-size: 10px;">Source code</a> <a href="/tags/Spark/" style="font-size: 18.18px;">Spark</a> <a href="/tags/Summary/" style="font-size: 10px;">Summary</a> <a href="/tags/Thoughts/" style="font-size: 10.91px;">Thoughts</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/Vim/" style="font-size: 11.82px;">Vim</a> <a href="/tags/Written-Test/" style="font-size: 10px;">Written Test</a> <a href="/tags/Zeppelin/" style="font-size: 10px;">Zeppelin</a> <a href="/tags/boost/" style="font-size: 10px;">boost</a> <a href="/tags/cpp/" style="font-size: 13.64px;">cpp</a> <a href="/tags/opencv/" style="font-size: 10.91px;">opencv</a> <a href="/tags/p-Stable-LSH/" style="font-size: 10px;">p-Stable LSH</a> <a href="/tags/scikit-learn/" style="font-size: 10px;">scikit-learn</a> <a href="/tags/sklearn/" style="font-size: 10.91px;">sklearn</a> <a href="/tags/互联网时代/" style="font-size: 10px;">互联网时代</a> <a href="/tags/位置敏感哈希/" style="font-size: 10.91px;">位置敏感哈希</a> <a href="/tags/分治/" style="font-size: 10px;">分治</a> <a href="/tags/单元测试/" style="font-size: 10px;">单元测试</a> <a href="/tags/反思/" style="font-size: 10px;">反思</a> <a href="/tags/效率/" style="font-size: 10px;">效率</a> <a href="/tags/核方法/" style="font-size: 10px;">核方法</a> <a href="/tags/算法框架/" style="font-size: 10px;">算法框架</a> <a href="/tags/设计模式/" style="font-size: 11.82px;">设计模式</a>
+    </div>
+  </div>
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle"><a href="/archives">Archives</a></p>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">February 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">November 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">29</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a><span class="archive-list-count">16</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">10</span></li></ul>
+  </div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
+</div>
+
+</aside>
+
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Jason Ding in HUST <br/>
+			I would share moments of life here! </p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/1698420390" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/jasonding1354" target="_blank" title="github"></a>
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2016 
+		
+		<a href="http://blog.jasonding.top" target="_blank" title="Jason Ding">Jason Ding</a>
+		
+		</p>
+		<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+  
+  _st('install','uYyEuxJdzzAGXTax33mt','2.0.0');
+</script>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"jasonding"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+  </body>
+</html>

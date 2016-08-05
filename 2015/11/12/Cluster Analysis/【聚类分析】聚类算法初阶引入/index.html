@@ -1,0 +1,463 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>【聚类分析】聚类算法初阶引入 | Jason&#39;s Techblog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Jason Ding">
+    
+    <meta name="description" content="1 聚类分析基本概念聚类分析将数据划分成有意义或有用的簇。如果目标是划分成有意义的组，则簇应当捕获数据的自然结构。聚类分析是一种分类的多元统计分析方法。按照个体或样品的特征将它们分类，使同一类别内的个体具有尽可能高的同质性(homogeneity)，而类别之间则应具有尽可能高的异质性(heterog">
+    
+    
+    
+    
+    <link rel="alternate" href="/atom.xml" title="Jason&#39;s Techblog" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/author.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/author.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F3cc71cd5738b99a1db174951e194ba55' type='text/javascript'%3E%3C/script%3E"));
+
+
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F1dcf1fa58b0eca1ac5bd089ee6a6e78c' type='text/javascript'%3E%3C/script%3E"));
+
+
+</script>
+
+
+    <!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Jason&#39;s Techblog" title="Jason&#39;s Techblog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Jason&#39;s Techblog">Jason&#39;s Techblog</a></h1>
+				<h2 class="blog-motto">Technician =&gt; Scientist =&gt; Philosopher =&gt; Artists</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="http://jasonding.top">Main</a></li>
+					
+					<li>
+					
+						<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" class="st-default-search-input" maxlength="20" placeholder="Search" />
+						</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody">
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/11/12/Cluster Analysis/【聚类分析】聚类算法初阶引入/" title="【聚类分析】聚类算法初阶引入" itemprop="url">【聚类分析】聚类算法初阶引入</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://blog.jasonding.top" title="Jason Ding">Jason Ding</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2015-11-12T07:20:46.000Z" itemprop="datePublished">2015-11-12</time>
+    Updated:<time datetime="2016-03-16T06:24:42.000Z" itemprop="dateModified">2016-03-16</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-聚类分析基本概念"><span class="toc-number">1.</span> <span class="toc-text">1 聚类分析基本概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-聚类分析的应用"><span class="toc-number">2.</span> <span class="toc-text">2 聚类分析的应用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-聚类算法的分类"><span class="toc-number">3.</span> <span class="toc-text">3 聚类算法的分类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-基于距离的方法"><span class="toc-number">3.1.</span> <span class="toc-text">3.1 基于距离的方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-基于密度的方法"><span class="toc-number">3.2.</span> <span class="toc-text">3.2 基于密度的方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-基于网格的方法"><span class="toc-number">3.3.</span> <span class="toc-text">3.3 基于网格的方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-基于概率和生成模型的方法"><span class="toc-number">3.4.</span> <span class="toc-text">3.4 基于概率和生成模型的方法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-对聚类分析的要求"><span class="toc-number">4.</span> <span class="toc-text">4 对聚类分析的要求</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-聚类质量"><span class="toc-number">4.1.</span> <span class="toc-text">4.1 聚类质量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-可伸缩性"><span class="toc-number">4.2.</span> <span class="toc-text">4.2 可伸缩性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-可解释性和可用性"><span class="toc-number">4.3.</span> <span class="toc-text">4.3 可解释性和可用性</span></a></li></ol></li></ol>
+		</div>
+		
+		<h2 id="1-聚类分析基本概念"><a href="#1-聚类分析基本概念" class="headerlink" title="1 聚类分析基本概念"></a>1 聚类分析基本概念</h2><p>聚类分析将数据划分成有意义或有用的簇。如果目标是划分成有意义的组，则簇应当捕获数据的自然结构。<br>聚类分析是一种分类的多元统计分析方法。按照个体或样品的特征将它们分类，使同一类别内的个体具有尽可能高的同质性(homogeneity)，而类别之间则应具有尽可能高的异质性(heterogeneity)。<br>聚类是研究数据间逻辑上或物理上的相互关系的技术，其分析结果不仅可以揭示数据间的内在联系与区别，还可以为进一步的数据分析与知识发现提供重要依据。它 是数据挖掘技术中的重要组成部分。作为统计学的重要研究内容之一，聚类分析具有坚实的理论基础，并形成了系统的方法学体系</p>
+<h2 id="2-聚类分析的应用"><a href="#2-聚类分析的应用" class="headerlink" title="2 聚类分析的应用"></a>2 聚类分析的应用</h2><p>聚类分析是洞察数据分布的独立工具，也可以作为其他算法预处理或者中间处理环节的方法。<br>一般而言，可分为以下几个方面：<br><strong>（1）其他数据挖掘任务的关键中间环节</strong>：用于构建数据概要，用于分类、模式识别、假设生成和测试；用于异常检测，检测远离群簇的点。<br><strong>（2）数据摘要、数据压缩、数据降维</strong>：例如图像处理中的矢量量化技术。创建一个包含所有簇原型的表，即每个原型赋予一个整数值，作为它在表中的索引。每个对象用与它所在簇相关联的原型的索引表示。<br><strong>（3）协同过滤</strong>：用于推荐系统和用户细分。<br><strong>（4）动态趋势检测</strong>：对流数据进行聚类，检测动态趋势和模式。<br><strong>（5）用于多媒体数据、生物数据、社交网络数据的应用</strong>。</p>
+<p>举例来说，在商务上，聚类能帮助市场分析人员从客户基本库中发现不同的客户群，并且用不同的购买模式来刻画不同的消费群体的特征。在生物学上，聚类能用于帮助推导植物和动物的种类，基因和蛋白质的分类，获得对种群中固定结构的认识。聚类在地球观测数据中相似地区的确定，根据房屋的类型、价值和位置对一个城市中房屋的分类发挥作用。聚类也能用来对web上的文档进行分类，以发现有用的信息。聚类分析能作为一种独立的工具来获得数据分布的情况，观察每个簇的特点，并对某些特定的节点进一步分析。</p>
+<h2 id="3-聚类算法的分类"><a href="#3-聚类算法的分类" class="headerlink" title="3 聚类算法的分类"></a>3 聚类算法的分类</h2><p>聚类分析的算法可以分为划分法（Partitioning Methods）、层次法（Hierarchical Methods）、基于密度的方法（density-based methods）、基于网格的方法（grid-based methods）、基于模型的方法（Model-Based Methods）。</p>
+<h3 id="3-1-基于距离的方法"><a href="#3-1-基于距离的方法" class="headerlink" title="3.1 基于距离的方法"></a>3.1 基于距离的方法</h3><p>划分算法和层次算法可以看做是基于距离的聚类算法。<br><strong>划分算法(partitioning method)</strong>是简单地将数据对象划分成不重叠的子集（簇），使得每个数据对象恰在一个子集中。<br>给定一个有N个元组或者纪录的数据集，分裂法将构造K个分组，每一个分组就代表一个聚类，K&lt;N。而且这K个分组满足下列条件：</p>
+<blockquote>
+<p>（1）每一个分组至少包含一个数据纪录；<br>（2）每一个数据纪录属于且仅属于一个分组（注意：这个要求在某些模糊聚类算法中可以放宽）；<br>对于给定的K，算法首先给出一个初始的分组方法，以后通过反复迭代的方法改变分组，使得每一次改进之后的分组方案都较前一次好，而所谓好的标准就是：同一分组中的记录越近越好，而不同分组中的纪录越远越好。</p>
+</blockquote>
+<p>传统的划分方法可以扩展到子空间聚类，而不是搜索整个数据空间。当存在很多属性并且数据稀疏时，这是有用的。为了达到全局最优，基于划分的聚类可能需要穷举所有可能的划分，计算量极大。实际上，大多数应用都采用了流行的启发式方法，如k-均值和k-中心算法，渐近的提高聚类质量，逼近局部最优解。这些启发式聚类方法很适合发现中小规模的数据库中小规模的数据库中的球状簇。为了发现具有复杂形状的簇和对超大型数据集进行聚类，需要进一步扩展基于划分的方法。<br>使用这个基本思想的算法有：<strong>K-MEANS算法、K-MEDIANS算法、K-MEDOIDS算法、CLARANS算法</strong>。</p>
+<p><strong>层次算法(hierarchical method)</strong>是嵌套簇的集族，组织成一棵树。除叶子结点外，树中每一个结点（簇）都是其子女（子簇）的并，而树根是包含所有对象的簇。<br>这种方法对对给定的数据集进行层次似的分解，直到某种条件满足为止。<br>层次法对给定的数据对象集合进行层次似的分解。按层次分解的形成方式，层次法可分为<strong>凝聚和分裂</strong>两大类。<br><strong>凝聚的方法</strong>，也称为自底向上的方法，一开始将每个对象作为单独的一个类，然后相继地合并相近的类，直到所有的类合并为一个（层次的最上层），或者达到一个终止条件为止。<br><strong>分裂的方法</strong>，也称为自顶向下的方法， 一开始将所有的对象置于一个类中。在迭代的每一步中，类被分裂为更小的类，直到每个类只包含一个对象，或者达到一个终止条件为止。在凝聚或者分裂层次聚类方法中，通常以用户定义的希望得到的类的数目作为结束条件。在类的合并或分裂过程中，需要考察类间的距离。<br>层次方法中代表算法有<strong>BIRCH、CURE、ROCK、CHAMELEON算法</strong>等。</p>
+<h3 id="3-2-基于密度的方法"><a href="#3-2-基于密度的方法" class="headerlink" title="3.2 基于密度的方法"></a>3.2 基于密度的方法</h3><p>绝大多数划分方法基于对象之间的距离进行聚类，这样的方法只能发现球状的类，而在发现任意形状的类上有困难。因此，出现了基于密度的聚类方法，其主要思想是：只要邻近区域的密度（对象或数据点的数目）超过某个阈值，就继续聚类。也就是说，对给定类中的每个数据点，在一个给定范围的区域内必须至少包含某个数目的点。这样的方法可以过滤“噪声”数据，发现任意形状的类。但算法计算复杂度高，一般为O(n^2)，对于密度分布不均的数据集，往往得不到满意的聚类结果。<br>其代表算法有<strong>DBSCAN、OPTICS和DENCLUE</strong>等。</p>
+<h3 id="3-3-基于网格的方法"><a href="#3-3-基于网格的方法" class="headerlink" title="3.3 基于网格的方法"></a>3.3 基于网格的方法</h3><p>基于网格的方法把对象空间量化为有限数目的单元，形成一个网格结构。所有的聚类操作都在这个网格结构（即量化空间）上进行。这种方法的主要优点是它的处理 速度很快，其处理速度独立于数据对象的数目，只与量化空间中每一维的单元数目有关。但这种算法效率的提高是以聚类结果的精确性为代价的。<br>它的代表算法有<strong>STING、CLIQUE、WAVE-CLUSTER</strong>等。</p>
+<h3 id="3-4-基于概率和生成模型的方法"><a href="#3-4-基于概率和生成模型的方法" class="headerlink" title="3.4 基于概率和生成模型的方法"></a>3.4 基于概率和生成模型的方法</h3><p>基于模型的聚类算法为每簇假定了一个模型，寻找数据对给定模型的最佳拟合。一个基于模型的算法可能通过构建反应数据点空间分布的密度函数来定位聚类。它也基于标准的统计数字自动决定聚类的数目，过滤噪声数据或孤立点，从而产生健壮的聚类方法。基于模型的聚类试图优化给定的数据和某些数据模型之间的适应性。 这样的方法经常是基于这样的假设：<strong>数据是根据潜在的概率分布生成的</strong>。<br>基于模型的方法主要有两类：统计学方法和网络神经方法。其中，<strong>统计学方法有COBWEB算法，网络神经方法有SOM算法</strong>。</p>
+<h2 id="4-对聚类分析的要求"><a href="#4-对聚类分析的要求" class="headerlink" title="4 对聚类分析的要求"></a>4 对聚类分析的要求</h2><h3 id="4-1-聚类质量"><a href="#4-1-聚类质量" class="headerlink" title="4.1 聚类质量"></a>4.1 聚类质量</h3><p><strong>处理不同类型属性的能力</strong>：许多算法被设计用来聚类数值类型的数据。但是，应用可能要求聚类其他类型的数据，如二元类型(binary)，分类/标称类型（categorical/nominal），序数型（ordinal）数据，或者这些数据类型的混合。</p>
+<p><strong>发现任意形态的群簇</strong>：许多聚类算法基于欧几里得或者曼哈顿距离度量来决定聚类。基于这样的距离度量的算法趋向于发现具有相近尺度和密度的球状簇。但是，一个簇可能是任意形状的。提出能发现任意形状簇的算法是很重要的。</p>
+<p><strong>处理噪声的能力</strong>：绝大多数现实中的数据库都包含了孤立点，缺失，或者错误的数据。一些聚类算法对于这样的数据敏感，可能导致低质量的聚类结果。</p>
+<h3 id="4-2-可伸缩性"><a href="#4-2-可伸缩性" class="headerlink" title="4.2 可伸缩性"></a>4.2 可伸缩性</h3><p>许多聚类算法在小于200个数据对象的小数据集合上工作得很好；但是，一个大规模数据库可能包含几百万个对象，在这样的大数据集合样本上进行聚类可能会导致有偏的结果。我们需要具有高度可伸缩性的聚类算法<br>可伸缩性的聚类算法要求算法<strong>对所有数据进行聚类，能够处理好高维数据，可以对流数据进行聚类，算法对数据输入顺序不敏感。</strong></p>
+<h3 id="4-3-可解释性和可用性"><a href="#4-3-可解释性和可用性" class="headerlink" title="4.3 可解释性和可用性"></a>4.3 可解释性和可用性</h3><p>用户希望聚类结果是可解释的，可理解的，和可用的。也就是说，聚类可能需要和特定的语义解释和应用相联系。</p>
+<p><strong>转载请注明作者Jason Ding及其出处</strong><br><a href="http://jasonding1354.github.io/" target="_blank" rel="external">Github博客主页(http://jasonding1354.github.io/)</a><br><a href="http://jasonding1354.gitcafe.io/" target="_blank" rel="external">GitCafe博客主页(http://jasonding1354.gitcafe.io/)</a><br><a href="http://blog.csdn.net/jasonding1354" target="_blank" rel="external">CSDN博客(http://blog.csdn.net/jasonding1354)</a><br><a href="http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles" target="_blank" rel="external">简书主页(http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles)</a><br><strong>Google搜索jasonding1354进入我的博客主页</strong></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Machine-Learning/">Machine Learning</a><a href="/tags/Cluster-Analysis/">Cluster Analysis</a>
+  </div>
+
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Cluster-Analysis/">Cluster Analysis</a>
+</div>
+
+
+
+<div class="article-share" id="share">
+
+  
+<div class="jiathis_style">
+    <span class="jiathis_txt">分享到：</span>
+    <a class="jiathis_button_tsina">新浪微博</a>
+    <a class="jiathis_button_weixin">微信</a>
+    <a class="jiathis_button_twitter">Twitter</a>
+    <a class="jiathis_button_evernote">EverNote</a>
+    <a href="http://www.jiathis.com/share?uid=1501277" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript" >
+    var jiathis_config={
+    data_track_clickback:true,
+    sm:"copy,renren,cqq",
+    pic:"",
+    summary:"",
+    
+  </script> 
+<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=
+1394018007141544" charset="utf-8"></script>      
+
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2015/11/13/Machine Learning/【机器学习中的数学】基函数与函数空间/" title="【机器学习中的数学】基函数与函数空间">
+  <strong>之后的一篇</strong><br/>
+  <span>
+  【机器学习中的数学】基函数与函数空间</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2015/11/12/Feature Engineering/【特征工程】特征选择与特征学习/"  title="【特征工程】特征选择与特征学习">
+ <strong>之前的一篇</strong><br/> 
+ <span>【特征工程】特征选择与特征学习
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section class="comment">
+	<div class="ds-thread"></div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">Contents</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-聚类分析基本概念"><span class="toc-number">1.</span> <span class="toc-text">1 聚类分析基本概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-聚类分析的应用"><span class="toc-number">2.</span> <span class="toc-text">2 聚类分析的应用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-聚类算法的分类"><span class="toc-number">3.</span> <span class="toc-text">3 聚类算法的分类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-基于距离的方法"><span class="toc-number">3.1.</span> <span class="toc-text">3.1 基于距离的方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-基于密度的方法"><span class="toc-number">3.2.</span> <span class="toc-text">3.2 基于密度的方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-基于网格的方法"><span class="toc-number">3.3.</span> <span class="toc-text">3.3 基于网格的方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-基于概率和生成模型的方法"><span class="toc-number">3.4.</span> <span class="toc-text">3.4 基于概率和生成模型的方法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-对聚类分析的要求"><span class="toc-number">4.</span> <span class="toc-text">4 对聚类分析的要求</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-聚类质量"><span class="toc-number">4.1.</span> <span class="toc-text">4.1 聚类质量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-可伸缩性"><span class="toc-number">4.2.</span> <span class="toc-text">4.2 可伸缩性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-可解释性和可用性"><span class="toc-number">4.3.</span> <span class="toc-text">4.3 可解释性和可用性</span></a></li></ol></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+<div class="maps">
+    <p class="asidetitle">访问统计</p>
+    <br>
+    <script type="text/javascript" src="//ra.revolvermaps.com/0/0/6.js?i=0leibswamim&amp;m=0&amp;s=210&amp;c=ff0000&amp;cr1=ffffff&amp;f=arial&amp;l=0" async="async"></script>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">Categories</p>
+		<ul>
+		
+			<li><a href="/categories/Algorithm-Problem/" title="Algorithm Problem">Algorithm Problem<sup>1</sup></a></li>
+		
+			<li><a href="/categories/C/" title="C++">C++<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Classic-Algorithm/" title="Classic Algorithm">Classic Algorithm<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Cluster-Analysis/" title="Cluster Analysis">Cluster Analysis<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Design-Pattern/" title="Design Pattern">Design Pattern<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Developer-Kits/" title="Developer Kits">Developer Kits<sup>5</sup></a></li>
+		
+			<li><a href="/categories/Energy-Big-Data/" title="Energy Big Data">Energy Big Data<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Feature-Engineering/" title="Feature Engineering">Feature Engineering<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Functional/" title="Functional">Functional<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Functional-Programming/" title="Functional Programming">Functional Programming<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Git/" title="Git">Git<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Jobs/" title="Jobs">Jobs<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>4</sup></a></li>
+		
+			<li><a href="/categories/ML-Experiments/" title="ML Experiments">ML Experiments<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Machine-Learning/" title="Machine Learning">Machine Learning<sup>50</sup></a></li>
+		
+			<li><a href="/categories/Math/" title="Math">Math<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Programming/" title="Programming">Programming<sup>11</sup></a></li>
+		
+			<li><a href="/categories/Python/" title="Python">Python<sup>10</sup></a></li>
+		
+			<li><a href="/categories/Scala/" title="Scala">Scala<sup>27</sup></a></li>
+		
+			<li><a href="/categories/Scala-ML/" title="Scala-ML">Scala-ML<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Similarity-Search/" title="Similarity Search">Similarity Search<sup>4</sup></a></li>
+		
+			<li><a href="/categories/Small-Problems/" title="Small Problems">Small Problems<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Spark/" title="Spark">Spark<sup>23</sup></a></li>
+		
+			<li><a href="/categories/Thoughts/" title="Thoughts">Thoughts<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">Tag Cloud</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/Actor/" style="font-size: 10px;">Actor</a> <a href="/tags/Akka/" style="font-size: 14.55px;">Akka</a> <a href="/tags/Algorithm/" style="font-size: 10px;">Algorithm</a> <a href="/tags/Approximate-Nearest-Neighbor-Search/" style="font-size: 10px;">Approximate Nearest Neighbor Search</a> <a href="/tags/Bayesian-Analysis/" style="font-size: 10.91px;">Bayesian Analysis</a> <a href="/tags/Big-Data/" style="font-size: 10px;">Big Data</a> <a href="/tags/C/" style="font-size: 12.73px;">C++</a> <a href="/tags/Classification/" style="font-size: 11.82px;">Classification</a> <a href="/tags/Cluster-Analysis/" style="font-size: 10px;">Cluster Analysis</a> <a href="/tags/Computer-Vision/" style="font-size: 14.55px;">Computer Vision</a> <a href="/tags/Eclipse/" style="font-size: 10px;">Eclipse</a> <a href="/tags/Energy-Forecasting/" style="font-size: 10px;">Energy Forecasting</a> <a href="/tags/Feature-Engineering/" style="font-size: 10.91px;">Feature Engineering</a> <a href="/tags/Functional-Programming/" style="font-size: 16.36px;">Functional Programming</a> <a href="/tags/Gaussian-Process/" style="font-size: 10px;">Gaussian Process</a> <a href="/tags/Git/" style="font-size: 10.91px;">Git</a> <a href="/tags/GraphLab/" style="font-size: 10px;">GraphLab</a> <a href="/tags/IPython/" style="font-size: 10px;">IPython</a> <a href="/tags/Internet-of-Energy/" style="font-size: 10px;">Internet of Energy</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/Kaggle/" style="font-size: 10px;">Kaggle</a> <a href="/tags/Kernel-Method/" style="font-size: 10px;">Kernel Method</a> <a href="/tags/LSH/" style="font-size: 12.73px;">LSH</a> <a href="/tags/LaTex/" style="font-size: 10px;">LaTex</a> <a href="/tags/Linux/" style="font-size: 11.82px;">Linux</a> <a href="/tags/Machine-Learning/" style="font-size: 20px;">Machine Learning</a> <a href="/tags/Math/" style="font-size: 11.82px;">Math</a> <a href="/tags/Mathematics/" style="font-size: 13.64px;">Mathematics</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/MeanShift/" style="font-size: 10px;">MeanShift</a> <a href="/tags/Mint/" style="font-size: 10px;">Mint</a> <a href="/tags/OpenCV/" style="font-size: 15.45px;">OpenCV</a> <a href="/tags/Probabilistic-Programming/" style="font-size: 10px;">Probabilistic Programming</a> <a href="/tags/Probability-Distributions/" style="font-size: 10px;">Probability Distributions</a> <a href="/tags/Programming/" style="font-size: 14.55px;">Programming</a> <a href="/tags/Python/" style="font-size: 17.27px;">Python</a> <a href="/tags/Regression/" style="font-size: 11.82px;">Regression</a> <a href="/tags/Resume/" style="font-size: 10px;">Resume</a> <a href="/tags/SVM/" style="font-size: 12.73px;">SVM</a> <a href="/tags/Scala/" style="font-size: 19.09px;">Scala</a> <a href="/tags/Similarity-Search/" style="font-size: 10.91px;">Similarity Search</a> <a href="/tags/Source-code/" style="font-size: 10px;">Source code</a> <a href="/tags/Spark/" style="font-size: 18.18px;">Spark</a> <a href="/tags/Summary/" style="font-size: 10px;">Summary</a> <a href="/tags/Thoughts/" style="font-size: 10.91px;">Thoughts</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/Vim/" style="font-size: 11.82px;">Vim</a> <a href="/tags/Written-Test/" style="font-size: 10px;">Written Test</a> <a href="/tags/Zeppelin/" style="font-size: 10px;">Zeppelin</a> <a href="/tags/boost/" style="font-size: 10px;">boost</a> <a href="/tags/cpp/" style="font-size: 13.64px;">cpp</a> <a href="/tags/opencv/" style="font-size: 10.91px;">opencv</a> <a href="/tags/p-Stable-LSH/" style="font-size: 10px;">p-Stable LSH</a> <a href="/tags/scikit-learn/" style="font-size: 10px;">scikit-learn</a> <a href="/tags/sklearn/" style="font-size: 10.91px;">sklearn</a> <a href="/tags/互联网时代/" style="font-size: 10px;">互联网时代</a> <a href="/tags/位置敏感哈希/" style="font-size: 10.91px;">位置敏感哈希</a> <a href="/tags/分治/" style="font-size: 10px;">分治</a> <a href="/tags/单元测试/" style="font-size: 10px;">单元测试</a> <a href="/tags/反思/" style="font-size: 10px;">反思</a> <a href="/tags/效率/" style="font-size: 10px;">效率</a> <a href="/tags/核方法/" style="font-size: 10px;">核方法</a> <a href="/tags/算法框架/" style="font-size: 10px;">算法框架</a> <a href="/tags/设计模式/" style="font-size: 11.82px;">设计模式</a>
+    </div>
+  </div>
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle"><a href="/archives">Archives</a></p>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">February 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">November 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">29</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a><span class="archive-list-count">16</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">10</span></li></ul>
+  </div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
+</div>
+
+</aside>
+
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Jason Ding in HUST <br/>
+			I would share moments of life here! </p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/1698420390" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/jasonding1354" target="_blank" title="github"></a>
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2016 
+		
+		<a href="http://blog.jasonding.top" target="_blank" title="Jason Ding">Jason Ding</a>
+		
+		</p>
+		<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+  
+  _st('install','uYyEuxJdzzAGXTax33mt','2.0.0');
+</script>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"jasonding"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+  </body>
+</html>
