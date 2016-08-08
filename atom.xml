@@ -201,6 +201,42 @@
   </entry>
   
   <entry>
+    <title>使用maven构建scala项目</title>
+    <link href="http://blog.jasonding.top/2016/08/08/Developer%20Kits/%E4%BD%BF%E7%94%A8maven%E6%9E%84%E5%BB%BAscala%E9%A1%B9%E7%9B%AE/"/>
+    <id>http://blog.jasonding.top/2016/08/08/Developer Kits/使用maven构建scala项目/</id>
+    <published>2016-08-08T02:28:05.000Z</published>
+    <updated>2016-08-08T15:36:43.000Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="创建工程之前的准备"><a href="#创建工程之前的准备" class="headerlink" title="创建工程之前的准备"></a>创建工程之前的准备</h2><blockquote>
+<ol>
+<li>IntelliJ IDEA</li>
+<li>Scala plugin for IDEA</li>
+<li>Maven</li>
+</ol>
+</blockquote>
+<h2 id="IDEA界面创建Scala的Maven项目"><a href="#IDEA界面创建Scala的Maven项目" class="headerlink" title="IDEA界面创建Scala的Maven项目"></a>IDEA界面创建Scala的Maven项目</h2><p><strong>1. 创建Maven工程</strong>，勾选右侧的<code>Create from archetype</code>选项，然后选中下方的<code>scala-archetype-simple</code>选项，如图所示：<br><img src="http://7nj1qk.com1.z0.glb.clouddn.com//maven/scala/mvn_scala_1" alt=""><br><strong>2. 填写相应的GroupId、ArtifactId内容</strong>，一般情况下GroupId是实际的项目名称，ArtifactId对应实际项目的一个模块，对应maven项目<br><strong>3. 配置Maven相关的环境</strong>，如图所示：<br><img src="http://7nj1qk.com1.z0.glb.clouddn.com//maven/scala/mvn_scala_2" alt=""><br><strong>4. 为项目取一个名字，然后完成项目创建</strong><br><strong>5. 右键Project，点击Add FrameWork Support，在打开的栏框中添加Scala支持</strong><br><strong>6. 修改项目的pom.xml文件</strong>，将<code>scala.version</code>改为依赖的Scala版本，然后针对pom.xml执行reimport操作，重新拉依赖</p>
+<p><strong>转载请注明作者Jason Ding及其出处</strong><br><a href="http://jasonding.top" target="_blank" rel="external">jasonding.top</a><br><a href="http://blog.jasonding.top/">Github博客主页(http://blog.jasonding.top/)</a><br><a href="http://blog.csdn.net/jasonding1354" target="_blank" rel="external">CSDN博客(http://blog.csdn.net/jasonding1354)</a><br><a href="http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles" target="_blank" rel="external">简书主页(http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles)</a><br><strong>Google搜索jasonding1354进入我的博客主页</strong></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;创建工程之前的准备&quot;&gt;&lt;a href=&quot;#创建工程之前的准备&quot; class=&quot;headerlink&quot; title=&quot;创建工程之前的准备&quot;&gt;&lt;/a&gt;创建工程之前的准备&lt;/h2&gt;&lt;blockquote&gt;
+&lt;ol&gt;
+&lt;li&gt;IntelliJ IDEA&lt;/li&gt;
+&lt;li&gt;
+    
+    </summary>
+    
+      <category term="Developer Kits" scheme="http://blog.jasonding.top/categories/Developer-Kits/"/>
+    
+    
+      <category term="Scala" scheme="http://blog.jasonding.top/tags/Scala/"/>
+    
+      <category term="Maven" scheme="http://blog.jasonding.top/tags/Maven/"/>
+    
+  </entry>
+  
+  <entry>
     <title>【函数式】纯函数与替代模型</title>
     <link href="http://blog.jasonding.top/2016/05/25/Functional%20Programming/%E3%80%90%E5%87%BD%E6%95%B0%E5%BC%8F%E3%80%91%E7%BA%AF%E5%87%BD%E6%95%B0%E4%B8%8E%E6%9B%BF%E4%BB%A3%E6%A8%A1%E5%9E%8B/"/>
     <id>http://blog.jasonding.top/2016/05/25/Functional Programming/【函数式】纯函数与替代模型/</id>
@@ -413,9 +449,9 @@
       <category term="Scala-ML" scheme="http://blog.jasonding.top/categories/Scala-ML/"/>
     
     
-      <category term="Machine Learning" scheme="http://blog.jasonding.top/tags/Machine-Learning/"/>
-    
       <category term="Scala" scheme="http://blog.jasonding.top/tags/Scala/"/>
+    
+      <category term="Machine Learning" scheme="http://blog.jasonding.top/tags/Machine-Learning/"/>
     
   </entry>
   
@@ -508,9 +544,9 @@
       <category term="Scala-ML" scheme="http://blog.jasonding.top/categories/Scala-ML/"/>
     
     
-      <category term="Machine Learning" scheme="http://blog.jasonding.top/tags/Machine-Learning/"/>
-    
       <category term="Scala" scheme="http://blog.jasonding.top/tags/Scala/"/>
+    
+      <category term="Machine Learning" scheme="http://blog.jasonding.top/tags/Machine-Learning/"/>
     
   </entry>
   
@@ -1122,37 +1158,6 @@
     
     
       <category term="Scala" scheme="http://blog.jasonding.top/tags/Scala/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>多个github账号的ssh配置</title>
-    <link href="http://blog.jasonding.top/2016/02/18/Git/%E5%A4%9A%E4%B8%AAgithub%E8%B4%A6%E5%8F%B7%E7%9A%84ssh%E9%85%8D%E7%BD%AE/"/>
-    <id>http://blog.jasonding.top/2016/02/18/Git/多个github账号的ssh配置/</id>
-    <published>2016-02-18T03:59:08.000Z</published>
-    <updated>2016-03-16T06:24:42.000Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="生成ssh-key"><a href="#生成ssh-key" class="headerlink" title="生成ssh key"></a>生成ssh key</h2><p>通过<code>ssh-keygen -t rsa -C &quot;username@example.com&quot;</code>来生成密钥文件。<br>创建第二个ssh key文件时，需要指定文件名，比如<code>id_rsa_2</code>。</p>
-<p>这样，<code>.ssh</code>目录下的文件结构是：<br><figure class="highlight haml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">-<span class="ruby"> id_rsa</span></div><div class="line">-<span class="ruby"> id_rsa.pub</span></div><div class="line">-<span class="ruby"> id_rsa_2</span></div><div class="line">-<span class="ruby"> id_rsa_2.pub</span></div></pre></td></tr></table></figure></p>
-<h2 id="在-ssh下创建config文件"><a href="#在-ssh下创建config文件" class="headerlink" title="在./ssh下创建config文件"></a>在./ssh下创建config文件</h2><p>在<code>./ssh</code>目录下，创建config文件，文件内容是：<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">Host user1<span class="selector-class">.github</span><span class="selector-class">.com</span></div><div class="line">  HostName github<span class="selector-class">.com</span></div><div class="line">  PreferredAuthentications publickey</div><div class="line">  IdentityFile ~/.ssh/id_rsa</div><div class="line">Host user2<span class="selector-class">.github</span><span class="selector-class">.com</span></div><div class="line">  HostName github<span class="selector-class">.com</span></div><div class="line">  PreferredAuthentications publickey</div><div class="line">  IdentityFile ~/.ssh/id_rsa_2</div></pre></td></tr></table></figure></p>
-<p>Host的名字可以自己随意指定。</p>
-<h2 id="测试配置是否正确"><a href="#测试配置是否正确" class="headerlink" title="测试配置是否正确"></a>测试配置是否正确</h2><p>通过<code>ssh -T git@user1.github.com</code>和<code>ssh -T git@user2.github.com</code>来测试配置是否正确。<br>如果出现Hi xxx! You’ve successfully authenticated…的字样，说明连接成功。</p>
-<h2 id="配置项目的远程仓库地址"><a href="#配置项目的远程仓库地址" class="headerlink" title="配置项目的远程仓库地址"></a>配置项目的远程仓库地址</h2><p>可以通过修改项目的<code>.git/config</code>文件，来指定远程仓库的地址：<br><figure class="highlight autoit"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta"># 更改[remote <span class="string">"origin"</span>]项中的url中的</span></div><div class="line"><span class="meta"># user2.github.com 对应上面配置的host</span></div><div class="line">[remote <span class="string">"origin"</span>]</div><div class="line">  url = git<span class="symbol">@user2</span>.github.com:github_username/project_name.git</div></pre></td></tr></table></figure></p>
-<p>或者通过Git Bash命令进行修改：<br><figure class="highlight stylus"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">git remote rm origin</div><div class="line">git remote add origin git@user2<span class="selector-class">.github</span><span class="selector-class">.com</span>:github_username/project_name.git</div></pre></td></tr></table></figure></p>
-<p>这样就可以同时使用两个github账号了。</p>
-<p><strong>转载请注明作者Jason Ding及其出处</strong><br><a href="http://blog.jasonding.top/">Github博客主页(http://blog.jasonding.top/)</a><br><a href="http://blog.csdn.net/jasonding1354" target="_blank" rel="external">CSDN博客(http://blog.csdn.net/jasonding1354)</a><br><a href="http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles" target="_blank" rel="external">简书主页(http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles)</a><br><strong>Google搜索jasonding1354进入我的博客主页</strong></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h2 id=&quot;生成ssh-key&quot;&gt;&lt;a href=&quot;#生成ssh-key&quot; class=&quot;headerlink&quot; title=&quot;生成ssh key&quot;&gt;&lt;/a&gt;生成ssh key&lt;/h2&gt;&lt;p&gt;通过&lt;code&gt;ssh-keygen -t rsa -C &amp;quot;usernam
-    
-    </summary>
-    
-      <category term="Git" scheme="http://blog.jasonding.top/categories/Git/"/>
-    
-    
-      <category term="Git" scheme="http://blog.jasonding.top/tags/Git/"/>
     
   </entry>
   
