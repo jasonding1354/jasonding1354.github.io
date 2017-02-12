@@ -1,0 +1,495 @@
+
+ <!DOCTYPE HTML>
+<html >
+<head>
+  <meta charset="UTF-8">
+  
+    <title>【特征工程】特征选择及mRMR算法解析 | Jason&#39;s Techblog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Jason Ding">
+    
+    <meta name="description" content="一、 特征选择的几个常见问题
+为什么？（1）降低维度，选择重要的特征，避免维度灾难，降低计算成本（2）去除不相关的冗余特征（噪声）来降低学习的难度，去除噪声的干扰，留下关键因素，提高预测精度（3）获得更多有物理意义的，有价值的特征
+
+不同模型有不同的特征适用类型？（1）lr模型适用于拟合离散特征（2">
+    
+    
+    
+    
+    <link rel="alternate" href="/atom.xml" title="Jason&#39;s Techblog" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/author.png">
+    <link rel="apple-touch-icon-precomposed" href="/img/author.png">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F3cc71cd5738b99a1db174951e194ba55' type='text/javascript'%3E%3C/script%3E"));
+
+
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F1dcf1fa58b0eca1ac5bd089ee6a6e78c' type='text/javascript'%3E%3C/script%3E"));
+
+
+</script>
+
+
+    <!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</head>
+
+
+  <body>
+    <header>
+      <div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Jason&#39;s Techblog" title="Jason&#39;s Techblog"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Jason&#39;s Techblog">Jason&#39;s Techblog</a></h1>
+				<h2 class="blog-motto">Technician =&gt; Scientist =&gt; Philosopher =&gt; Artists</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="http://jasonding.top">Main</a></li>
+					
+					<li>
+					
+						<form class="search" action="/search/index.html" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="text" id="search" class="st-default-search-input" maxlength="20" placeholder="Search" />
+						</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody">
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/02/12/Feature Engineering/【特征工程】特征选择及mRMR算法解析/" title="【特征工程】特征选择及mRMR算法解析" itemprop="url">【特征工程】特征选择及mRMR算法解析</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://blog.jasonding.top" title="Jason Ding">Jason Ding</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2017-02-12T12:47:45.000Z" itemprop="datePublished">2017-02-12</time>
+    更新日期:<time datetime="2017-02-12T13:11:56.000Z" itemprop="dateModified">2017-02-12</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、-特征选择的几个常见问题"><span class="toc-number">1.</span> <span class="toc-text">一、 特征选择的几个常见问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、从决策树模型的特征重要性说起"><span class="toc-number">2.</span> <span class="toc-text">二、从决策树模型的特征重要性说起</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#（1）决策树划分属性的依据"><span class="toc-number">2.1.</span> <span class="toc-text">（1）决策树划分属性的依据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#（2）通过gini不纯度计算特征重要性"><span class="toc-number">2.2.</span> <span class="toc-text">（2）通过gini不纯度计算特征重要性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#（3）mllib中集成学习算法计算特征重要性的源码"><span class="toc-number">2.3.</span> <span class="toc-text">（3）mllib中集成学习算法计算特征重要性的源码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#（4）mllib中决策树算法计算特征不纯度的源码"><span class="toc-number">2.4.</span> <span class="toc-text">（4）mllib中决策树算法计算特征不纯度的源码</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、最大相关最小冗余（mRMR）算法"><span class="toc-number">3.</span> <span class="toc-text">三、最大相关最小冗余（mRMR）算法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#（1）互信息"><span class="toc-number">3.1.</span> <span class="toc-text">（1）互信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#（2）mRMR"><span class="toc-number">3.2.</span> <span class="toc-text">（2）mRMR</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#（3）mRMR的spark实现源码"><span class="toc-number">3.3.</span> <span class="toc-text">（3）mRMR的spark实现源码</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">4.</span> <span class="toc-text">参考资料</span></a></li></ol>
+		</div>
+		
+		<h2 id="一、-特征选择的几个常见问题"><a href="#一、-特征选择的几个常见问题" class="headerlink" title="一、 特征选择的几个常见问题"></a>一、 特征选择的几个常见问题</h2><ul>
+<li><p><strong>为什么？</strong><br>（1）降低维度，选择重要的特征，避免维度灾难，降低计算成本<br>（2）去除不相关的冗余特征（噪声）来降低学习的难度，去除噪声的干扰，留下关键因素，提高预测精度<br>（3）获得更多有物理意义的，有价值的特征</p>
+</li>
+<li><p><strong>不同模型有不同的特征适用类型？</strong><br>（1）lr模型适用于拟合离散特征<br>（2）gbdt模型适用于拟合连续数值特征<br>（3）一般说来，特征具有较大的方差说明蕴含较多信息，也是比较有价值的特征</p>
+</li>
+<li><p><strong>特征子集的搜索：</strong><br>（1）子集搜索问题。<br>比如逐渐添加相关特征（前向forward搜索）或逐渐去掉无关特征（后向backward搜索），还有双向搜索。<br>缺点是，该策略为贪心算法，本轮最优并不一定是全局最优，若不能穷举搜索，则无法避免该问题。<br>该子集搜索策略属于最大相关（maximum-relevance）的选择策略。<br>（2）特征子集评价与度量。<br>信息增益，交叉熵，相关性，余弦相似度等评级准则。</p>
+</li>
+<li><p><strong>典型的特征选择方法</strong><br><img src="http://7nj1qk.com1.z0.glb.clouddn.com//feature_engineering/mrmr/mrmr1.png" alt=""><br><img src="http://7nj1qk.com1.z0.glb.clouddn.com//feature_engineering/mrmr/mrmr2.png" alt=""></p>
+</li>
+</ul>
+<h2 id="二、从决策树模型的特征重要性说起"><a href="#二、从决策树模型的特征重要性说起" class="headerlink" title="二、从决策树模型的特征重要性说起"></a>二、从决策树模型的特征重要性说起</h2><p><strong>决策树可以看成是前向搜索与信息熵相结合的算法，树节点的划分属性所组成的集合就是选择出来的特征子集。</strong></p>
+<h3 id="（1）决策树划分属性的依据"><a href="#（1）决策树划分属性的依据" class="headerlink" title="（1）决策树划分属性的依据"></a>（1）决策树划分属性的依据</h3><p><img src="http://7nj1qk.com1.z0.glb.clouddn.com//feature_engineering/mrmr/mrmr3.png" alt=""></p>
+<h3 id="（2）通过gini不纯度计算特征重要性"><a href="#（2）通过gini不纯度计算特征重要性" class="headerlink" title="（2）通过gini不纯度计算特征重要性"></a>（2）通过gini不纯度计算特征重要性</h3><p>不管是scikit-learn还是mllib，其中的随机森林和gbdt算法都是基于决策树算法，一般的，都是使用了cart树算法，通过gini指数来计算特征的重要性的。<br>比如scikit-learn的sklearn.feature_selection.SelectFromModel可以实现根据特征重要性分支进行特征的转换。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> sklearn.ensemble <span class="keyword">import</span> ExtraTreesClassifier</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> sklearn.datasets <span class="keyword">import</span> load_iris</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> sklearn.feature_selection <span class="keyword">import</span> SelectFromModel</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>iris = load_iris()</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>X, y = iris.data, iris.target</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>X.shape</div><div class="line">(<span class="number">150</span>, <span class="number">4</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>clf = ExtraTreesClassifier()</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>clf = clf.fit(X, y)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>clf.feature_importances_ </div><div class="line">array([ <span class="number">0.04</span>...,  <span class="number">0.05</span>...,  <span class="number">0.4</span>...,  <span class="number">0.4</span>...])</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>model = SelectFromModel(clf, prefit=<span class="keyword">True</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>X_new = model.transform(X)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>X_new.shape              </div><div class="line">(<span class="number">150</span>, <span class="number">2</span>)</div></pre></td></tr></table></figure></p>
+<h3 id="（3）mllib中集成学习算法计算特征重要性的源码"><a href="#（3）mllib中集成学习算法计算特征重要性的源码" class="headerlink" title="（3）mllib中集成学习算法计算特征重要性的源码"></a>（3）mllib中集成学习算法计算特征重要性的源码</h3><p>在spark 2.0之后，mllib的决策树算法都引入了计算特征重要性的方法featureImportances，而随机森林算法（RandomForestRegressionModel和RandomForestClassificationModel类）和gbdt算法（GBTClassificationModel和GBTRegressionModel类）均利用决策树算法中计算特征不纯度和特征重要性的方法来得到所使用模型的特征重要性。<br>而这些集成方法的实现类都集成了TreeEnsembleModel[M &lt;: DecisionTreeModel]这个特质（trait），即featureImportances是在该特质中实现的。<br>featureImportances方法的基本计算思路是：</p>
+<blockquote>
+<ul>
+<li>针对每一棵决策树而言，特征j的重要性指标为所有通过特征j进行划分的树结点的增益的和</li>
+<li>将一棵树的特征重要性归一化到1</li>
+<li>将集成模型的特征重要性向量归一化到1</li>
+</ul>
+</blockquote>
+<p>以下是源码分析：<br><figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">featureImportances</span></span>[<span class="type">M</span> &lt;: <span class="type">DecisionTreeModel</span>](trees: <span class="type">Array</span>[<span class="type">M</span>], numFeatures: <span class="type">Int</span>): <span class="type">Vector</span> = &#123;</div><div class="line">  <span class="keyword">val</span> totalImportances = <span class="keyword">new</span> <span class="type">OpenHashMap</span>[<span class="type">Int</span>, <span class="type">Double</span>]()</div><div class="line">  <span class="comment">// 针对每一棵决策树模型进行遍历</span></div><div class="line">  trees.foreach &#123; tree =&gt;</div><div class="line">    <span class="comment">// Aggregate feature importance vector for this tree</span></div><div class="line">    <span class="keyword">val</span> importances = <span class="keyword">new</span> <span class="type">OpenHashMap</span>[<span class="type">Int</span>, <span class="type">Double</span>]()</div><div class="line">    <span class="comment">// 从根节点开始，遍历整棵树的中间节点，将同一特征的特征重要性累加起来</span></div><div class="line">    computeFeatureImportance(tree.rootNode, importances)</div><div class="line">    <span class="comment">// Normalize importance vector for this tree, and add it to total.</span></div><div class="line">    <span class="comment">// <span class="doctag">TODO:</span> In the future, also support normalizing by tree.rootNode.impurityStats.count?</span></div><div class="line">    <span class="comment">// 将一棵树的特征重要性进行归一化</span></div><div class="line">    <span class="keyword">val</span> treeNorm = importances.map(_._2).sum</div><div class="line">    <span class="keyword">if</span> (treeNorm != <span class="number">0</span>) &#123;</div><div class="line">      importances.foreach &#123; <span class="keyword">case</span> (idx, impt) =&gt;</div><div class="line">        <span class="keyword">val</span> normImpt = impt / treeNorm</div><div class="line">        totalImportances.changeValue(idx, normImpt, _ + normImpt)</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">  <span class="comment">// Normalize importances</span></div><div class="line">  <span class="comment">// 归一化总体的特征重要性</span></div><div class="line">  normalizeMapValues(totalImportances)</div><div class="line">  <span class="comment">// Construct vector</span></div><div class="line">  <span class="comment">// 构建最终输出的特征重要性向量</span></div><div class="line">  <span class="keyword">val</span> d = <span class="keyword">if</span> (numFeatures != <span class="number">-1</span>) &#123;</div><div class="line">    numFeatures</div><div class="line">  &#125; <span class="keyword">else</span> &#123;</div><div class="line">    <span class="comment">// Find max feature index used in trees</span></div><div class="line">    <span class="keyword">val</span> maxFeatureIndex = trees.map(_.maxSplitFeatureIndex()).max</div><div class="line">    maxFeatureIndex + <span class="number">1</span></div><div class="line">  &#125;</div><div class="line">  <span class="keyword">if</span> (d == <span class="number">0</span>) &#123;</div><div class="line">    assert(totalImportances.size == <span class="number">0</span>, <span class="string">s"Unknown error in computing feature"</span> +</div><div class="line">      <span class="string">s" importance: No splits found, but some non-zero importances."</span>)</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">val</span> (indices, values) = totalImportances.iterator.toSeq.sortBy(_._1).unzip</div><div class="line">  <span class="type">Vectors</span>.sparse(d, indices.toArray, values.toArray)</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>其中computeFeatureImportance方法为：<br><figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 这是计算一棵决策树特征重要性的递归方法</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">computeFeatureImportance</span></span>(</div><div class="line">    node: <span class="type">Node</span>,</div><div class="line">    importances: <span class="type">OpenHashMap</span>[<span class="type">Int</span>, <span class="type">Double</span>]): <span class="type">Unit</span> = &#123;</div><div class="line">  node <span class="keyword">match</span> &#123;</div><div class="line">    <span class="comment">// 如果是中间节点，即进行特征划分的节点</span></div><div class="line">    <span class="keyword">case</span> n: <span class="type">InternalNode</span> =&gt;</div><div class="line">      <span class="comment">// 得到特征标记</span></div><div class="line">      <span class="keyword">val</span> feature = n.split.featureIndex</div><div class="line">      <span class="comment">// 计算得到比例化的特征增益值，信息增益乘上该节点使用的训练数据数量</span></div><div class="line">      <span class="keyword">val</span> scaledGain = n.gain * n.impurityStats.count</div><div class="line">      importances.changeValue(feature, scaledGain, _ + scaledGain)</div><div class="line">      <span class="comment">// 前序遍历二叉决策树</span></div><div class="line">      computeFeatureImportance(n.leftChild, importances)</div><div class="line">      computeFeatureImportance(n.rightChild, importances)</div><div class="line">    <span class="keyword">case</span> n: <span class="type">LeafNode</span> =&gt;</div><div class="line">    <span class="comment">// do nothing</span></div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="（4）mllib中决策树算法计算特征不纯度的源码"><a href="#（4）mllib中决策树算法计算特征不纯度的源码" class="headerlink" title="（4）mllib中决策树算法计算特征不纯度的源码"></a>（4）mllib中决策树算法计算特征不纯度的源码</h3><p>InternalNode类使用ImpurityCalculator类的私有实例impurityStats来记录不纯度的信息和状态，具体使用哪一种划分方式通过getCalculator方法来进行选择：<br><figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">getCalculator</span></span>(impurity: <span class="type">String</span>, stats: <span class="type">Array</span>[<span class="type">Double</span>]): <span class="type">ImpurityCalculator</span> = &#123;</div><div class="line">  impurity <span class="keyword">match</span> &#123;</div><div class="line">    <span class="keyword">case</span> <span class="string">"gini"</span> =&gt; <span class="keyword">new</span> <span class="type">GiniCalculator</span>(stats)</div><div class="line">    <span class="keyword">case</span> <span class="string">"entropy"</span> =&gt; <span class="keyword">new</span> <span class="type">EntropyCalculator</span>(stats)</div><div class="line">    <span class="keyword">case</span> <span class="string">"variance"</span> =&gt; <span class="keyword">new</span> <span class="type">VarianceCalculator</span>(stats)</div><div class="line">    <span class="keyword">case</span> _ =&gt;</div><div class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="type">IllegalArgumentException</span>(</div><div class="line">        <span class="string">s"ImpurityCalculator builder did not recognize impurity type: <span class="subst">$impurity</span>"</span>)</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>以gini指数为例，其信息计算的代码如下：<br><figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Since</span>(<span class="string">"1.1.0"</span>)</div><div class="line"><span class="meta">@DeveloperApi</span></div><div class="line"><span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">calculate</span></span>(counts: <span class="type">Array</span>[<span class="type">Double</span>], totalCount: <span class="type">Double</span>): <span class="type">Double</span> = &#123;</div><div class="line">  <span class="keyword">if</span> (totalCount == <span class="number">0</span>) &#123;</div><div class="line">    <span class="keyword">return</span> <span class="number">0</span></div><div class="line">  &#125;</div><div class="line">  <span class="keyword">val</span> numClasses = counts.length</div><div class="line">  <span class="keyword">var</span> impurity = <span class="number">1.0</span></div><div class="line">  <span class="keyword">var</span> classIndex = <span class="number">0</span></div><div class="line">  <span class="keyword">while</span> (classIndex &lt; numClasses) &#123;</div><div class="line">    <span class="keyword">val</span> freq = counts(classIndex) / totalCount</div><div class="line">    impurity -= freq * freq</div><div class="line">    classIndex += <span class="number">1</span></div><div class="line">  &#125;</div><div class="line">  impurity</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>以上源码解读即是从集成方法来计算特征重要性到决策树算法具体计算节点特征不纯度方法的过程。</p>
+<h2 id="三、最大相关最小冗余（mRMR）算法"><a href="#三、最大相关最小冗余（mRMR）算法" class="headerlink" title="三、最大相关最小冗余（mRMR）算法"></a>三、最大相关最小冗余（mRMR）算法</h2><h3 id="（1）互信息"><a href="#（1）互信息" class="headerlink" title="（1）互信息"></a>（1）互信息</h3><p>互信息可以看成是一个随机变量中包含的关于另一个随机变量的信息量，或者说是一个随机变量由于已知另一个随机变量而减少的不确定性。互信息本来是信息论中的一个概念,用于表示信息之间的关系, 是<strong>两个随机变量统计相关性的测度</strong>。<br><img src="http://7nj1qk.com1.z0.glb.clouddn.com//feature_engineering/mrmr/mrmr4.png" alt=""><br><img src="http://7nj1qk.com1.z0.glb.clouddn.com//feature_engineering/mrmr/mrmr5.png" alt=""></p>
+<h3 id="（2）mRMR"><a href="#（2）mRMR" class="headerlink" title="（2）mRMR"></a>（2）mRMR</h3><p>之所以出现mRMR算法来进行特征选择，主要是为了解决通过最大化特征与目标变量的相关关系度量得到的最好的m个特征，并不一定会得到最好的预测精度的问题。<br>前面介绍的评价特征的方法基本都是基于是否与目标变量具有强相关性的特征，但是这些特征里还可能包含一些冗余特征（比如目标变量是立方体体积，特征为底面的长度、底面的宽度、底面的面积，其实底面的面积可以由长与宽得到，所以可被认为是一种冗余信息），<strong>mRMR算法就是用来在保证最大相关性的同时，又去除了冗余特征的方法</strong>，相当于得到了一组“最纯净”的特征子集（特征之间差异很大，而同目标变量的相关性也很大）。<br>作为一个特例，变量之间的相关性（correlation）可以用统计学的依赖关系（dependency）来替代，而互信息（mutual information）是一种评价该依赖关系的度量方法。<br><strong>mRMR可认为是最大化特征子集的联合分布与目标变量之间依赖关系的一种近似</strong>。<br>mRMR本身还是属于filter型特征选择方法。<br><img src="http://7nj1qk.com1.z0.glb.clouddn.com//feature_engineering/mrmr/mrmr6.png" alt=""><br>可以通过max(V-W)或max(V/W)来统筹考虑相关性和冗余性，作为特征评价的标准。<br><img src="http://7nj1qk.com1.z0.glb.clouddn.com//feature_engineering/mrmr/mrmr7.png" alt=""></p>
+<h3 id="（3）mRMR的spark实现源码"><a href="#（3）mRMR的spark实现源码" class="headerlink" title="（3）mRMR的spark实现源码"></a>（3）mRMR的spark实现源码</h3><p>mRMR算法包含几个步骤：</p>
+<blockquote>
+<ul>
+<li>将数据进行处理转换的过程（注：为了计算两个特征的联合分布和边缘分布，需要将数据归一化到[0,255]之间，并且将每一维特征使用合理的数据结构进行存储）</li>
+<li>计算特征之间、特征与响应变量之间的分布及互信息</li>
+<li>对特征进行mrmr得分，并进行排序</li>
+</ul>
+</blockquote>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * Perform a info-theory selection process.</div><div class="line"> *</div><div class="line"> * @param data Columnar data (last element is the class attribute).</div><div class="line"> * @param nToSelect Number of features to select.</div><div class="line"> * @param nFeatures Number of total features in the dataset.</div><div class="line"> * @return A list with the most relevant features and its scores.</div><div class="line"> *</div><div class="line"> */</div><div class="line"><span class="keyword">private</span>[feature] <span class="function"><span class="keyword">def</span> <span class="title">selectFeatures</span></span>(</div><div class="line">    data: <span class="type">RDD</span>[(<span class="type">Long</span>, <span class="type">Byte</span>)],</div><div class="line">    nToSelect: <span class="type">Int</span>,</div><div class="line">    nFeatures: <span class="type">Int</span>) = &#123;</div><div class="line">   </div><div class="line">  <span class="keyword">val</span> label = nFeatures - <span class="number">1</span></div><div class="line">  <span class="keyword">val</span> nInstances = data.count() / nFeatures</div><div class="line">  <span class="keyword">val</span> counterByKey = data.map(&#123; <span class="keyword">case</span> (k, v) =&gt; (k % nFeatures).toInt -&gt; v&#125;)</div><div class="line">        .distinct().groupByKey().mapValues(_.max + <span class="number">1</span>).collectAsMap().toMap</div><div class="line">   </div><div class="line">  <span class="comment">// calculate relevance</span></div><div class="line">  <span class="keyword">val</span> <span class="type">MiAndCmi</span> = <span class="type">IT</span>.computeMI(</div><div class="line">      data, <span class="number">0</span> until label, label, nInstances, nFeatures, counterByKey)</div><div class="line">  <span class="keyword">var</span> pool = <span class="type">MiAndCmi</span>.map&#123;<span class="keyword">case</span> (x, mi) =&gt; (x, <span class="keyword">new</span> <span class="type">MrmrCriterion</span>(mi))&#125;</div><div class="line">    .collectAsMap() </div><div class="line">  <span class="comment">// Print most relevant features</span></div><div class="line">  <span class="comment">// Print most relevant features</span></div><div class="line">  <span class="keyword">val</span> strRels = <span class="type">MiAndCmi</span>.collect().sortBy(-_._2)</div><div class="line">    .take(nToSelect)</div><div class="line">    .map(&#123;<span class="keyword">case</span> (f, mi) =&gt; (f + <span class="number">1</span>) + <span class="string">"\t"</span> + <span class="string">"%.4f"</span> format mi&#125;)</div><div class="line">    .mkString(<span class="string">"\n"</span>)</div><div class="line">  println(<span class="string">"\n*** MaxRel features ***\nFeature\tScore\n"</span> + strRels) </div><div class="line">  <span class="comment">// get maximum and select it</span></div><div class="line">  <span class="keyword">val</span> firstMax = pool.maxBy(_._2.score)</div><div class="line">  <span class="keyword">var</span> selected = <span class="type">Seq</span>(<span class="type">F</span>(firstMax._1, firstMax._2.score))</div><div class="line">  pool = pool - firstMax._1</div><div class="line"> </div><div class="line">  <span class="keyword">while</span> (selected.size &lt; nToSelect) &#123;</div><div class="line">    <span class="comment">// update pool</span></div><div class="line">    <span class="keyword">val</span> newMiAndCmi = <span class="type">IT</span>.computeMI(data, pool.keys.toSeq,</div><div class="line">        selected.head.feat, nInstances, nFeatures, counterByKey)</div><div class="line">        .map(&#123; <span class="keyword">case</span> (x, crit) =&gt; (x, crit) &#125;)</div><div class="line">        .collectAsMap()</div><div class="line">       </div><div class="line">    pool.foreach(&#123; <span class="keyword">case</span> (k, crit) =&gt;</div><div class="line">      newMiAndCmi.get(k) <span class="keyword">match</span> &#123;</div><div class="line">        <span class="keyword">case</span> <span class="type">Some</span>(_) =&gt; crit.update(_)</div><div class="line">        <span class="keyword">case</span> <span class="type">None</span> =&gt;</div><div class="line">      &#125;</div><div class="line">    &#125;)</div><div class="line"> </div><div class="line">    <span class="comment">// get maximum and save it</span></div><div class="line">    <span class="keyword">val</span> max = pool.maxBy(_._2.score)</div><div class="line">    <span class="comment">// select the best feature and remove from the whole set of features</span></div><div class="line">    selected = <span class="type">F</span>(max._1, max._2.score) +: selected</div><div class="line">    pool = pool - max._1</div><div class="line">  &#125;   </div><div class="line">  selected.reverse</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>下面是基于互信息及mrmr的特征选择过程：<br><figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * Perform a info-theory selection process.</div><div class="line"> *</div><div class="line"> * @param data Columnar data (last element is the class attribute).</div><div class="line"> * @param nToSelect Number of features to select.</div><div class="line"> * @param nFeatures Number of total features in the dataset.</div><div class="line"> * @return A list with the most relevant features and its scores.</div><div class="line"> *</div><div class="line"> */</div><div class="line"><span class="keyword">private</span>[feature] <span class="function"><span class="keyword">def</span> <span class="title">selectFeatures</span></span>(</div><div class="line">    data: <span class="type">RDD</span>[(<span class="type">Long</span>, <span class="type">Short</span>)],</div><div class="line">    nToSelect: <span class="type">Int</span>,</div><div class="line">    nFeatures: <span class="type">Int</span>) = &#123;</div><div class="line"> </div><div class="line">  <span class="comment">// 特征的下标</span></div><div class="line">  <span class="keyword">val</span> label = nFeatures - <span class="number">1</span></div><div class="line">  <span class="comment">// 因为data是(编号,每个特征),所以这是数据数量</span></div><div class="line">  <span class="keyword">val</span> nInstances = data.count() / nFeatures</div><div class="line">  <span class="comment">// 将同一类特征放在一起,根据同一key进行分组,然后取出最大值加1(?)</span></div><div class="line">  <span class="keyword">val</span> counterByKey = data.map(&#123; <span class="keyword">case</span> (k, v) =&gt; (k % nFeatures).toInt -&gt; v&#125;)</div><div class="line">        .distinct().groupByKey().mapValues(_.max + <span class="number">1</span>).collectAsMap().toMap</div><div class="line">   </div><div class="line">  <span class="comment">// calculate relevance</span></div><div class="line">  <span class="keyword">val</span> <span class="type">MiAndCmi</span> = <span class="type">IT</span>.computeMI(</div><div class="line">      data, <span class="number">0</span> until label, label, nInstances, nFeatures, counterByKey)</div><div class="line">  <span class="comment">// 互信息池,用于mrmr判定,pool是(feat, Mrmr)</span></div><div class="line">  <span class="keyword">var</span> pool = <span class="type">MiAndCmi</span>.map&#123;<span class="keyword">case</span> (x, mi) =&gt; (x, <span class="keyword">new</span> <span class="type">MrmrCriterion</span>(mi))&#125;</div><div class="line">    .collectAsMap() </div><div class="line">  <span class="comment">// Print most relevant features</span></div><div class="line">  <span class="comment">// Print most relevant features</span></div><div class="line">  <span class="keyword">val</span> strRels = <span class="type">MiAndCmi</span>.collect().sortBy(-_._2)</div><div class="line">    .take(nToSelect)</div><div class="line">    .map(&#123;<span class="keyword">case</span> (f, mi) =&gt; (f + <span class="number">1</span>) + <span class="string">"\t"</span> + <span class="string">"%.4f"</span> format mi&#125;)</div><div class="line">    .mkString(<span class="string">"\n"</span>)</div><div class="line">  println(<span class="string">"\n*** MaxRel features ***\nFeature\tScore\n"</span> + strRels) </div><div class="line">  <span class="comment">// get maximum and select it</span></div><div class="line">  <span class="comment">// 得到了分数最高的那个特征及其mrmr</span></div><div class="line">  <span class="keyword">val</span> firstMax = pool.maxBy(_._2.score)</div><div class="line">  <span class="keyword">var</span> selected = <span class="type">Seq</span>(<span class="type">F</span>(firstMax._1, firstMax._2.score))</div><div class="line">  <span class="comment">// 将firstMax对应的key从pool这个map中去掉</span></div><div class="line">  pool = pool - firstMax._1</div><div class="line"> </div><div class="line">  <span class="keyword">while</span> (selected.size &lt; nToSelect) &#123;</div><div class="line">    <span class="comment">// update pool</span></div><div class="line">    <span class="keyword">val</span> newMiAndCmi = <span class="type">IT</span>.computeMI(data, pool.keys.toSeq,</div><div class="line">        selected.head.feat, nInstances, nFeatures, counterByKey)</div><div class="line">        .map(&#123; <span class="keyword">case</span> (x, crit) =&gt; (x, crit) &#125;)</div><div class="line">        .collectAsMap()</div><div class="line">       </div><div class="line">    pool.foreach(&#123; <span class="keyword">case</span> (k, crit) =&gt;</div><div class="line">      <span class="comment">// 从pool里拿出第k个特征,然后从newMiAndCmi中得到对应的mi</span></div><div class="line">      newMiAndCmi.get(k) <span class="keyword">match</span> &#123;</div><div class="line">        <span class="keyword">case</span> <span class="type">Some</span>(_) =&gt; crit.update(_)</div><div class="line">        <span class="keyword">case</span> <span class="type">None</span> =&gt;</div><div class="line">      &#125;</div><div class="line">    &#125;)</div><div class="line"> </div><div class="line">    <span class="comment">// get maximum and save it</span></div><div class="line">    <span class="keyword">val</span> max = pool.maxBy(_._2.score)</div><div class="line">    <span class="comment">// select the best feature and remove from the whole set of features</span></div><div class="line">    selected = <span class="type">F</span>(max._1, max._2.score) +: selected</div><div class="line">    pool = pool - max._1</div><div class="line">  &#125;   </div><div class="line">  selected.reverse</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>具体计算互信息的代码如下：<br><figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * Method that calculates mutual information (MI) and conditional mutual information (CMI)</div><div class="line"> * simultaneously for several variables. Indexes must be disjoint.</div><div class="line"> *</div><div class="line"> * @param rawData RDD of data (first element is the class attribute)</div><div class="line"> * @param varX Indexes of primary variables (must be disjoint with Y and Z)</div><div class="line"> * @param varY Indexes of secondary variable (must be disjoint with X and Z)</div><div class="line"> * @param nInstances    Number of instances</div><div class="line"> * @param nFeatures Number of features (including output ones)</div><div class="line"> * @return  RDD of (primary var, (MI, CMI))</div><div class="line"> *</div><div class="line"> */</div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">computeMI</span></span>(</div><div class="line">    rawData: <span class="type">RDD</span>[(<span class="type">Long</span>, <span class="type">Short</span>)],</div><div class="line">    varX: <span class="type">Seq</span>[<span class="type">Int</span>],</div><div class="line">    varY: <span class="type">Int</span>,</div><div class="line">    nInstances: <span class="type">Long</span>,     </div><div class="line">    nFeatures: <span class="type">Int</span>,</div><div class="line">    counter: <span class="type">Map</span>[<span class="type">Int</span>, <span class="type">Int</span>]) = &#123;</div><div class="line">   </div><div class="line">  <span class="comment">// Pre-requisites</span></div><div class="line">  require(varX.size &gt; <span class="number">0</span>)</div><div class="line"> </div><div class="line">  <span class="comment">// Broadcast variables</span></div><div class="line">  <span class="keyword">val</span> sc = rawData.context</div><div class="line">  <span class="keyword">val</span> label = nFeatures - <span class="number">1</span></div><div class="line">  <span class="comment">// A boolean vector that indicates the variables involved on this computation</span></div><div class="line">  <span class="comment">// 对应每个数据不同维度的特征的一个boolean数组</span></div><div class="line">  <span class="keyword">val</span> fselected = <span class="type">Array</span>.ofDim[<span class="type">Boolean</span>](nFeatures)</div><div class="line">  fselected(varY) = <span class="literal">true</span> <span class="comment">// output feature</span></div><div class="line">  varX.map(fselected(_) = <span class="literal">true</span>) <span class="comment">// 将fselected置为true</span></div><div class="line">  <span class="keyword">val</span> bFeatSelected = sc.broadcast(fselected)</div><div class="line">  <span class="keyword">val</span> getFeat = (k: <span class="type">Long</span>) =&gt; (k % nFeatures).toInt</div><div class="line">  <span class="comment">// Filter data by these variables</span></div><div class="line">  <span class="comment">// 根据bFeatSelected来过滤rawData</span></div><div class="line">  <span class="keyword">val</span> data = rawData.filter(&#123; <span class="keyword">case</span> (k, _) =&gt; bFeatSelected.value(getFeat(k))&#125;)</div><div class="line">    </div><div class="line">  <span class="comment">// Broadcast Y vector</span></div><div class="line">  <span class="keyword">val</span> yCol: <span class="type">Array</span>[<span class="type">Short</span>] = <span class="keyword">if</span>(varY == label)&#123;</div><div class="line">   <span class="comment">// classCol corresponds with output attribute, which is re-used in the iteration</span></div><div class="line">    classCol = data.filter(&#123; <span class="keyword">case</span> (k, _) =&gt; getFeat(k) == varY&#125;).values.collect()</div><div class="line">    classCol</div><div class="line">  &#125;  <span class="keyword">else</span> &#123;</div><div class="line">    data.filter(&#123; <span class="keyword">case</span> (k, _) =&gt; getFeat(k) == varY&#125;).values.collect()</div><div class="line">  &#125;   </div><div class="line"> </div><div class="line">  <span class="comment">// data是所有选择维度的特征,(varY, yCol)是y所在的列和y值数组</span></div><div class="line">  <span class="comment">// 生成特征与y的对应关系的直方图</span></div><div class="line">  <span class="keyword">val</span> histograms = computeHistograms(data, (varY, yCol), nFeatures, counter)</div><div class="line">  <span class="comment">// 这里只是对数据规约成占比的特征和目标变量的联合分布</span></div><div class="line">  <span class="keyword">val</span> jointTable = histograms.mapValues(_.map(_.toFloat / nInstances))</div><div class="line">  <span class="comment">// sum(h(*, ::))计算每一行数据之和</span></div><div class="line">  <span class="keyword">val</span> marginalTable = jointTable.mapValues(h =&gt; sum(h(*, ::)).toDenseVector)</div><div class="line">     </div><div class="line">  <span class="comment">// If y corresponds with output feature, we save for CMI computation</span></div><div class="line">  <span class="keyword">if</span>(varY == label) &#123;</div><div class="line">    marginalProb = marginalTable.cache()</div><div class="line">    jointProb = jointTable.cache()</div><div class="line">  &#125;</div><div class="line">   </div><div class="line">  <span class="keyword">val</span> yProb = marginalTable.lookup(varY)(<span class="number">0</span>)</div><div class="line">  <span class="comment">// Remove output feature from the computations</span></div><div class="line">  <span class="keyword">val</span> fdata = histograms.filter&#123;<span class="keyword">case</span> (k, _) =&gt; k != label&#125;</div><div class="line">  <span class="comment">// fdata是特征与y的联合分布,yProb是一个值</span></div><div class="line">  computeMutualInfo(fdata, yProb, nInstances)</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>计算数据分布直方图的方法：<br><figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">private</span> <span class="function"><span class="keyword">def</span> <span class="title">computeHistograms</span></span>(</div><div class="line">    data: <span class="type">RDD</span>[(<span class="type">Long</span>, <span class="type">Short</span>)],</div><div class="line">    yCol: (<span class="type">Int</span>, <span class="type">Array</span>[<span class="type">Short</span>]),</div><div class="line">    nFeatures: <span class="type">Long</span>,</div><div class="line">    counter: <span class="type">Map</span>[<span class="type">Int</span>, <span class="type">Int</span>]) = &#123;</div><div class="line">   </div><div class="line">  <span class="keyword">val</span> maxSize = <span class="number">256</span></div><div class="line">  <span class="keyword">val</span> byCol = data.context.broadcast(yCol._2)   </div><div class="line">  <span class="keyword">val</span> bCounter = data.context.broadcast(counter)</div><div class="line">  <span class="comment">// 得到y的最大值</span></div><div class="line">  <span class="keyword">val</span> ys = counter.getOrElse(yCol._1, maxSize).toInt</div><div class="line"> </div><div class="line">  <span class="comment">// mapPartitions是对rdd每个分区进行操作,it为分区迭代器</span></div><div class="line">  <span class="comment">// map得到的是(feature, matrix)的Map</span></div><div class="line">  data.mapPartitions(&#123; it =&gt;</div><div class="line">    <span class="keyword">var</span> result = <span class="type">Map</span>.empty[<span class="type">Int</span>, <span class="type">BDM</span>[<span class="type">Long</span>]]</div><div class="line">    <span class="keyword">for</span>((k, x) &lt;- it) &#123;</div><div class="line">      <span class="keyword">val</span> feat = (k % nFeatures).toInt; <span class="keyword">val</span> inst = (k / nFeatures).toInt</div><div class="line">      <span class="comment">// 取得具体特征的最大值</span></div><div class="line">      <span class="keyword">val</span> xs = bCounter.value.getOrElse(feat, maxSize).toInt</div><div class="line">      <span class="keyword">val</span> m = result.getOrElse(feat, <span class="type">BDM</span>.zeros[<span class="type">Long</span>](xs, ys)) <span class="comment">// 创建(xMax,yMax)的矩阵</span></div><div class="line">      m(x, byCol.value(inst)) += <span class="number">1</span></div><div class="line">      result += feat -&gt; m</div><div class="line">    &#125;</div><div class="line">    result.toIterator</div><div class="line">  &#125;).reduceByKey(_ + _)</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>计算互信息的公式：<br><figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">private</span> <span class="function"><span class="keyword">def</span> <span class="title">computeMutualInfo</span></span>(</div><div class="line">    data: <span class="type">RDD</span>[(<span class="type">Int</span>, <span class="type">BDM</span>[<span class="type">Long</span>])],</div><div class="line">    yProb: <span class="type">BDV</span>[<span class="type">Float</span>],</div><div class="line">    n: <span class="type">Long</span>) = &#123;   </div><div class="line">   </div><div class="line">  <span class="keyword">val</span> byProb = data.context.broadcast(yProb)</div><div class="line">  data.mapValues(&#123; m =&gt;</div><div class="line">    <span class="keyword">var</span> mi = <span class="number">0.0</span>d</div><div class="line">    <span class="comment">// Aggregate by row (x)</span></div><div class="line">    <span class="keyword">val</span> xProb = sum(m(*, ::)).map(_.toFloat / n)</div><div class="line">    <span class="keyword">for</span>(i &lt;- <span class="number">0</span> until m.rows)&#123;</div><div class="line">      <span class="keyword">for</span>(j &lt;- <span class="number">0</span> until m.cols)&#123;</div><div class="line">        <span class="keyword">val</span> pxy = m(i, j).toFloat / n</div><div class="line">        <span class="keyword">val</span> py = byProb.value(j); <span class="keyword">val</span> px = xProb(i)</div><div class="line">        <span class="keyword">if</span>(pxy != <span class="number">0</span> &amp;&amp; px != <span class="number">0</span> &amp;&amp; py != <span class="number">0</span>) <span class="comment">// To avoid NaNs</span></div><div class="line">          <span class="comment">// I(x,y) = sum[p(x,y)log(p(x,y)/(p(x)p(y)))]</span></div><div class="line">          mi += pxy * (math.log(pxy / (px * py)) / math.log(<span class="number">2</span>))</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">    mi       </div><div class="line">  &#125;) </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li>机器学习，周志华</li>
+<li>互信息的理解 <a href="http://www.fuzihao.org/blog/2015/01/17/%E4%BA%92%E4%BF%A1%E6%81%AF%E7%9A%84%E7%90%86%E8%A7%A3/" target="_blank" rel="external">http://www.fuzihao.org/blog/2015/01/17/%E4%BA%92%E4%BF%A1%E6%81%AF%E7%9A%84%E7%90%86%E8%A7%A3/</a></li>
+<li>Feature Selection Based on Mutual Information: Criteria of Max-Dependency, Max-Relevance, and Min-Redundancy</li>
+<li>An improved implementation of the classical feature selection method: minimum Redundancy and Maximum Relevance (mRMR). <a href="https://github.com/sramirez/fast-mRMR" target="_blank" rel="external">https://github.com/sramirez/fast-mRMR</a></li>
+</ul>
+<p><strong>转载请注明作者Jason Ding及其出处</strong><br><a href="http://jasonding.top" target="_blank" rel="external">jasonding.top</a><br><a href="http://blog.jasonding.top/">Github博客主页(http://blog.jasonding.top/)</a><br><a href="http://blog.csdn.net/jasonding1354" target="_blank" rel="external">CSDN博客(http://blog.csdn.net/jasonding1354)</a><br><a href="http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles" target="_blank" rel="external">简书主页(http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles)</a><br><strong>Google搜索jasonding1354进入我的博客主页</strong></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Feature-Engineering/">Feature Engineering</a>
+  </div>
+
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Feature-Engineering/">Feature Engineering</a>
+</div>
+
+
+
+<div class="article-share" id="share">
+
+  
+<div class="jiathis_style">
+    <span class="jiathis_txt">分享到：</span>
+    <a class="jiathis_button_tsina">新浪微博</a>
+    <a class="jiathis_button_weixin">微信</a>
+    <a class="jiathis_button_twitter">Twitter</a>
+    <a class="jiathis_button_evernote">EverNote</a>
+    <a href="http://www.jiathis.com/share?uid=1501277" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript" >
+    var jiathis_config={
+    data_track_clickback:true,
+    sm:"copy,renren,cqq",
+    pic:"",
+    summary:"",
+    
+  </script> 
+<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=
+1394018007141544" charset="utf-8"></script>      
+
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2018/01/01/ScalaList/" title="Spark与Scala学习">
+  <strong>之后的一篇</strong><br/>
+  <span>
+  Spark与Scala学习</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2016/08/08/Developer Kits/使用maven构建scala项目/"  title="使用maven构建scala项目">
+ <strong>之前的一篇</strong><br/> 
+ <span>使用maven构建scala项目
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section class="comment">
+	<div class="ds-thread"></div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+  <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、-特征选择的几个常见问题"><span class="toc-number">1.</span> <span class="toc-text">一、 特征选择的几个常见问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、从决策树模型的特征重要性说起"><span class="toc-number">2.</span> <span class="toc-text">二、从决策树模型的特征重要性说起</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#（1）决策树划分属性的依据"><span class="toc-number">2.1.</span> <span class="toc-text">（1）决策树划分属性的依据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#（2）通过gini不纯度计算特征重要性"><span class="toc-number">2.2.</span> <span class="toc-text">（2）通过gini不纯度计算特征重要性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#（3）mllib中集成学习算法计算特征重要性的源码"><span class="toc-number">2.3.</span> <span class="toc-text">（3）mllib中集成学习算法计算特征重要性的源码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#（4）mllib中决策树算法计算特征不纯度的源码"><span class="toc-number">2.4.</span> <span class="toc-text">（4）mllib中决策树算法计算特征不纯度的源码</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、最大相关最小冗余（mRMR）算法"><span class="toc-number">3.</span> <span class="toc-text">三、最大相关最小冗余（mRMR）算法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#（1）互信息"><span class="toc-number">3.1.</span> <span class="toc-text">（1）互信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#（2）mRMR"><span class="toc-number">3.2.</span> <span class="toc-text">（2）mRMR</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#（3）mRMR的spark实现源码"><span class="toc-number">3.3.</span> <span class="toc-text">（3）mRMR的spark实现源码</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">4.</span> <span class="toc-text">参考资料</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="maps">
+    <p class="asidetitle">访问统计</p>
+    <br>
+    <script type="text/javascript" src="//ra.revolvermaps.com/0/0/6.js?i=0leibswamim&amp;m=0&amp;s=210&amp;c=ff0000&amp;cr1=ffffff&amp;f=arial&amp;l=0" async="async"></script>
+</div>
+
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+			<li><a href="/categories/Algorithm-Problem/" title="Algorithm Problem">Algorithm Problem<sup>1</sup></a></li>
+		
+			<li><a href="/categories/C/" title="C++">C++<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Classic-Algorithm/" title="Classic Algorithm">Classic Algorithm<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Cluster-Analysis/" title="Cluster Analysis">Cluster Analysis<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Design-Pattern/" title="Design Pattern">Design Pattern<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Developer-Kits/" title="Developer Kits">Developer Kits<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Energy-Big-Data/" title="Energy Big Data">Energy Big Data<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Feature-Engineering/" title="Feature Engineering">Feature Engineering<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Functional/" title="Functional">Functional<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Functional-Programming/" title="Functional Programming">Functional Programming<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Git/" title="Git">Git<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Jobs/" title="Jobs">Jobs<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>4</sup></a></li>
+		
+			<li><a href="/categories/ML-Experiments/" title="ML Experiments">ML Experiments<sup>6</sup></a></li>
+		
+			<li><a href="/categories/Machine-Learning/" title="Machine Learning">Machine Learning<sup>50</sup></a></li>
+		
+			<li><a href="/categories/Math/" title="Math">Math<sup>3</sup></a></li>
+		
+			<li><a href="/categories/Programming/" title="Programming">Programming<sup>11</sup></a></li>
+		
+			<li><a href="/categories/Python/" title="Python">Python<sup>10</sup></a></li>
+		
+			<li><a href="/categories/Scala/" title="Scala">Scala<sup>27</sup></a></li>
+		
+			<li><a href="/categories/Scala-ML/" title="Scala-ML">Scala-ML<sup>2</sup></a></li>
+		
+			<li><a href="/categories/Similarity-Search/" title="Similarity Search">Similarity Search<sup>4</sup></a></li>
+		
+			<li><a href="/categories/Small-Problems/" title="Small Problems">Small Problems<sup>1</sup></a></li>
+		
+			<li><a href="/categories/Spark/" title="Spark">Spark<sup>23</sup></a></li>
+		
+			<li><a href="/categories/Thoughts/" title="Thoughts">Thoughts<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/Actor/" style="font-size: 10px;">Actor</a> <a href="/tags/Akka/" style="font-size: 14.55px;">Akka</a> <a href="/tags/Algorithm/" style="font-size: 10px;">Algorithm</a> <a href="/tags/Approximate-Nearest-Neighbor-Search/" style="font-size: 10px;">Approximate Nearest Neighbor Search</a> <a href="/tags/Bayesian-Analysis/" style="font-size: 10.91px;">Bayesian Analysis</a> <a href="/tags/Big-Data/" style="font-size: 10px;">Big Data</a> <a href="/tags/C/" style="font-size: 12.73px;">C++</a> <a href="/tags/Classification/" style="font-size: 11.82px;">Classification</a> <a href="/tags/Cluster-Analysis/" style="font-size: 10px;">Cluster Analysis</a> <a href="/tags/Computer-Vision/" style="font-size: 14.55px;">Computer Vision</a> <a href="/tags/Eclipse/" style="font-size: 10px;">Eclipse</a> <a href="/tags/Energy-Forecasting/" style="font-size: 10px;">Energy Forecasting</a> <a href="/tags/Feature-Engineering/" style="font-size: 11.82px;">Feature Engineering</a> <a href="/tags/Functional-Programming/" style="font-size: 16.36px;">Functional Programming</a> <a href="/tags/Gaussian-Process/" style="font-size: 10px;">Gaussian Process</a> <a href="/tags/Git/" style="font-size: 10.91px;">Git</a> <a href="/tags/GraphLab/" style="font-size: 10px;">GraphLab</a> <a href="/tags/IPython/" style="font-size: 10px;">IPython</a> <a href="/tags/Internet-of-Energy/" style="font-size: 10px;">Internet of Energy</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/Kaggle/" style="font-size: 10px;">Kaggle</a> <a href="/tags/Kernel-Method/" style="font-size: 10px;">Kernel Method</a> <a href="/tags/LSH/" style="font-size: 12.73px;">LSH</a> <a href="/tags/LaTex/" style="font-size: 10px;">LaTex</a> <a href="/tags/Linux/" style="font-size: 11.82px;">Linux</a> <a href="/tags/Machine-Learning/" style="font-size: 20px;">Machine Learning</a> <a href="/tags/Math/" style="font-size: 11.82px;">Math</a> <a href="/tags/Mathematics/" style="font-size: 13.64px;">Mathematics</a> <a href="/tags/Maven/" style="font-size: 10.91px;">Maven</a> <a href="/tags/MeanShift/" style="font-size: 10px;">MeanShift</a> <a href="/tags/Mint/" style="font-size: 10px;">Mint</a> <a href="/tags/OpenCV/" style="font-size: 15.45px;">OpenCV</a> <a href="/tags/Probabilistic-Programming/" style="font-size: 10px;">Probabilistic Programming</a> <a href="/tags/Probability-Distributions/" style="font-size: 10px;">Probability Distributions</a> <a href="/tags/Programming/" style="font-size: 14.55px;">Programming</a> <a href="/tags/Python/" style="font-size: 17.27px;">Python</a> <a href="/tags/Regression/" style="font-size: 11.82px;">Regression</a> <a href="/tags/Resume/" style="font-size: 10px;">Resume</a> <a href="/tags/SVM/" style="font-size: 12.73px;">SVM</a> <a href="/tags/Scala/" style="font-size: 19.09px;">Scala</a> <a href="/tags/Similarity-Search/" style="font-size: 10.91px;">Similarity Search</a> <a href="/tags/Source-code/" style="font-size: 10px;">Source code</a> <a href="/tags/Spark/" style="font-size: 18.18px;">Spark</a> <a href="/tags/Summary/" style="font-size: 10px;">Summary</a> <a href="/tags/Thoughts/" style="font-size: 10.91px;">Thoughts</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/Vim/" style="font-size: 11.82px;">Vim</a> <a href="/tags/Written-Test/" style="font-size: 10px;">Written Test</a> <a href="/tags/Zeppelin/" style="font-size: 10px;">Zeppelin</a> <a href="/tags/boost/" style="font-size: 10px;">boost</a> <a href="/tags/cpp/" style="font-size: 13.64px;">cpp</a> <a href="/tags/opencv/" style="font-size: 10.91px;">opencv</a> <a href="/tags/p-Stable-LSH/" style="font-size: 10px;">p-Stable LSH</a> <a href="/tags/scikit-learn/" style="font-size: 10px;">scikit-learn</a> <a href="/tags/sklearn/" style="font-size: 10.91px;">sklearn</a> <a href="/tags/互联网时代/" style="font-size: 10px;">互联网时代</a> <a href="/tags/位置敏感哈希/" style="font-size: 10.91px;">位置敏感哈希</a> <a href="/tags/分治/" style="font-size: 10px;">分治</a> <a href="/tags/单元测试/" style="font-size: 10px;">单元测试</a> <a href="/tags/反思/" style="font-size: 10px;">反思</a> <a href="/tags/效率/" style="font-size: 10px;">效率</a> <a href="/tags/核方法/" style="font-size: 10px;">核方法</a> <a href="/tags/算法框架/" style="font-size: 10px;">算法框架</a> <a href="/tags/设计模式/" style="font-size: 11.82px;">设计模式</a>
+    </div>
+  </div>
+
+
+  
+  <div class="archiveslist">
+    <p class="asidetitle"><a href="/archives">归档</a></p>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">August 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">February 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">January 2016</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">November 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">October 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">29</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">May 2015</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/04/">April 2015</a><span class="archive-list-count">16</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a><span class="archive-list-count">13</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/09/">September 2014</a><span class="archive-list-count">10</span></li></ul>
+  </div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Jason Ding in HUST <br/>
+			I would share moments of life here! </p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/1698420390" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/jasonding1354" target="_blank" title="github"></a>
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/A-limon/pacman" target="_blank" title="Pacman">Pacman</a> © 2017 
+		
+		<a href="http://blog.jasonding.top" target="_blank" title="Jason Ding">Jason Ding</a>
+		
+		</p>
+		<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+  
+  _st('install','uYyEuxJdzzAGXTax33mt','2.0.0');
+</script>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else
+    {
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  if(ah.length==0){
+    t.css('display','none');
+  }else{
+    c.click(function(){
+      ta.css('display', 'block').addClass('fadeIn');
+    });
+    o.click(function(){
+      ta.css('display', 'none');
+    });
+    $(window).scroll(function(){
+      ta.css("top",Math.max(140,320-$(this).scrollTop()));
+    });
+  };
+});
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"jasonding"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+  </body>
+</html>
