@@ -4,9 +4,9 @@
   
   <link href="/atom.xml" rel="self"/>
   
-  <link href="http://yoursite.com/"/>
+  <link href="http://jasonding.top/"/>
   <updated>2017-07-05T19:49:30.000Z</updated>
-  <id>http://yoursite.com/</id>
+  <id>http://jasonding.top/</id>
   
   <author>
     <name>Jason Ding</name>
@@ -17,8 +17,8 @@
   
   <entry>
     <title>你好，世界</title>
-    <link href="http://yoursite.com/2017/07/06/hello-world/"/>
-    <id>http://yoursite.com/2017/07/06/hello-world/</id>
+    <link href="http://jasonding.top/2017/07/06/hello-world/"/>
+    <id>http://jasonding.top/2017/07/06/hello-world/</id>
     <published>2017-07-05T19:31:37.000Z</published>
     <updated>2017-07-05T19:49:30.000Z</updated>
     
