@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   
-  <title>Archives | Jason Ding的博客</title>
+  <title>喂！回到现实，从虚无的幻想中醒醒 | Jason Ding的博客</title>
   <meta name="description" content="null" />
   <meta name="keywords" content="" />
   <meta name="HandheldFriendly" content="True" />
@@ -12,12 +12,17 @@
   <link rel="shortcut icon" href="/">
   <link rel="alternate" href="/atom.xml" title="Jason Ding的博客">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Jason Ding的博客">
-<meta property="og:url" content="http://jasonding.top/archives/index.html">
+  <meta name="description" content="function doDecrypt(pwd, onError) { 	console.log(&quot;in doDecrypt&quot;); 	var txt = document.getElementById(&quot;enc_content&quot;).innerHTML; 	var plantext; 	try { 	  	var bytes = CryptoJS.AES.decrypt(txt, pwd); 		p">
+<meta name="keywords" content="personal">
+<meta property="og:type" content="article">
+<meta property="og:title" content="喂！回到现实，从虚无的幻想中醒醒">
+<meta property="og:url" content="http://jasonding.top/2018/01/06/personal/喂！回到现实，从虚无的幻想中醒醒/index.html">
 <meta property="og:site_name" content="Jason Ding的博客">
+<meta property="og:description" content="function doDecrypt(pwd, onError) { 	console.log(&quot;in doDecrypt&quot;); 	var txt = document.getElementById(&quot;enc_content&quot;).innerHTML; 	var plantext; 	try { 	  	var bytes = CryptoJS.AES.decrypt(txt, pwd); 		p">
+<meta property="og:updated_time" content="2018-01-06T03:50:07.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Jason Ding的博客">
+<meta name="twitter:title" content="喂！回到现实，从虚无的幻想中醒醒">
+<meta name="twitter:description" content="function doDecrypt(pwd, onError) { 	console.log(&quot;in doDecrypt&quot;); 	var txt = document.getElementById(&quot;enc_content&quot;).innerHTML; 	var plantext; 	try { 	  	var bytes = CryptoJS.AES.decrypt(txt, pwd); 		p">
     
   <link href="https://fonts.googleapis.com/css?family=Inconsolata|Titillium+Web" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet">
@@ -118,35 +123,62 @@
   <div class="l_body">
     <div class='container clearfix'>
       <div class='l_main'>
-        
-  <article id="archive-page" class="post article white-box">
-    <section class='meta'>
-      <h2 class="title">
-        <a href="javascript:void(0)">
-          Archives
-        </a>
-      </h2>
-    </section>
-    <section class="archive">
+        <article id="post-personal/喂！回到现实，从虚无的幻想中醒醒"
+  class="post white-box article-type-post"
+  itemscope itemprop="blogPost">
+	<section class='meta'>
+	<h2 class="title">
+  	<a href="/2018/01/06/personal/喂！回到现实，从虚无的幻想中醒醒/">
+    	喂！回到现实，从虚无的幻想中醒醒
+    </a>
+  </h2>
+	<time>
+	  Jan 6, 2018
+	</time>
+	
+	</section>
+	
+		<section class="toc-wrapper"></section>
+	
+	<section class="article typo">
+  	<div class="article-entry" itemprop="articleBody">
+    	<script src=/js/crypto-js.js></script><script>
+function doDecrypt(pwd, onError) {
+	console.log("in doDecrypt");
+	var txt = document.getElementById("enc_content").innerHTML;
+	var plantext;
+	try {
+	  	var bytes = CryptoJS.AES.decrypt(txt, pwd);
+		plaintext = bytes.toString(CryptoJS.enc.Utf8);
+	} catch(err) {
+		if(onError) {onError(err);}
+		return;
+	}
+	document.getElementById("enc_content").innerHTML = plaintext;
+	document.getElementById("enc_content").style.display = "block";
+   document.getElementById("enc_passwd").style.display = "none";
+}
+</script>
+<div id="enc_content" style="display:none">U2FsdGVkX1+0furYcQ4A8LLer81WqhBdYFd6aQpHwbApcaAttK0WZGvBarQh0WBp4qP7lrQt61sJe46y9wENlb1IAtF+S7thfkdR5P0hhM1P41amjKmTKLRMgz3YPkBih7RtWIoN5eaLoUfubz23k0xhA7sRNBAhPoRboYZ1N++NBEkmKzLvXN+UC2CtkZm2mS9kUfpqjRqFj1R1rtBgvS/VwK25u4cfTsSHRnkaNHMeSWnMFsotlAZY7a3U53jpwVoWb2l75TjOR4Uq/vvuuXDNkW36iRkiDODExlAC+kHu0vyXQAFamSDSDO/FSvGqLzS/h3nY87HFNHkEvQKriHmmtdfA7bS+O+l71ltPobLIJaHvwui4mW8YQZ4FzdrL</div><div id="enc_passwd"><input type="text" style=" border-radius: 5px; border-style: groove; height: 30px; width: 50%; cursor: auto; font-size: 102%; color: currentColor; outline: none; text-overflow: initial; padding-left: 5px;">   <input type="submit" value="decrypt" onclick="decrypt()" style=" width: 58px; height: 34px; border-radius: 5px; background-color: white; border-style: solid; color: currentColor; ">  <div id="enc_error" style=" display: inline-block; color: #d84527; font: large; "></div> <script>  var onError = function(error) {  $("#enc_error")[0].innerHTML = "password error!";  };  function decrypt() {  var passwd = $("#enc_passwd input")[0].value;  console.log(passwd);  doDecrypt(passwd, onError);  }  </script></div>
+  	</div>
+	  
+	  <div class="article-tags tags">
       
-            <div class="archive-item archive-year mark">
-              <a id="archive-year-2018" href='/archives/2018/' >
-                2018
-              </a>
-            </div>
+        <a href="/tags/personal/">personal</a>
       
-          <div class="archive-item archive-post mark">
-            <a href="/2018/01/06/personal/喂！回到现实，从虚无的幻想中醒醒/">
-              <time>01-06</time>
-              <span class="title"><span>喂！回到现实，从虚无的幻想中醒醒</span></span>
-            </a>
-          </div>
-      
-    </section>
-  </article>
-  <!--
-  
-    -->
+	  </div>
+    
+		
+	
+	</section>
+	
+</article>
+<script>
+	window.subData = {
+		title: '喂！回到现实，从虚无的幻想中醒醒',
+		tools: true
+	}
+</script>
 
       </div>
       <aside class='l_side'>
