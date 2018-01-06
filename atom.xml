@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://jasonding.top/"/>
-  <updated>2018-01-06T01:58:56.000Z</updated>
+  <updated>2018-01-06T02:08:03.000Z</updated>
   <id>http://jasonding.top/</id>
   
   <author>
@@ -19,10 +19,10 @@
     <title>test</title>
     <link href="http://jasonding.top/2018/01/06/test/"/>
     <id>http://jasonding.top/2018/01/06/test/</id>
-    <published>2018-01-06T01:58:56.000Z</published>
-    <updated>2018-01-06T01:58:56.000Z</updated>
+    <published>2018-01-06T02:08:03.000Z</published>
+    <updated>2018-01-06T02:08:03.000Z</updated>
     
-    <content type="html"><![CDATA[<script>
+    <content type="html"><![CDATA[<h2 id="for-test1"><a href="#for-test1" class="headerlink" title="for test1"></a>for test1</h2><script>
     if("1234"==prompt("Please input password"))
     {
         alert("Right");
@@ -38,15 +38,8 @@
     
     <summary type="html">
     
-      &lt;script&gt;
-    if(&quot;1234&quot;==prompt(&quot;Please input password&quot;))
-    {
-        alert(&quot;Right&quot;);
-    }
-    else
-    {
-        alert(&quot;Wrong&quot;);
-        
+      &lt;h2 id=&quot;for-test1&quot;&gt;&lt;a href=&quot;#for-test1&quot; class=&quot;headerlink&quot; title=&quot;for test1&quot;&gt;&lt;/a&gt;for test1&lt;/h2&gt;&lt;script&gt;
+    if(&quot;1234&quot;==prompt(&quot;Please input 
     
     </summary>
     
