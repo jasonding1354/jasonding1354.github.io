@@ -1,105 +1,393 @@
+<!DOCTYPE html>
 
 
-<!DOCTYPE HTML>
-<html>
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
 <head>
-  <meta charset="utf-8">
-  <script type="text/javascript" src="http://tajs.qq.com/stats?sId=" charset="UTF-8"></script>
-  <script>
-	var _hmt = _hmt || [];
-	(function() {
-	  var hm = document.createElement("script");
-	  hm.src = "//hm.baidu.com/hm.js?";
-	  var s = document.getElementsByTagName("script")[0]; 
-	  s.parentNode.insertBefore(hm, s);
-	})();
-	</script>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.2.0" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.2.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.2.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.2.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.2.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.2.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
   
+
+
+
+
+  <meta name="description" content="function doDecrypt(pwd, onError) { 	console.log(&quot;in doDecrypt&quot;); 	var txt = document.getElementById(&quot;enc_content&quot;).innerHTML; 	var plantext; 	try { 	  	var bytes = CryptoJS.AES.decrypt(txt, pwd); 		p">
+<meta property="og:type" content="article">
+<meta property="og:title" content="喂！回到现实，从虚无的幻想中醒醒">
+<meta property="og:url" content="http://jasonding.top/2018/01/06/personal/喂！回到现实，从虚无的幻想中醒醒/index.html">
+<meta property="og:site_name" content="Jason Ding的博客">
+<meta property="og:description" content="function doDecrypt(pwd, onError) { 	console.log(&quot;in doDecrypt&quot;); 	var txt = document.getElementById(&quot;enc_content&quot;).innerHTML; 	var plantext; 	try { 	  	var bytes = CryptoJS.AES.decrypt(txt, pwd); 		p">
+<meta property="og:updated_time" content="2018-01-16T02:06:01.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="喂！回到现实，从虚无的幻想中醒醒">
+<meta name="twitter:description" content="function doDecrypt(pwd, onError) { 	console.log(&quot;in doDecrypt&quot;); 	var txt = document.getElementById(&quot;enc_content&quot;).innerHTML; 	var plantext; 	try { 	  	var bytes = CryptoJS.AES.decrypt(txt, pwd); 		p">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Jason Ding的博客" type="application/atom+xml" />
+
+
+
+
+  <link rel="canonical" href="http://jasonding.top/2018/01/06/personal/喂！回到现实，从虚无的幻想中醒醒/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
   <title>喂！回到现实，从虚无的幻想中醒醒 | Jason Ding的博客</title>
-  <meta name="author" content="Jason Ding">
-  
-  <meta name="description" content="function doDecrypt(pwd, onError) {
-	console.log(&quot;in doDecrypt&quot;);
-	var txt = document.getElementById(&quot;enc_content&quot;).innerHTML;
-	var plantext;
-	try {
-	 ">
-  
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-
-  <meta property="og:title" content="喂！回到现实，从虚无的幻想中醒醒"/>
-  <meta property="og:site_name" content="Jason Ding的博客"/>
-
-  
-    <meta property="og:image" content="undefined"/>
   
 
-  <link href="/imgs/favicon.ico" rel="icon" type="image/x-ico">
-  <link rel="alternate" href="/atom.xml" title="Jason Ding的博客" type="application/atom+xml">
-  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
-  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
-  <script src="//libs.baidu.com/jquery/1.8.0/jquery.min.js"></script>
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
 </head>
 
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
 
-<body>
-  <header><div>
-		
-			<div id="imglogo">
-				<a href="/"><img src="/imgs/logo.png" alt="Jason Ding的博客" title="Jason Ding的博客"/></a>
-			</div>
-			
-			<div id="textlogo">
-				<h1 class="site-name">Jason Ding的博客</h1>
-				<h2 class="blog-motto"></h2>
-			</div>
-			<nav class="animated">
-				<ul>
-					
-						<li><a href="/">Home</a></li>
-					
-						<li><a href="/archives">Archives</a></li>
-					
-						<li><a href="/about">About</a></li>
-					
-					<li> <a href="/atom.xml">RSS</a> </li>
-				</ul>
-			</nav>			
-</div>
-</header>
-  <div id="content" class="inner">
-    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
   
-    <div class="gallery">
-  <div class="photoset">
+  
     
-      <img src="">
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
     
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Jason Ding的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
   </div>
-  <div class="control">
-    <div class="prev"></div>
-    <div class="next"></div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
   </div>
 </div>
+
+
+
+
+<nav class="site-nav">
   
-  <div class="post-content">
-    <header class="article-info clearfix">
-  <h1 itemprop="name">
-	喂！回到现实，从虚无的幻想中醒醒
-  </h1>
-  <p class="article-author">By
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档</a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
     
-      <a href="http://jasonding.top" title="Jason Ding">Jason Ding</a>
-    </p>
-  <p class="article-time">
-    <time datetime="2018-01-06T03:50:07.000Z" itemprop="datePublished">2018-01-06</time>
-    更新日期:<time datetime="2018-01-16T02:06:01.000Z" itemprop="dateModified">2018-01-16</time>
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
     
-  </p>
-</header>
-    <div class="entry">
-		
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://jasonding.top/2018/01/06/personal/喂！回到现实，从虚无的幻想中醒醒/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jason Ding">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/lark.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jason Ding的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">喂！回到现实，从虚无的幻想中醒醒
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-01-06 11:50:07" itemprop="dateCreated datePublished" datetime="2018-01-06T11:50:07+08:00">2018-01-06</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-01-16 10:06:01" itemprop="dateModified" datetime="2018-01-16T10:06:01+08:00">2018-01-16</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/personal/" itemprop="url" rel="index"><span itemprop="name">personal</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
         <script src=/js/crypto-js.js></script><script>
 function doDecrypt(pwd, onError) {
 	console.log("in doDecrypt");
@@ -117,189 +405,379 @@ function doDecrypt(pwd, onError) {
    document.getElementById("enc_passwd").style.display = "none";
 }
 </script>
-<div id="enc_content" style="display:none">U2FsdGVkX18zzCo5kMGeSY+iuC9MJXs3SaThsA1dfu9fWA8GhPMAYyvC8mvpxGbW8DP+oCFlySK1LoIiPlCAwZCjC5m6VqU2BTHQAp6KmcO1gLWDnWyJuA9i2akPNGqDIrkxMWkrbhmjTN96lPEYm4tzEiBtt3dmS57vW8zifwQo/RnSBU5C5unvwymFNi7saavVbYS/7xmInpYFgeOYbaGuZChgoXxHrt+xAMmvcoJ3z5J63rJwE5CstzZ2An7tgIZSrgZncGBu8EBY8wvHN2jDuxybpLVy0Meocz6nv6FGr1tfm1Eu9X2i5PMgF7iS5mnqDYtctcVL+cEfaFzr8eeWPwdtQwiaW0M0RzdyJSH69uuUuyKXFHr+FXvQjVL79IBbud3O0mS0Dlkk3lWVBR/eX41/IuJr685QKvcBTLxDGFT78X8WSNmiIf5YUnmfbARhDlmZenxKWCBpeikeoOENsW1SXVqm7btHduw+YC5/Wj3bji4boXoCUfQuNU8fx2/xphhQXzY4EBvICKsmkBapvnSnloclhDf9dOPq6Hr7f4i4fwiNL2zc5nyO/Vi+3+tOELhN3N0A8xiczluJ9vZusmMhORhHtGQNqujXjtyveq4aHSrsBkSYA+QXY08FxZuA7AWNWyIyM9wtRt5c9Pxlt9RJmQyxdliT4ImJe2Unx2p1SBvng2m9eTByY5841eT8+T9oS1OEolTr5YkCLuQ4QyjcV2xqZcPbtMsznuqMS0P7j/1hudUHrDaLKXDJq+TRB6RK7doXFLsWvWKTJmBG4kMPezdP1pDQpFfKv0U0mRTwEYPiDTbVcoMGry+/pBaAuUPfGZAV66iI9rNjMqNXurAzKMXLOyL6lt8D/h9tRTU6B+KA5vbZ9nZ/frMu/ROEJryRfDU74FpdbtdaWa/Oo6d8g0oTJsz0RjE/O4xbOD0X6EOQ+CWwtVyAI71YvTJOboY6ldfYBH+TDqhjn5x2EAL6yWqajYB7yX8DvyExhS2Epu1HssEUeUG24JnFqq+12E5YdTQMa1VHQJja1Bt23qvCLLfAj2olMDtrvDBuXMU+TZGbUAFVnLcACUKzDOSeMsMzxVzmfo7mF5sZjCCNRVvv9L2lAjPIr29/A3+Zd+8OFwSx8mBDLzobPgyyB+VW+GRYoFRWn7rZQQtS2kIyU5HK1SG4ln2xxL0VuwnVpArbCC3mn8+PIa3knlvFT5y3PXe1XAk68oYfJBdu9Tnm3cSk0juH3tDBDyKCYOWbCqauqSiyH7fo9LIUlmKFWzm1ZCVGazpb1HqTpDwwIrdChmYRDFrD95MVI55s+bo5mN5uHp2o8dKeAutWc/PBhbEpWNS6mGocm8mYD5D6L9RnTMqwUPVdKsIkEn3g2hZX91H9q2siuXMfJUCZlYfAFqgUldqZ+lO6H0xDRM2eO9RH5r9wziT8XpJnFWlNiI51AhE6yJiigRgD0rQ2OzAtuBFpVNprofyaTTxqVKpXw7/2yEvidah4QyMMG3iMEiAAZIc8pc4jbaTwXAAmzFBacXKdYLeT01dPKeKuN1Jv9/MexGLhOojPS3765bwzLbmmmmyJg01hG4meaCFv+iRJ8mhJUkA3MqVbWV5kQKR6oEtC93sFfquNbK5jKuyUPXFSIGx7qKxKv0CN1VtGLhAzA+mC2PcHcWYppqjeFlFexjdbBfauLuUJdqz095OXmxj9hUG3sDTSpu/+NkOGso22bQkgdkTF8XujTZsxacsG+kimMlhOtOzr6X8aCPjc41WKqv0qp7tDC8AhFHe9eteggZ+24f8RD74x0Ej1tsJpayDtuJYT20AWqMNCBb81z9DDZ46gDoF/vPEAICxSXVfRxZyHCFptpuIsl6ASaGxuXZyNtX0SOrJ7KqazoXM+AM6xk/aELKBwDbgPQBrt8skLtsca/yrhxsk8qJrMZgnD5o6Ss4hzm839UcSWczR2hAkOI15bPzq5TvzJebf8VCbFyXi1kZPMYeT0ZtJzxd0qSDqJ1tA6qJ4vao+caxwra+hypabYng5mkASAOZJ55Wv+4zslJy79g3MIDvAIXNUylKGzJQF45ffwbepxKRp6Xg7cQsiAF8TI2Nz4GV7XLrhw0/mXnU9/Js8GeaW+CE+r9uDKZzPMC75ForK9OjM7lAC8cm2yJTHrAWq93wjEbvodISrcUpQMg0ij+HcHnTm5yTnoMWTzCBH/tD0XCjOrOvEpGXXZKLFuzBWiN+tDAxU2jiT3B+AEGeUodxsS27YS/I5btiX7ysd4FVvco9Ixil5Z845eupHnsSeGMNma+08ioKOHHn4RoY5CxytKnZ5/0WnTzRuP/7F7cuOWV5UhJJYioA9YEqyXCJrDIRgx9/Pwp9sbjEN9uHrhodGpxobgVzGIgSQjbIir7wk6w7Ll7vfBYK3G97wKkRql8Nuz08tytpBFt+KjNxsI3Wo/6/2FBUkvuSn22he0VVhXgAhoyLm6iuQ4GeBgvaAJ46TzUDvDDnQMNIZ3QXUjmTJKfNExxGVCwOEQ87dXEJNhkW+/xCMgGw+MARXUXzUFyDU7ra3MX/HKfoSE9x0kG7Tm5kROoUPagTIEjFqaP7L/rNHoYOMdLGCjKQfLB0gOI1LhhgDDKSwWLQ2wHS3ie7mCfAIkhc9S5lNwMfwDnYQi8J+3yz4n2LthhbraYrHOPWEgzi+HPXwbNq974rgpCBwW0/JZNNKEb8omoJKLlLgdpiThsRKb2N9S3WlmiyHrhGmG19B0w66ixYq7bKFDI3do7EZ3JwVm+ihDCzH2+GmDAkbfLWLM9jayo/EEmJ4OT41/7ecaBpAJHchx0UE4G9GGcRnY2+5yRwEEVH1p0ID+nrfiW59tB4tEmQvj03Hk1axdbprluaPFiv0JoTjmSqqtgFmL+TktiZvw6xYQn8p/UAwgvsLmtu9ui4fny061lRYqhJig9yrtl0UfnhF8bmlwhiu0K/mSy2lKl/61pWK5tMs2XTzVIsPpRWygwTXm03BL85emScrSmB91YmYAfBW0mOPRw8yEIJC6u7mOyosQUk/f3a8tLZMd9vbIxmUsHphtC3Rihkg6HwAe7pkwjjL97GZSKfJ2gD/UJtl6mVvXhRPN4Nfna9roRlC/gAFCG/vQCO4MrN0D3Xuj5mvkkdoK0RodsSlbRH9jB14SAcaWXwWEF8ccJf6J3j+o3uyelCOrIJsxdqXGbE70aLnhYV+oXuuWliV6iGuoJ2MUSSPoIgRy7/9AeLcsLyx5ypxMlvADD4SAbD+pX2J+QZbZe0DhL/VBSLy7qXtVi9z9LWM7c13ceyRCa7v1m3EbxECl3KbGHGaHMLc9Moj4nKEh7k2sUpDkS5P/ynvDsu9g9syc66NWqfu6oWxeqb6Pr/477Uw8zpMCA67XLJbhmaalnf1NOGHwDOs5rJMsweRtSfJ8Del2bLYOuG1RjxmcOXn0Pt/rC+eDPI531Ko2KRwNvwGmP82p4w7G8ZawT4tcSCpKxykkyTTe0ohHGUevXAM55p7/qI+ewOnZxrl2gCmft324u1cQQNa+zhcAcFRr6e1IVxkr55J4eWjunvwFLngoYwuzUvK5ME/Za7vKbBl54szdvaTmR2/4bfBKbnUZKO1naTlSCg0+IjjrlHPlr9wNAlI0ygmNl7AT9wsCbpovPCQAHmAxJ82M4usitB0oM6fSKyoAarKHKB6rZn3eLx995NyhHBeqYFcGMoyNfywscwSzyBoxuj+EaOV8nPG7rpzikhSsfab5rRe1vVvwDa/Du7q7HGuUBu02pQat6DLrm6yySpxUcd6e6qRZWKEhzAWsq9hHR0AzDczbEFs1XoWnx1fj8rOOa39j+ulfrymHUCNm/DW/Sdu8lwUDnc/BEMY4WEr0bG9HWOuoaKfgYz603wTU9+eGj87zkRTPsxWAa6MY4hTIBPYGE4OnekGbfNdc+rc7M1NJAGaS2xgW8xenC09aHQy4VY9Nv6WlivZQwrO8FhXH5PQQzdjQVJ6Eb2t8+TomcspBBYNkGxE0XAbBFM+jYV0+xUIXJrpJFUYVaRj12v/oaR1peuL/0CXZ2l4aNmes0juuJSuatWdTxU6JN9KyykUEEAIUYwkVMC0Ku2SprPMJnv2vGfL3lAuzoyV2uellZOHe4yDHxEDAu+5nKGPWvnSt7X97Q6yoMlkd/xjqRYztKaO7sR7bYp4ML5z7+YfrXRBbu1PFt8gGwrdQ3/6JFkA5fCbRiYdZlHtRwlH7/toRKPVWtGSeJQAuKA3LSVDIGJn3/v6md9BhNFEZX0tobUa6Ukih+arPPEz3iK3pf7Xd54m/QTtWb7ZZTULNLhsd+IzAgTYJrE37pJ7FHDCD2nHvnGBvqyDqxPqLdLWHXwkiCg==</div><div id="enc_passwd"><input type="text" style=" border-radius: 5px; border-style: groove; height: 30px; width: 50%; cursor: auto; font-size: 102%; color: currentColor; outline: none; text-overflow: initial; padding-left: 5px;">   <input type="submit" value="解密" onclick="decrypt()" style=" width: 58px; height: 34px; border-radius: 5px; background-color: white; border-style: solid; color: currentColor; ">  <div id="enc_error" style=" display: inline-block; color: #d84527; font: large; "></div> <script>  var onError = function(error) {  $("#enc_error")[0].innerHTML = "password error!";  };  function decrypt() {  var passwd = $("#enc_passwd input")[0].value;  console.log(passwd);  doDecrypt(passwd, onError);  }  </script></div>
+<div id="enc_content" style="display:none">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</div><div id="enc_passwd"><input type="text" style=" border-radius: 5px; border-style: groove; height: 30px; width: 50%; cursor: auto; font-size: 102%; color: currentColor; outline: none; text-overflow: initial; padding-left: 5px;">   <input type="submit" value="解密" onclick="decrypt()" style=" width: 58px; height: 34px; border-radius: 5px; background-color: white; border-style: solid; color: currentColor; ">  <div id="enc_error" style=" display: inline-block; color: #d84527; font: large; "></div> <script>  var onError = function(error) {  $("#enc_error")[0].innerHTML = "password error!";  };  function decrypt() {  var passwd = $("#enc_passwd input")[0].value;  console.log(passwd);  doDecrypt(passwd, onError);  }  </script></div>
+      
     </div>
-    <footer>
-        
-  
-  <div class="categories">
-    <a href="/categories/personal/">personal</a>
-  </div>
 
-        
-		<div class="bdsharebuttonbox">
-	<a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a>
-	<a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
-	<a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a>
-	<a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a>
-	<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a>
-	<a href="#" class="bds_fbook" data-cmd="fbook" title="分享到Facebook"></a>
-	<a href="#" class="bds_twi" data-cmd="twi" title="分享到Twitter"></a>
-	<a href="#" class="bds_more" data-cmd="more"></a>
-	<a href="#" class="bds_count" data-cmd="count"></a>
-</div>
-<script>
-window._bd_share_config=
-{
-	"common":{
-		"bdSnsKey":{},
-		"bdText":"",
-		"bdMini":"2",
-		"bdMiniList":false,
-		"bdPic":"",
-		"bdStyle":"0",
-		"bdSize":"24"
-	},
-	"share":{},
-	"image":{
-		"viewList":["qzone","tsina","tqq","renren","weixin","fbook","twi"],
-		"viewText":"分享到：",
-		"viewSize":"24"
-	},
-	"selectShare":{
-		"bdContainerClass":null,
-		"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin","fbook","twi"]
-	}
-};
-with(document)0[
-	(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)
-];
-</script>    
-        <div class="clearfix"></div>
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/01/07/finance/2018投资学习记录（一）/" rel="prev" title="2018投资学习记录（一）">
+                2018投资学习记录（一） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
     </footer>
   </div>
-</article>
-
- <nav id="pagination" >
-    
-    <a href="/2018/01/07/finance/2018投资学习记录（一）/" class="alignleft prev" title="2018投资学习记录（一）">2018投资学习记录（一）</a>
-    
-    
-    <div class="clearfix"></div>
-</nav>
+  
+  
+  
+  </article>
 
 
-</div></div>
-    <aside id="sidebar" class="alignright">
-  <div class="search">
-  <form action="//google.com/search" method="get" accept-charset="utf-8">
-    <input type="search" name="q" results="0" placeholder="搜索">
-    <input type="hidden" name="q" value="site:jasonding.top">
-  </form>
-</div>
 
-  
-<div class="widget tag">
-  <h3 class="title">分类</h3>
-  <ul class="entry">
-  
-    <li><a href="/categories/book/">book</a><small>1</small></li>
-  
-    <li><a href="/categories/machine-learning/">machine learning</a><small>1</small></li>
-  
-    <li><a href="/categories/personal/">personal</a><small>5</small></li>
-  
-    <li><a href="/categories/tech/">tech</a><small>0</small></li>
-  
-    <li><a href="/categories/分布式机器学习/">分布式机器学习</a><small>0</small></li>
-  
-  </ul>
-</div>
-
-
-  
-<div class="widget tagcloud">
-  <h3 class="title">标签云</h3>
-  <div class="entry">
-    <a href="/tags/feature-engineering/" style="font-size: 10px;">feature engineering</a> <a href="/tags/finance/" style="font-size: 20px;">finance</a>
+    <div class="post-spread">
+      
+    </div>
   </div>
-</div>
 
-</aside>
-    <div class="clearfix"></div>
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
   </div>
-  <footer id="footer"><div id="footer" >
-	
-	
-	<section class="info">
-		<p> Hi,I&#39;m the designer of this theme. <br/>
-			You can download this theme on my github.</p>
-	</section>
-	 
-	<div class="social-font clearfix">
-		
-		<a href="http://weibo.com/1923610190" target="_blank" title="weibo"></a>
-		
-		
-		
-		<a href="https://github.com/huangjunhui" target="_blank" title="github"></a>
-		
-		
-		<a href="https://www.facebook.com/huangjunhui" target="_blank" title="facebook"></a>
-		
-		
-		
-		<a href="mailto:jhhuang1993@foxmail.com" target="_blank" class="icon-email" title="Email Me"></a>
-		
-	</div>
-		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/huangjunhui/concise" target="_blank" title="Concise">Concise</a> © 2018 
-		
-		<a href="http://jasonding.top/about" target="_blank" title="Jason Ding">Jason Ding</a>
-		
-		</p>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/lark.jpg"
+                alt="Jason Ding" />
+            
+              <p class="site-author-name" itemprop="name">Jason Ding</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">7</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">分类</span>
+                  
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-name">标签</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jason Ding</span>
+
+  
+
+  
 </div>
-</footer>
-  <script src="//libs.baidu.com/jquery/2.0.3/jquery.min.js"></script>
-<script src="/js/jquery.imagesloaded.min.js"></script>
-<script src="/js/gallery.js"></script>
-<script src="/js/counter.js"></script>
 
 
 
 
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
-<script src="/fancybox/jquery.fancybox.pack.js"></script>
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动 v3.3.7</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/theme-next/hexo-theme-next">NexT.Mist</a> v6.2.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
 <script type="text/javascript">
-(function($){
-  $('.fancybox').fancybox();
-})(jQuery);
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
 </script>
 
-<div id="totop" style="position:fixed;bottom:100px;right:10px;cursor: pointer;">
-<a title="返回顶部"><img src="/imgs/scrollup.png"/></a>
-</div>
-<script src="/js/totop.js"></script>
-<!-- mathjax config similar to math.stackexchange -->
 
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    tex2jax: {
-      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
-      processEscapes: true
-    }
-  });
-</script>
 
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-      tex2jax: {
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-      }
-    });
-</script>
 
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Queue(function() {
-        var all = MathJax.Hub.getAllJax(), i;
-        for(i=0; i < all.length; i += 1) {
-            all[i].SourceElement().parentNode.className += ' has-jax';
-        }
-    });
-</script>
 
-<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.2.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.2.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.2.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.2.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.2.0"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
 </body>
 </html>
-
-
