@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   
-  <title>我的投资计划与学习总结（一） | Jason Ding的博客</title>
+  <title>使用RFM模型进行客户细分 | Jason Ding的博客</title>
   <meta name="description" content="null" />
   <meta name="keywords" content="" />
   <meta name="HandheldFriendly" content="True" />
@@ -12,16 +12,19 @@
   <link rel="shortcut icon" href="/">
   <link rel="alternate" href="/atom.xml" title="Jason Ding的博客">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="topic 1topic 2">
+  <meta name="description" content="一、背景二、介绍 三、启发参考资料如何了解用户分层做到精细化运营？谈谈RFM模型的实际应用老客户召回策略——RFM模型及应用">
+<meta name="keywords" content="feature engineering">
 <meta property="og:type" content="article">
-<meta property="og:title" content="我的投资计划与学习总结（一）">
-<meta property="og:url" content="http://jasonding.top/2018/01/07/finance/我的投资计划与学习总结（一）/index.html">
+<meta property="og:title" content="使用RFM模型进行客户细分">
+<meta property="og:url" content="http://jasonding.top/2018/04/26/machine_learning/使用RFM模型进行客户细分/index.html">
 <meta property="og:site_name" content="Jason Ding的博客">
-<meta property="og:description" content="topic 1topic 2">
-<meta property="og:updated_time" content="2018-01-07T14:18:57.000Z">
+<meta property="og:description" content="一、背景二、介绍 三、启发参考资料如何了解用户分层做到精细化运营？谈谈RFM模型的实际应用老客户召回策略——RFM模型及应用">
+<meta property="og:image" content="http://jasonding.top/images/machine_learning/rmf_model.jpeg">
+<meta property="og:updated_time" content="2018-04-26T02:41:50.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="我的投资计划与学习总结（一）">
-<meta name="twitter:description" content="topic 1topic 2">
+<meta name="twitter:title" content="使用RFM模型进行客户细分">
+<meta name="twitter:description" content="一、背景二、介绍 三、启发参考资料如何了解用户分层做到精细化运营？谈谈RFM模型的实际应用老客户召回策略——RFM模型及应用">
+<meta name="twitter:image" content="http://jasonding.top/images/machine_learning/rmf_model.jpeg">
     
   <link href="https://fonts.googleapis.com/css?family=Inconsolata|Titillium+Web" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet">
@@ -122,35 +125,48 @@
   <div class="l_body">
     <div class='container clearfix'>
       <div class='l_main'>
-        <article id="post-finance/我的投资计划与学习总结（一）"
+        <article id="post-machine_learning/使用RFM模型进行客户细分"
   class="post white-box article-type-post"
   itemscope itemprop="blogPost">
 	<section class='meta'>
 	<h2 class="title">
-  	<a href="/2018/01/07/finance/我的投资计划与学习总结（一）/">
-    	我的投资计划与学习总结（一）
+  	<a href="/2018/04/26/machine_learning/使用RFM模型进行客户细分/">
+    	使用RFM模型进行客户细分
     </a>
   </h2>
 	<time>
-	  1月 7, 2018
+	  4月 26, 2018
 	</time>
 	
+    
+    <div class='cats'>
+        <a href="/categories/machine-learning/">machine learning</a>
+    </div>
+
 	</section>
 	
-		<section class="toc-wrapper"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#topic-1"><span class="toc-number">1.</span> <span class="toc-text">topic 1</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#topic-2"><span class="toc-number">2.</span> <span class="toc-text">topic 2</span></a></li></ol></section>
+		<section class="toc-wrapper"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、背景"><span class="toc-number">1.</span> <span class="toc-text">一、背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、介绍"><span class="toc-number">2.</span> <span class="toc-text">二、介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、启发"><span class="toc-number">3.</span> <span class="toc-text">三、启发</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">4.</span> <span class="toc-text">参考资料</span></a></li></ol></section>
 	
 	<section class="article typo">
   	<div class="article-entry" itemprop="articleBody">
-    	<h2 id="topic-1"><a href="#topic-1" class="headerlink" title="topic 1"></a>topic 1</h2><h2 id="topic-2"><a href="#topic-2" class="headerlink" title="topic 2"></a>topic 2</h2>
+    	<h2 id="一、背景"><a href="#一、背景" class="headerlink" title="一、背景"></a>一、背景</h2><h2 id="二、介绍"><a href="#二、介绍" class="headerlink" title="二、介绍"></a>二、介绍</h2><p><img src="/images/machine_learning/rmf_model.jpeg" alt=""></p>
+<h2 id="三、启发"><a href="#三、启发" class="headerlink" title="三、启发"></a>三、启发</h2><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="http://36kr.com/p/5058947.html" target="_blank" rel="external">如何了解用户分层做到精细化运营？谈谈RFM模型的实际应用</a><br><a href="http://36kr.com/p/5075741.html?from=related" target="_blank" rel="external">老客户召回策略——RFM模型及应用</a></p>
+
   	</div>
 	  
+	  <div class="article-tags tags">
+      
+        <a href="/tags/feature-engineering/">feature engineering</a>
+      
+	  </div>
+    
 		
 	
 		<div class="art-item-footer">
 				
 				
-					<span class="art-item-right">next：<a href="/2018/01/06/personal/喂！回到现实，从虚无的幻想中醒醒/" rel="next"  title="喂！回到现实，从虚无的幻想中醒醒">
-						喂！回到现实，从虚无的幻想中醒醒
+					<span class="art-item-right">next：<a href="/2018/02/14/book/【书单】生活常识看财务报表/" rel="next"  title="【书单】生活常识看财务报表">
+						【书单】生活常识看财务报表
 					</a><i class="icon icon-chevron-thin-right"></i></span>
 				
 		</div>
@@ -160,7 +176,7 @@
 </article>
 <script>
 	window.subData = {
-		title: '我的投资计划与学习总结（一）',
+		title: '使用RFM模型进行客户细分',
 		tools: true
 	}
 </script>
@@ -182,6 +198,20 @@
 <div class='header'>Categories</div>
 <div class='content'>
     
+    <ul class="entry">
+    
+        <li><a class="flat-box" href="/categories/book/"><div class='name'>book</div><div class='badget'>1</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/machine-learning/"><div class='name'>machine learning</div><div class='badget'>1</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/personal/"><div class='name'>personal</div><div class='badget'>5</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/tech/"><div class='name'>tech</div><div class='badget'>0</div></a></li>
+    
+        <li><a class="flat-box" href="/categories/分布式机器学习/"><div class='name'>分布式机器学习</div><div class='badget'>0</div></a></li>
+    
+    </ul>
+    
 </div>
 </section>
 
@@ -189,7 +219,7 @@
 <div class="m_widget tagcloud">
     <div class="header">Tags</div>
     <div class='content'>
-        <a href="/tags/personal/" style="font-size: 14px; color: #808080">personal</a>
+        <a href="/tags/feature-engineering/" style="font-size: 14px; color: #808080">feature engineering</a> <a href="/tags/finance/" style="font-size: 20px; color: #000">finance</a>
     </div>
 </div>
 
