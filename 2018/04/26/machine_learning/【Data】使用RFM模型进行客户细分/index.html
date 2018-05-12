@@ -102,18 +102,20 @@
 
 
 
-  <meta name="description" content="看了一下张小龙的2018年微信公开课，我只能说太崇拜他了。从用户层面引发对产品设计的思考，从云端轻轻俯视着那些业界习以为常的伎俩和套路。有人说微信的情况，有人说微信的克制，在我看来，这其实是一种不可名状在掩饰自己的不懂。在去中心化的今天，每个人都可以有自己的思想，而不必非要成为别人的样子。">
+  <meta name="description" content="背景如果是涉及到数据挖掘和分析工作，常常希望于有一套成熟系统的分析建模方法。这个时代，不缺现成方法，缺的是从理论映射到实际解决方案的经验。在客户精细化分析中，我了解到了RFM模型，在同别人的交流中，我看到别人通过RFM模型的分析思路，对特征工程的业务建模有一套非常流程化的思路。这让我非常感兴趣。 下面转入正题。根据美国数据库营销研究所ArthurHughes的研究，客户数据库中有三个神奇的要素，这">
+<meta name="keywords" content="feature engineering">
 <meta property="og:type" content="article">
-<meta property="og:title" content="张小龙2018年微信公开课演讲之个人总结">
-<meta property="og:url" content="http://jasonding.top/2018/01/16/personal/张小龙2018年微信公开课演讲之个人总结/index.html">
+<meta property="og:title" content="【Data】使用RFM模型进行客户细分">
+<meta property="og:url" content="http://jasonding.top/2018/04/26/machine_learning/【Data】使用RFM模型进行客户细分/index.html">
 <meta property="og:site_name" content="Jason Ding的博客">
-<meta property="og:description" content="看了一下张小龙的2018年微信公开课，我只能说太崇拜他了。从用户层面引发对产品设计的思考，从云端轻轻俯视着那些业界习以为常的伎俩和套路。有人说微信的情况，有人说微信的克制，在我看来，这其实是一种不可名状在掩饰自己的不懂。在去中心化的今天，每个人都可以有自己的思想，而不必非要成为别人的样子。">
-<meta property="og:image" content="http://jasonding.top/images/mindmap/微信公开课2018张小龙演讲.png">
-<meta property="og:updated_time" content="2018-01-16T02:27:29.000Z">
+<meta property="og:description" content="背景如果是涉及到数据挖掘和分析工作，常常希望于有一套成熟系统的分析建模方法。这个时代，不缺现成方法，缺的是从理论映射到实际解决方案的经验。在客户精细化分析中，我了解到了RFM模型，在同别人的交流中，我看到别人通过RFM模型的分析思路，对特征工程的业务建模有一套非常流程化的思路。这让我非常感兴趣。 下面转入正题。根据美国数据库营销研究所ArthurHughes的研究，客户数据库中有三个神奇的要素，这">
+<meta property="og:image" content="http://jasonding.top/images/machine_learning/rfm_model.jpeg">
+<meta property="og:image" content="http://jasonding.top/images/machine_learning/rfm_analysis.png">
+<meta property="og:updated_time" content="2018-05-12T04:03:53.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="张小龙2018年微信公开课演讲之个人总结">
-<meta name="twitter:description" content="看了一下张小龙的2018年微信公开课，我只能说太崇拜他了。从用户层面引发对产品设计的思考，从云端轻轻俯视着那些业界习以为常的伎俩和套路。有人说微信的情况，有人说微信的克制，在我看来，这其实是一种不可名状在掩饰自己的不懂。在去中心化的今天，每个人都可以有自己的思想，而不必非要成为别人的样子。">
-<meta name="twitter:image" content="http://jasonding.top/images/mindmap/微信公开课2018张小龙演讲.png">
+<meta name="twitter:title" content="【Data】使用RFM模型进行客户细分">
+<meta name="twitter:description" content="背景如果是涉及到数据挖掘和分析工作，常常希望于有一套成熟系统的分析建模方法。这个时代，不缺现成方法，缺的是从理论映射到实际解决方案的经验。在客户精细化分析中，我了解到了RFM模型，在同别人的交流中，我看到别人通过RFM模型的分析思路，对特征工程的业务建模有一套非常流程化的思路。这让我非常感兴趣。 下面转入正题。根据美国数据库营销研究所ArthurHughes的研究，客户数据库中有三个神奇的要素，这">
+<meta name="twitter:image" content="http://jasonding.top/images/machine_learning/rfm_model.jpeg">
 
 
 
@@ -122,7 +124,7 @@
 
 
 
-  <link rel="canonical" href="http://jasonding.top/2018/01/16/personal/张小龙2018年微信公开课演讲之个人总结/"/>
+  <link rel="canonical" href="http://jasonding.top/2018/04/26/machine_learning/【Data】使用RFM模型进行客户细分/"/>
 
 
 
@@ -132,7 +134,7 @@
   };
 </script>
 
-  <title>张小龙2018年微信公开课演讲之个人总结 | Jason Ding的博客</title>
+  <title>【Data】使用RFM模型进行客户细分 | Jason Ding的博客</title>
   
 
 
@@ -288,7 +290,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://jasonding.top/2018/01/16/personal/张小龙2018年微信公开课演讲之个人总结/">
+    <link itemprop="mainEntityOfPage" href="http://jasonding.top/2018/04/26/machine_learning/【Data】使用RFM模型进行客户细分/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Jason Ding">
@@ -305,7 +307,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">张小龙2018年微信公开课演讲之个人总结
+          <h1 class="post-title" itemprop="name headline">【Data】使用RFM模型进行客户细分
               
             
           </h1>
@@ -330,12 +332,24 @@
                 
               
 
-              <time title="创建时间：2018-01-16 07:03:35 / 修改时间：10:27:29" itemprop="dateCreated datePublished" datetime="2018-01-16T07:03:35+08:00">2018-01-16</time>
+              <time title="创建时间：2018-04-26 10:33:58" itemprop="dateCreated datePublished" datetime="2018-04-26T10:33:58+08:00">2018-04-26</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-05-12 12:03:53" itemprop="dateModified" datetime="2018-05-12T12:03:53+08:00">2018-05-12</time>
               
             
           </span>
@@ -352,7 +366,7 @@
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/personal/" itemprop="url" rel="index"><span itemprop="name">personal</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/machine-learning/" itemprop="url" rel="index"><span itemprop="name">machine learning</span></a></span>
 
                 
                 
@@ -386,23 +400,33 @@
       
 
       
-        <blockquote>
-<p><strong>看了一下张小龙的2018年微信公开课，我只能说太崇拜他了。从用户层面引发对产品设计的思考，从云端轻轻俯视着那些业界习以为常的伎俩和套路。有人说微信的情况，有人说微信的克制，在我看来，这其实是一种不可名状在掩饰自己的不懂。在去中心化的今天，每个人都可以有自己的思想，而不必非要成为别人的样子。</strong></p>
-</blockquote>
-<a id="more"></a>
-<h2 id="产品观概要"><a href="#产品观概要" class="headerlink" title="产品观概要"></a>产品观概要</h2><p>我没有想把整个演讲的全文进行梳理，这个图只是罗列了一下我感兴趣的部分。<br><img src="/images/mindmap/微信公开课2018张小龙演讲.png" alt=""></p>
-<h2 id="从微信产品谈犬儒主义"><a href="#从微信产品谈犬儒主义" class="headerlink" title="从微信产品谈犬儒主义"></a>从微信产品谈犬儒主义</h2><p>2018年开年，我对犬儒主义这个词感受非常深。从愤世嫉俗到玩世不恭，我深刻的感觉到自己和周围的人，都不同程度的患有犬儒病。<br>也许是2017年，这一年工作下来的体会是，自己逐渐意识到犬儒心理的存在，并试图去改变自己身上的犬儒主义和中庸之道。</p>
+        <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>如果是涉及到数据挖掘和分析工作，常常希望于有一套成熟系统的分析建模方法。<br>这个时代，不缺现成方法，缺的是从理论映射到实际解决方案的经验。<br>在客户精细化分析中，我了解到了RFM模型，在同别人的交流中，我看到别人通过RFM模型的分析思路，对<strong>特征工程的业务建模</strong>有一套非常流程化的思路。这让我非常感兴趣。</p>
+<p>下面转入正题。<br>根据美国数据库营销研究所ArthurHughes的研究，客户数据库中有三个神奇的要素，这三个要素构成了数据分析较好的指标：</p>
+<ul>
+<li><code>最近一次消费（Recency）</code></li>
+<li><code>消费频率（Frequency）</code></li>
+<li><code>消费金额（Monetary）</code><br>RFM分析原多用于传统营销、零售业等领域，适用于拥有多种消费品或快速消费品的行业，只要任何有数据记录的消费都可以被用于分析。那么对于电子商务网站来说，网站数据库中记录的详细的交易信息，同样可以运用RFM分析模型进行数据分析，尤其对于那些已经建立起客户关系管理(CRM)系统的网站来说，其分析的结果将更具意义。</li>
+</ul>
+<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>RFM模型是衡量客户价值和客户创利能力的重要工具和手段。RFM分析模型主要由三个指标组成，下面对这三个指标的定义和作用做下简单解释：</p>
 <blockquote>
-<p><strong>我感受到:</strong></p>
-<ol>
-<li>挑人毛病，吹毛求疵是很容易的，提出合理的建议，才体现独立思考和对问题本身价值的重视</li>
-<li>口头上说要解决问题，心里面却给不出肯于跨出一步的建议，这种拖延行为，感觉上是谁也不推辞，实则让别人窝心，让自己麻醉</li>
-<li>装作是什么大道理都懂得，用现实窘境去麻痹自己，不去抗争，反而嘲讽，放弃希望，嘲笑希望，这可笑也可悲</li>
-<li>从中国传统思想到中庸之道，很多人标榜自己懂得忍让处世、吃亏是福、随遇而安、难得糊涂，讽刺别人斤斤计较、小肚鸡肠，实际上是毫无原则和立场，精致的利己主义</li>
-<li>父母长辈感觉年长便阅历沉淀有感触，缺少对年轻人设身处地的思考；年轻人极端理想主义，对现实充满愤怒，容易激进不听劝导，缺乏理性和独立思考</li>
-</ol>
+<ul>
+<li><strong>最近一次消费(Recency)</strong>意指用户上一次购买的时间，理论上，上一次消费时间越近的顾客应该是比较好的顾客，对提供即时的商品或是服务也最有可能会有反应。因为最近一次消费指标定义的是一个时间段，并且与当前时间相关，因此是一直在变动的。最近一次消费对营销来说是一个重要指标，涉及吸引客户，保持客户，并赢得客户的忠诚度。<br>如果显示上一次购买很近的客户，(消费为1个月)人数如增加，则表示该公司是个稳健成长的公司；反之则是迈向不健全之路的征兆。<br>要吸引一个几个月前才上门的顾客购买，比吸引一个一年多以前来过的顾客要容易得多。</li>
+<li><strong>消费频率(Frequency)</strong>是顾客在一定时间段内的消费次数。最常购买的消费者，忠诚度也就较高，增加顾客购买的次数意味着从竞争对手处偷取市场占有率，由别人的手中赚取营业额。<br>如果相信品牌及商店忠诚度的话，最常购买的消费者，忠诚度也就最高。增加顾客购买的次数意味着从竞争对手处偷取市场占有率，由别人的手中赚取营业额。</li>
+<li><strong>消费金额(Monetary)</strong>是对电子商务网站产能的最直接的衡量指标，也可以验证“帕雷托法则”(Pareto’sLaw)——公司80％的收入来自20％的顾客。</li>
+</ul>
 </blockquote>
-<p>那这些和微信、张小龙又有什么关系呢？<br>电影里说，小孩子才分对错，大人只谈利弊。张小龙在谈产品的设计与取舍的时候，说微信要做的是对的事情，对用户来说有价值和尊重的事情，所以上线新版本看上去都是很微小的修改，实际上舍弃了很多已经做的工作。这一点，我身处在相关行业中，感受尤为突出，很多场景为了流量和交易，不得不做一些符合利益，但有损长远的事情。这是现实。现实要生存，要挣钱，但是近利的路径看上去有些狭隘，偏颇了难以回头。<br>说到各平台的年度回顾，张小龙说刻意让用户感动，也是不尊重用户的。有时候自己碰到了难处，也会有伤心难过，年纪再轻一点的时候，妄图哭个痛快，强迫自己宣泄负面情绪，感觉特别累。刻意去催化某种感情，刻意去诱导某种心理，这真的是别有用心的行为，像是生活中办信用卡遇到的销售伎俩（夹杂各种感情牌和道德绑架），让人厌恶。我其实感觉，支*宝的年度账单是一个挺创新的产品，不过2017年的用户信息默认许可的产品形态，也是从利益本身出发而没有尊重用户的权利，对于这一类产品来说，需要做的一点是“克制自己”^_^。我想到身边有过一个产品经理，也曾经想做年度账单之类的东西，简单的照猫画虎、形态搬移，想起来这种跟风的产品形式确实很毒，盲从缺乏独立思考，这个例子算是警示自己吧。<br>张小龙，一个神秘色彩的程序员，一个富有理想的产品经理。你可以看到那种独立的对人性心理的洞察。不是说理想主义不好，只能说要有理想并坚持去实现，是一件很难的事情，需要理性的判断和笃定的坚持，这才是走出犬儒主义和中庸之道窘境的一条路。</p>
+<p><img src="/images/machine_learning/rfm_model.jpeg" alt=""></p>
+<h2 id="数据分析"><a href="#数据分析" class="headerlink" title="数据分析"></a>数据分析</h2><p>在从数据库中提取相关数据之前，首先需要确定数据的时间跨度，根据网站销售的物品的差异，确定合适的时间跨度。如果经营的是快速消费品，如日用品，可以确定时间跨度为一个季度或者一个月；如果销售的产品更替的时间相对久些，如电子产品，可以确定时间跨度为一年、半年或者一个季度。在确定时间跨度之后就可以提取相应时间区间内的数据，其中：</p>
+<blockquote>
+<ul>
+<li>最近一次消费(Recency)，取出来的数据是一个时间点，需要由当前时间点-最近一次消费时间点来作为该度量的值，注意单位的选择和统一，无论以小时、天为单位；</li>
+<li>消费频率(Frequency)，这个指标可以直接在数据库中COUNT用户的消费次数得到；</li>
+<li>消费金额(Monetary)，可以将每位客户的所有消费的金额相加(SUM)求得。</li>
+</ul>
+</blockquote>
+<p>获取三个指标的数据以后，需要计算每个指标数据的均值，分别以AVG(R)、AVG(F)、AVG(M)来表示，最后通过将每位客户的三个指标与均值进行比较，可以将客户细分为8类：<br><img src="/images/machine_learning/rfm_analysis.png" alt=""></p>
+<h2 id="缺陷不足"><a href="#缺陷不足" class="headerlink" title="缺陷不足"></a>缺陷不足</h2><p>RFM分析只能分析有交易行为的用户，而对访问过网站但未消费的用户由于指标的限制无法进行分析，这样就无法发现潜在的客户。所以在分析电子商务网站的用户时，由于网站数据的丰富性——不仅拥有交易数据，而且可以收集到用户的浏览访问数据，可以扩展到更广阔的角度去观察用户。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="http://36kr.com/p/5058947.html" target="_blank" rel="external">如何了解用户分层做到精细化运营？谈谈RFM模型的实际应用</a><br><a href="http://36kr.com/p/5075741.html?from=related" target="_blank" rel="external">老客户召回策略——RFM模型及应用</a></p>
 
       
     </div>
@@ -421,6 +445,12 @@
 
     <footer class="post-footer">
       
+        <div class="post-tags">
+          
+            <a href="/tags/feature-engineering/" rel="tag"># feature engineering</a>
+          
+        </div>
+      
 
       
       
@@ -430,8 +460,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/01/07/finance/2018投资学习记录（一）/" rel="next" title="2018投资学习记录（一）">
-                <i class="fa fa-chevron-left"></i> 2018投资学习记录（一）
+              <a href="/2018/02/14/book/【书单】生活常识看财务报表/" rel="next" title="【书单】生活常识看财务报表">
+                <i class="fa fa-chevron-left"></i> 【书单】生活常识看财务报表
               </a>
             
           </div>
@@ -440,8 +470,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2018/01/21/personal/2018年1月上半月反思——觉醒/" rel="prev" title="2018年1月上半月反思——觉醒">
-                2018年1月上半月反思——觉醒 <i class="fa fa-chevron-right"></i>
+              <a href="/2018/05/01/【架构】使用端口适配器模式构建灵活架构/" rel="prev" title="【架构】使用端口适配器模式构建灵活架构">
+                【架构】使用端口适配器模式构建灵活架构 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -607,7 +637,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#产品观概要"><span class="nav-number">1.</span> <span class="nav-text">产品观概要</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#从微信产品谈犬儒主义"><span class="nav-number">2.</span> <span class="nav-text">从微信产品谈犬儒主义</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#介绍"><span class="nav-number">2.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据分析"><span class="nav-number">3.</span> <span class="nav-text">数据分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#缺陷不足"><span class="nav-number">4.</span> <span class="nav-text">缺陷不足</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
             
 
           </div>
